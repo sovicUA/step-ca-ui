@@ -47,16 +47,16 @@ func (h *Handler) adminConsoleCommands() []adminConsoleCommand {
 	}
 
 	cmds := []adminConsoleCommand{
-		{ID: "system.date", Label: "Дата и время", Description: "Текущее время внутри контейнера step-ui", Name: "date"},
-		{ID: "system.hostname", Label: "Hostname", Description: "Имя контейнера", Name: "hostname"},
-		{ID: "system.identity", Label: "Текущий пользователь", Description: "UID/GID процесса приложения", Name: "id"},
-		{ID: "system.disk", Label: "Диск", Description: "Свободное место для каталогов приложения и CA", Name: "df", Args: dfPaths},
-		{ID: "system.processes", Label: "Процессы", Description: "Список процессов внутри контейнера", Name: "ps"},
-		{ID: "app.files", Label: "Каталоги приложения", Description: "Верхний уровень /opt/step-ui", Name: "ls", Args: []string{"-la", "/opt/step-ui"}},
-		{ID: "step.version", Label: "step version", Description: "Версия Smallstep CLI внутри контейнера", Name: "step", Args: []string{"version"}},
-		{ID: "step.ca.health", Label: "step-ca health", Description: "Проверка доступности CA из контейнера UI", Name: "step", Args: []string{"ca", "health", "--ca-url", ca.URL, "--root", ca.RootCert}},
-		{ID: "openssl.version", Label: "OpenSSL version", Description: "Версия OpenSSL", Name: "openssl", Args: []string{"version", "-a"}},
-		{ID: "postgres.ready", Label: "PostgreSQL readiness", Description: "Проверка доступности PostgreSQL", Name: "pg_isready", Args: []string{"-h", "postgres", "-U", "stepui", "-d", "stepui"}},
+		{ID: "system.date", Label: "Дата й час", Description: "Поточний час усередині контейнера step-ui", Name: "date"},
+		{ID: "system.hostname", Label: "Hostname", Description: "Ім’я контейнера", Name: "hostname"},
+		{ID: "system.identity", Label: "Поточний користувач", Description: "UID/GID процесу застосунку", Name: "id"},
+		{ID: "system.disk", Label: "Диск", Description: "Вільне місце для каталогів застосунку й CA", Name: "df", Args: dfPaths},
+		{ID: "system.processes", Label: "Процеси", Description: "Список процесів усередині контейнера", Name: "ps"},
+		{ID: "app.files", Label: "Каталоги застосунку", Description: "Верхній рівень /opt/step-ui", Name: "ls", Args: []string{"-la", "/opt/step-ui"}},
+		{ID: "step.version", Label: "step version", Description: "Версія Smallstep CLI усередині контейнера", Name: "step", Args: []string{"version"}},
+		{ID: "step.ca.health", Label: "step-ca health", Description: "Перевірка доступності CA з контейнера UI", Name: "step", Args: []string{"ca", "health", "--ca-url", ca.URL, "--root", ca.RootCert}},
+		{ID: "openssl.version", Label: "OpenSSL version", Description: "Версія OpenSSL", Name: "openssl", Args: []string{"version", "-a"}},
+		{ID: "postgres.ready", Label: "PostgreSQL readiness", Description: "Перевірка доступності PostgreSQL", Name: "pg_isready", Args: []string{"-h", "postgres", "-U", "stepui", "-d", "stepui"}},
 	}
 	return cmds
 }
@@ -86,7 +86,7 @@ func (h *Handler) AdminConsolePost(w http.ResponseWriter, r *http.Request) {
 
 	if enabled, _ := data["TOTPEnabled"].(bool); !enabled {
 		h.auditSecurity(r, "console.denied reason=totp_required command_id="+commandID)
-		data["ConsoleError"] = "Консоль доступна только с включённой 2FA. Настройте TOTP в профиле."
+		data["ConsoleError"] = "Консоль доступна лише з увімкненою 2FA. Налаштуйте TOTP у профілі."
 		h.render(w, "admin_console", data)
 		return
 	}
@@ -94,7 +94,7 @@ func (h *Handler) AdminConsolePost(w http.ResponseWriter, r *http.Request) {
 	c, ok := h.findAdminConsoleCommand(commandID)
 	if !ok {
 		h.auditSecurity(r, "console.denied command_id="+commandID)
-		data["ConsoleError"] = "Команда не входит в allowlist."
+		data["ConsoleError"] = "Команди немає в списку дозволених."
 		h.render(w, "admin_console", data)
 		return
 	}

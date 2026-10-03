@@ -5,14 +5,14 @@ echo "======================================="
 echo "  Step-CA UI (Go) — starting up"
 echo "======================================="
 
-# Ждём PostgreSQL
+# Wait for PostgreSQL
 echo "[*] Waiting for PostgreSQL..."
 until nc -z postgres 5432 2>/dev/null; do
   sleep 1
 done
 echo "[*] PostgreSQL is ready!"
 
-# Ждём Step-CA (только в bundled режиме)
+# Wait for Step-CA (bundled mode only)
 CA_MODE="${CA_MODE:-bundled}"
 if [ "$CA_MODE" = "bundled" ]; then
   echo "[*] Bundled mode: waiting for Step-CA at ${CA_URL}..."
@@ -24,7 +24,7 @@ else
   echo "[*] External CA mode: skipping Step-CA container wait."
 fi
 
-# SSL сертификат для UI
+# SSL certificate for the UI
 if [ ! -f /opt/step-ui/ssl/server.crt ]; then
   echo "[*] Generating self-signed SSL certificate..."
   openssl req -x509 -nodes -days 3650 -newkey rsa:2048     -keyout /opt/step-ui/ssl/server.key     -out /opt/step-ui/ssl/server.crt     -subj "/CN=${HOST_IP:-localhost}"     -addext "subjectAltName=IP:${HOST_IP:-127.0.0.1},DNS:localhost" 2>/dev/null

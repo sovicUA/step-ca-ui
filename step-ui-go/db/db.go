@@ -114,7 +114,7 @@ func InitSchema(d *sql.DB) error {
 		return err
 	}
 
-	// Создаём admin если нет пользователей
+	// Create admin if there are no users
 	var count int
 	d.QueryRow(`SELECT COUNT(*) FROM users`).Scan(&count)
 	if count == 0 {
@@ -492,7 +492,7 @@ func GetCertBySerial(d *sql.DB, serial string) (*models.Certificate, error) {
 }
 
 // temp_users_functions_v1
-// TempUserRow — строка временного пользователя для списка
+// TempUserRow — temporary user row for the list
 type TempUserRow struct {
 	ID        int
 	Username  string
@@ -503,7 +503,7 @@ type TempUserRow struct {
 	Note      string
 }
 
-// CreateTempUser создаёт временного пользователя (is_temporary=true)
+// CreateTempUser creates a temporary user (is_temporary=true)
 func CreateTempUser(db *sql.DB, username, passwordHash, role string, expiresAt time.Time, note string) (int, error) {
 	var id int
 	err := db.QueryRow(`
@@ -514,7 +514,7 @@ func CreateTempUser(db *sql.DB, username, passwordHash, role string, expiresAt t
 	return id, err
 }
 
-// ListTempUsers возвращает список временных пользователей (все, и активные, и истёкшие)
+// ListTempUsers returns temporary users (all of them, active and expired)
 func ListTempUsers(db *sql.DB) ([]TempUserRow, error) {
 	rows, err := db.Query(`
 		SELECT id, username, role, is_active, expires_at, created_at, COALESCE(temp_note, '')
@@ -537,8 +537,8 @@ func ListTempUsers(db *sql.DB) ([]TempUserRow, error) {
 	return out, nil
 }
 
-// ExpireOverdueTempUsers помечает is_active=false для истёкших аккаунтов.
-// Возвращает количество заблокированных.
+// ExpireOverdueTempUsers sets is_active=false for expired accounts.
+// Returns the number of blocked accounts.
 func ExpireOverdueTempUsers(db *sql.DB) (int, error) {
 	res, err := db.Exec(`
 		UPDATE users

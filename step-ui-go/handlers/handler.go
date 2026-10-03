@@ -17,7 +17,7 @@ import (
 
 var StartedAt time.Time
 
-// Версионирование — переопределяется через ldflags при сборке
+// Versioning - overridden with ldflags at build time
 var (
 	Version   = "1.7.0"
 	BuildDate = "2026-06-02"
@@ -252,7 +252,7 @@ func (h *Handler) requireCSRF(w http.ResponseWriter, r *http.Request, redirectTo
 	if h.csrfOK(r) {
 		return true
 	}
-	h.flash(w, r, "err", "Ошибка сессии. Обновите страницу.")
+	h.flash(w, r, "err", "Помилка сесії. Оновіть сторінку.")
 	http.Redirect(w, r, redirectTo, http.StatusSeeOther)
 	return false
 }

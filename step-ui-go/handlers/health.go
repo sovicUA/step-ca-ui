@@ -81,7 +81,7 @@ func (h *Handler) preflight(ctx context.Context) ([]HealthCheck, HealthSummary) 
 	}
 
 	if !ca.Configured {
-		add("Step-CA Config", "warn", "CA не сконфигурирован в UI (/admin/ca)", true)
+		add("Step-CA Config", "warn", "CA не налаштовано в UI (/admin/ca)", true)
 	} else if out, err := runCheck(ctx, 5*time.Second, "step", "ca", "health", "--ca-url", ca.URL, "--root", ca.RootCert); err != nil {
 		add("Step-CA API", "err", cleanCheckOutput(out, err), true)
 	} else {
@@ -127,7 +127,7 @@ func (h *Handler) caIntegrity(ctx context.Context) ([]HealthCheck, HealthSummary
 	ca := h.CA()
 
 	if !ca.Configured {
-		checks = append(checks, HealthCheck{Name: "Step-CA Config", Status: "warn", Detail: "CA не сконфигурирован в UI (/admin/ca)", Critical: true})
+		checks = append(checks, HealthCheck{Name: "Step-CA Config", Status: "warn", Detail: "CA не налаштовано в UI (/admin/ca)", Critical: true})
 	} else if out, err := runCheck(ctx, 5*time.Second, "step", "ca", "health", "--ca-url", ca.URL, "--root", ca.RootCert); err != nil {
 		checks = append(checks, HealthCheck{Name: "Step-CA API", Status: "err", Detail: cleanCheckOutput(out, err), Critical: true})
 	} else {

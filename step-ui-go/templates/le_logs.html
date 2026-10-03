@@ -10,7 +10,7 @@
       <input type="text" name="domain" id="leDomainFilter" placeholder="example.com"
         value="{{.FilterDomain}}" style="max-width:320px;flex:1" autocomplete="off">
       {{if .FilterDomain}}
-      <a href="/le/logs" class="btn btn-ghost btn-sm">Сбросить</a>
+      <a href="/le/logs" class="btn btn-ghost btn-sm">Скинути</a>
       {{end}}
     </form>
   </div>
@@ -26,7 +26,7 @@
           <col>
         </colgroup>
     
-    <thead><tr><th>Время</th><th>Домен</th><th>Событие</th><th>Сообщение</th></tr></thead>
+    <thead><tr><th>Час</th><th>Домен</th><th>Подія</th><th>Повідомлення</th></tr></thead>
     <tbody>
     {{range .LELogs}}
     <tr>
@@ -36,7 +36,7 @@
       <td style="color:var(--muted)">{{.Message}}</td>
     </tr>
     {{else}}
-    <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px">Нет записей</td></tr>
+    <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px">Немає записів</td></tr>
     {{end}}
     </tbody>
   </table>
@@ -44,7 +44,7 @@
 </div>
 
 <script>
-// Автофильтрация с debounce — сабмит через 400мс после последнего ввода
+// Автофільтрація з затримкою — надсилання через 400 мс після останнього введення
 (function(){
   var inp  = document.getElementById('leDomainFilter');
   var form = document.getElementById('leLogsForm');

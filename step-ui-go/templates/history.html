@@ -1,32 +1,32 @@
 {{define "content"}}
 <div class="page-header">
-  <div><div class="breadcrumb">ca &middot; history</div><h1>История операций</h1></div>
+  <div><div class="breadcrumb">ca &middot; history</div><h1>Історія операцій</h1></div>
 </div>
 
 <div class="card" style="margin-bottom:12px">
   <div class="card-body" style="padding:14px 16px">
     <form method="GET" action="/history" id="historyForm" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-      <label style="margin-bottom:0;width:auto">Действия:</label>
+      <label style="margin-bottom:0;width:auto">Дії:</label>
 
-      <!-- Multi-select с чипами -->
+      <!-- Multi-select з чипами -->
       <div class="multi-select" id="actionsMulti" data-name="action" style="min-width:280px;max-width:520px;flex:1">
         <div class="ms-box" tabindex="0">
           <div class="ms-chips" id="msChips"></div>
-          <span class="ms-placeholder" id="msPlaceholder">Все действия</span>
+          <span class="ms-placeholder" id="msPlaceholder">Усі дії</span>
           <span class="ms-arrow"></span>
         </div>
         <div class="ms-dropdown">
-          <div class="ms-opt" data-val="issue"><span class="chk">&#10003;</span>Выпуск</div>
-          <div class="ms-opt" data-val="renew"><span class="chk">&#10003;</span>Перевыпуск</div>
-          <div class="ms-opt" data-val="revoke"><span class="chk">&#10003;</span>Отзыв</div>
-          <div class="ms-opt" data-val="import"><span class="chk">&#10003;</span>Импорт</div>
+          <div class="ms-opt" data-val="issue"><span class="chk">&#10003;</span>Випуск</div>
+          <div class="ms-opt" data-val="renew"><span class="chk">&#10003;</span>Перевипуск</div>
+          <div class="ms-opt" data-val="revoke"><span class="chk">&#10003;</span>Відкликання</div>
+          <div class="ms-opt" data-val="import"><span class="chk">&#10003;</span>Імпорт</div>
         </div>
       </div>
 
       {{if .FilterActions}}
-      <a href="/history" class="btn btn-ghost btn-sm">Сбросить</a>
+      <a href="/history" class="btn btn-ghost btn-sm">Скинути</a>
       {{end}}
-      <span style="color:var(--muted);font-size:11px;margin-left:auto">Всего: {{.Total}}</span>
+      <span style="color:var(--muted);font-size:11px;margin-left:auto">Усього: {{.Total}}</span>
     </form>
   </div>
 </div>
@@ -43,7 +43,7 @@
           <col style="width:140px">
         </colgroup>
     
-    <thead><tr><th>Время</th><th>Действие</th><th>Сертификат</th><th>Домен</th><th>Детали</th><th>Пользователь</th></tr></thead>
+    <thead><tr><th>Час</th><th>Дія</th><th>Сертифікат</th><th>Домен</th><th>Подробиці</th><th>Користувач</th></tr></thead>
     <tbody>
     {{range .Entries}}
     <tr>
@@ -55,7 +55,7 @@
       <td>{{.Username}}</td>
     </tr>
     {{else}}
-    <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Нет записей</td></tr>
+    <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Немає записів</td></tr>
     {{end}}
     </tbody>
   </table>
@@ -121,7 +121,7 @@
 <script>
 (function(){
   var selected = [{{range .FilterActions}}"{{.}}",{{end}}];
-  var LABELS = {issue:"Выпуск", renew:"Перевыпуск", revoke:"Отзыв", import:"Импорт"};
+  var LABELS = {issue:"Випуск", renew:"Перевипуск", revoke:"Відкликання", import:"Імпорт"};
   var ms    = document.getElementById('actionsMulti');
   var box   = ms.querySelector('.ms-box');
   var drop  = ms.querySelector('.ms-dropdown');
@@ -143,16 +143,16 @@
         chips.appendChild(chip);
       });
     }
-    // обновляем состояние опций
+    // оновлюємо стан опцій
     drop.querySelectorAll('.ms-opt').forEach(function(o){
       o.classList.toggle('selected', selected.indexOf(o.getAttribute('data-val')) !== -1);
     });
   }
 
   function rebuildInputs(){
-    // удаляем старые скрытые поля
+    // видаляємо старі приховані поля
     Array.from(form.querySelectorAll('input[type=hidden][name=action]')).forEach(function(n){n.remove();});
-    // добавляем новые
+    // додаємо нові
     selected.forEach(function(v){
       var inp = document.createElement('input');
       inp.type = 'hidden'; inp.name = 'action'; inp.value = v;

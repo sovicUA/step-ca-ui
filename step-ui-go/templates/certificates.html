@@ -1,33 +1,33 @@
 {{define "content"}}
 <div class="page-header">
-  <div><div class="breadcrumb">certificates</div><h1>Все сертификаты</h1></div>
+  <div><div class="breadcrumb">certificates</div><h1>Усі сертифікати</h1></div>
 </div>
 
-<!-- Панель фильтров -->
+<!-- Панель фільтрів -->
 <div class="card cert-filter-card">
   <div class="card-body cert-filter-grid">
     <div>
-      <label>Поиск по имени или домену</label>
+      <label>Пошук за іменем або доменом</label>
       <input type="text" id="f-search" placeholder="start.example.com" autocomplete="off">
     </div>
     <div>
-      <label>Статус</label>
+      <label>Стан</label>
       <select id="f-status">
-        <option value="">Все</option>
-        <option value="active">Активные</option>
-        <option value="expired">Истекли</option>
-        <option value="revoked">Отозваны</option>
+        <option value="">Усі</option>
+        <option value="active">Активні</option>
+        <option value="expired">Сплили</option>
+        <option value="revoked">Відкликані</option>
       </select>
     </div>
     <div>
       <label>Тип ключа</label>
       <select id="f-type">
-        <option value="">Все</option>
+        <option value="">Усі</option>
       </select>
     </div>
     <div style="display:flex;gap:8px;align-items:center;justify-content:flex-end">
-      <span id="f-counter" style="color:var(--muted);font-size:11px;white-space:nowrap">Всего: 0</span>
-      <button type="button" id="f-reset" class="btn btn-ghost btn-sm">Сбросить</button>
+      <span id="f-counter" style="color:var(--muted);font-size:11px;white-space:nowrap">Усього: 0</span>
+      <button type="button" id="f-reset" class="btn btn-ghost btn-sm">Скинути</button>
     </div>
   </div>
 </div>
@@ -46,26 +46,26 @@
           <col class="cert-col-actions">
         </colgroup>
     
-    <thead><tr><th>Имя</th><th>Домен</th><th>Выдан</th><th>Истекает</th><th>Статус</th><th>Тип</th><th>Серийный</th><th>Действия</th></tr></thead>
+    <thead><tr><th>Ім’я</th><th>Домен</th><th>Видано</th><th>Спливає</th><th>Стан</th><th>Тип</th><th>Серійний</th><th>Дії</th></tr></thead>
     <tbody>
     {{range .Certs}}
     <tr data-name="{{.Name}}" data-domain="{{.Domain}}" data-status="{{.Status}}" data-type="{{.KeyType}}">
-      <td class="cert-name-cell" data-label="Имя"><a href="/certificates/{{.ID}}"><strong>{{.Name}}</strong></a></td>
+      <td class="cert-name-cell" data-label="Ім’я"><a href="/certificates/{{.ID}}"><strong>{{.Name}}</strong></a></td>
       <td class="cert-domain-cell" data-label="Домен"><code>{{.Domain}}</code></td>
-      <td style="color:var(--muted)" data-label="Выдан">{{fmtTime .IssuedAt}}</td>
-      <td data-label="Истекает">{{fmtTime .ExpiresAt}}</td>
-      <td data-label="Статус"><span class="badge {{if eq .Status "active"}}{{badgeClass .ExpiresAt}}{{else}}danger{{end}}">{{.Status}}</span></td>
+      <td style="color:var(--muted)" data-label="Видано">{{fmtTime .IssuedAt}}</td>
+      <td data-label="Спливає">{{fmtTime .ExpiresAt}}</td>
+      <td data-label="Стан"><span class="badge {{if eq .Status "active"}}{{badgeClass .ExpiresAt}}{{else}}danger{{end}}">{{.Status}}</span></td>
       <td data-label="Тип"><span class="badge gray">{{.KeyType}}</span></td>
-      <td class="cert-serial-cell" data-label="Серийный"><code title="{{.Serial}}">{{.Serial}}</code></td>
-      <td class="cert-actions-cell" data-label="Действия">
+      <td class="cert-serial-cell" data-label="Серійний"><code title="{{.Serial}}">{{.Serial}}</code></td>
+      <td class="cert-actions-cell" data-label="Дії">
         <div class="cert-actions">
-        <a href="/certificates/{{.ID}}" class="btn btn-ghost btn-sm">Детали</a>
+        <a href="/certificates/{{.ID}}" class="btn btn-ghost btn-sm">Подробиці</a>
         {{if hasRole $.Session.Role "manager"}}
         <form method="POST" action="/renew/{{.ID}}" style="display:inline"
-          data-confirm="Перевыпустить сертификат &quot;{{.Name}}&quot;? Файл будет заменён."
-          data-confirm-btn="Перевыпустить" data-confirm-class="warning" data-confirm-title="Перевыпуск">
+          data-confirm="Перевипустити сертифікат &quot;{{.Name}}&quot;? Файл буде замінено."
+          data-confirm-btn="Перевипустити" data-confirm-class="warning" data-confirm-title="Перевипуск">
           <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
-          <button type="submit" class="btn btn-warn btn-sm" title="Перевыпустить">&#x21BA;</button>
+          <button type="submit" class="btn btn-warn btn-sm" title="Перевипустити">&#x21BA;</button>
         </form>
         <a href="/download/cert/{{.ID}}" class="btn btn-ghost btn-sm">CRT</a>
         {{if .KeyPath}}<a href="/download/key/{{.ID}}" class="btn btn-ghost btn-sm">KEY</a>{{end}}
@@ -73,17 +73,17 @@
         {{end}}
         {{if eq $.Session.Role "admin"}}{{if eq .Status "active"}}
         <form method="POST" action="/revoke/{{.ID}}" style="display:inline"
-          data-confirm="ОТОЗВАТЬ &quot;{{.Name}}&quot;? Действие необратимо."
-          data-confirm-btn="Отозвать" data-confirm-class="danger" data-confirm-title="Отзыв сертификата">
+          data-confirm="ВІДКЛИКАТИ &quot;{{.Name}}&quot;? Дія незворотна."
+          data-confirm-btn="Відкликати" data-confirm-class="danger" data-confirm-title="Відкликання сертифіката">
           <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
-          <button type="submit" class="btn btn-danger btn-sm">Отозвать</button>
+          <button type="submit" class="btn btn-danger btn-sm">Відкликати</button>
         </form>
         {{end}}{{end}}
         </div>
       </td>
     </tr>
     {{else}}
-    <tr id="emptyRow"><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">Нет сертификатов</td></tr>
+    <tr id="emptyRow"><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">Немає сертифікатів</td></tr>
     {{end}}
     </tbody>
   </table>
@@ -102,7 +102,7 @@
   var counter = document.getElementById('f-counter');
   var total   = rows.length;
 
-  // Заполняем список типов ключей из таблицы
+  // Заповнюємо список типів ключів з таблиці
   var types = {};
   rows.forEach(function(r){ var t=r.getAttribute('data-type'); if(t) types[t]=1; });
   Object.keys(types).sort().forEach(function(t){
@@ -128,7 +128,7 @@
       r.style.display = visible ? '' : 'none';
       if(visible) shown++;
     });
-    counter.textContent = (shown === total) ? ('Всего: ' + total) : ('Найдено: ' + shown + ' из ' + total);
+    counter.textContent = (shown === total) ? ('Усього: ' + total) : ('Знайдено: ' + shown + ' з ' + total);
   }
 
   fSearch.addEventListener('input', applyFilters);

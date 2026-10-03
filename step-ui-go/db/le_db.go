@@ -47,7 +47,7 @@ func InitLESchema(d *sql.DB) error {
 	);
 	CREATE INDEX IF NOT EXISTS idx_le_logs_created ON le_logs(created_at);
 
-	-- Одна запись настроек
+	-- Один запис налаштувань
 	INSERT INTO le_settings (id, email) VALUES (1, '') ON CONFLICT (id) DO NOTHING;
 	`
 	_, err := d.Exec(schema)
@@ -233,7 +233,7 @@ func GetLECertByDomain(d *sql.DB, domain string) (*models.LECertificate, error) 
 	return c, err
 }
 
-// GetLECertCount возвращает количество LE сертификатов
+// GetLECertCount returns the number of LE certificates
 func GetLECertCount(d *sql.DB) int {
 	var n int
 	d.QueryRow(fmt.Sprintf(`SELECT COUNT(*) FROM le_certificates`)).Scan(&n)

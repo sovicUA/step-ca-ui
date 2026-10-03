@@ -14,11 +14,11 @@
 {{if .Detail}}
 <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px">
   <div class="stat-card">
-    <div class="stat-label">Статус</div>
+    <div class="stat-label">Стан</div>
     <div class="stat-value {{if eq .Cert.Status "active"}}ok{{else}}danger{{end}}">{{.Cert.Status}}</div>
   </div>
   <div class="stat-card">
-    <div class="stat-label">Осталось дней</div>
+    <div class="stat-label">Лишилось днів</div>
     <div class="stat-value {{badgeClass .Cert.ExpiresAt}}">{{.Detail.DaysLeft}}</div>
   </div>
   <div class="stat-card">
@@ -37,7 +37,7 @@
   <div class="card-body" style="padding:0">
     <div class="tbl-wrap">
       <table class="tbl">
-        <thead><tr><th>Проверка</th><th>Статус</th><th>Детали</th></tr></thead>
+        <thead><tr><th>Перевірка</th><th>Стан</th><th>Подробиці</th></tr></thead>
         <tbody>
           {{range .Validations}}
           <tr>
@@ -118,12 +118,12 @@
   <div class="card-header"><h3>Download presets</h3></div>
   <div class="card-body">
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
-      <a href="/download/cert/{{.Cert.ID}}" class="btn btn-ghost btn-sm">Только сертификат (.crt)</a>
+      <a href="/download/cert/{{.Cert.ID}}" class="btn btn-ghost btn-sm">Лише сертифікат (.crt)</a>
       <a href="/download/bundle/{{.Cert.ID}}?format=fullchain" class="btn btn-ghost btn-sm">Full chain (.pem)</a>
-      <a href="/download/full-chain" class="btn btn-ghost btn-sm">Цепочка CA (.crt)</a>
+      <a href="/download/full-chain" class="btn btn-ghost btn-sm">Ланцюжок CA (.crt)</a>
       {{if .Cert.KeyPath}}
-      <a href="/download/key/{{.Cert.ID}}" class="btn btn-ghost btn-sm">Приватный ключ (.key)</a>
-      <a href="/download/bundle/{{.Cert.ID}}?format=zip" class="btn btn-ghost btn-sm">Архив ZIP (cert + key + chain)</a>
+      <a href="/download/key/{{.Cert.ID}}" class="btn btn-ghost btn-sm">Приватний ключ (.key)</a>
+      <a href="/download/bundle/{{.Cert.ID}}?format=zip" class="btn btn-ghost btn-sm">Архів ZIP (сертифікат + ключ + ланцюжок)</a>
       {{end}}
     </div>
     {{if .Cert.KeyPath}}
@@ -131,12 +131,12 @@
       style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;border-top:1px solid var(--border);padding-top:12px">
       <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
       <div style="min-width:240px">
-        <label>Пароль PKCS#12 (можно оставить пустым)</label>
+        <label>Пароль PKCS#12 (можна залишити порожнім)</label>
         <input type="password" name="p12_password" autocomplete="new-password" placeholder="пароль для .p12">
       </div>
-      <button type="submit" class="btn btn-sm">Скачать PKCS#12 (.p12)</button>
+      <button type="submit" class="btn btn-sm">Завантажити PKCS#12 (.p12)</button>
       <span style="color:var(--muted);font-size:11px;max-width:420px">
-        Формат для Windows, Java keystore и мобильных профилей. Содержит приватный ключ.
+        Формат для Windows, Java keystore і мобільних профілів. Містить приватний ключ.
       </span>
     </form>
     {{end}}

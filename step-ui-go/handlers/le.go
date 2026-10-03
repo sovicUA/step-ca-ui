@@ -48,30 +48,30 @@ func (h *Handler) LEIssuePost(w http.ResponseWriter, r *http.Request) {
 	autoRenew := r.FormValue("auto_renew") == "on"
 
 	if domain == "" || email == "" {
-		h.flash(w, r, "err", "Заполните домен и email")
+		h.flash(w, r, "err", "Заповніть домен і email")
 		http.Redirect(w, r, "/le/issue", http.StatusFound)
 		return
 	}
 
 	if appdb.LECertExists(h.db, domain) {
-		h.flash(w, r, "err", "Сертификат для этого домена уже существует")
+		h.flash(w, r, "err", "Сертифікат для цього домену вже існує")
 		http.Redirect(w, r, "/le/issue", http.StatusFound)
 		return
 	}
 
 	settings, _ := appdb.GetLESettings(h.db)
 
-	// Создаём запись в БД со статусом pending
+	// Create a database record with status pending
 	id, err := appdb.CreateLECert(h.db, domain, email, provider, autoRenew)
 	if err != nil {
-		h.flash(w, r, "err", "Ошибка создания записи: "+err.Error())
+		h.flash(w, r, "err", "Помилка створення запису: "+err.Error())
 		http.Redirect(w, r, "/le/issue", http.StatusFound)
 		return
 	}
 
-	appdb.AddLELog(h.db, domain, "issue", "Начало выпуска сертификата")
+	appdb.AddLELog(h.db, domain, "issue", "Початок випуску сертифіката")
 
-	// Выпускаем в фоне
+	// Issue in the background
 	go func() {
 		result, err := le.IssueCert(le.LEConfig{
 			Email:     email,
@@ -85,14 +85,14 @@ func (h *Handler) LEIssuePost(w http.ResponseWriter, r *http.Request) {
 		})
 		if err != nil {
 			appdb.UpdateLECertStatus(h.db, id, "error", err.Error())
-			appdb.AddLELog(h.db, domain, "error", fmt.Sprintf("Ошибка: %v", err))
+			appdb.AddLELog(h.db, domain, "error", fmt.Sprintf("Помилка: %v", err))
 			return
 		}
 		appdb.UpdateLECertPaths(h.db, id, result.CertPath, result.KeyPath, result.IssuedAt, result.ExpiresAt)
-		appdb.AddLELog(h.db, domain, "issue", "Сертификат успешно выпущен")
+		appdb.AddLELog(h.db, domain, "issue", "Сертифікат успішно випущено")
 	}()
 
-	h.flash(w, r, "ok", fmt.Sprintf("Выпуск сертификата для %s запущен! Статус обновится через минуту.", domain))
+	h.flash(w, r, "ok", fmt.Sprintf("Випуск сертифіката для %s запущено! Стан оновиться за хвилину.", domain))
 	http.Redirect(w, r, "/le", http.StatusFound)
 }
 
@@ -111,7 +111,7 @@ func (h *Handler) LERenew(w http.ResponseWriter, r *http.Request) {
 
 	settings, _ := appdb.GetLESettings(h.db)
 	appdb.UpdateLECertStatus(h.db, id, "pending", "")
-	appdb.AddLELog(h.db, cert.Domain, "renew", "Ручное обновление запущено")
+	appdb.AddLELog(h.db, cert.Domain, "renew", "Ручне оновлення запущено")
 
 	go func() {
 		result, err := le.IssueCert(le.LEConfig{
@@ -123,14 +123,14 @@ func (h *Handler) LERenew(w http.ResponseWriter, r *http.Request) {
 		})
 		if err != nil {
 			appdb.UpdateLECertStatus(h.db, id, "error", err.Error())
-			appdb.AddLELog(h.db, cert.Domain, "error", fmt.Sprintf("Ошибка обновления: %v", err))
+			appdb.AddLELog(h.db, cert.Domain, "error", fmt.Sprintf("Помилка оновлення: %v", err))
 			return
 		}
 		appdb.UpdateLECertPaths(h.db, id, result.CertPath, result.KeyPath, result.IssuedAt, result.ExpiresAt)
-		appdb.AddLELog(h.db, cert.Domain, "renew", "Сертификат успешно обновлён")
+		appdb.AddLELog(h.db, cert.Domain, "renew", "Сертифікат успішно оновлено")
 	}()
 
-	h.flash(w, r, "ok", "Обновление запущено!")
+	h.flash(w, r, "ok", "Оновлення запущено!")
 	http.Redirect(w, r, "/le", http.StatusFound)
 }
 
@@ -143,10 +143,10 @@ func (h *Handler) LEDelete(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
 	cert, _ := appdb.GetLECert(h.db, id)
 	if cert != nil {
-		appdb.AddLELog(h.db, cert.Domain, "delete", "Сертификат удалён из системы")
+		appdb.AddLELog(h.db, cert.Domain, "delete", "Сертифікат видалено із системи")
 		appdb.DeleteLECert(h.db, id)
 	}
-	h.flash(w, r, "ok", "Сертификат удалён")
+	h.flash(w, r, "ok", "Сертифікат видалено")
 	http.Redirect(w, r, "/le", http.StatusFound)
 }
 
@@ -161,9 +161,9 @@ func (h *Handler) LEToggleAutoRenew(w http.ResponseWriter, r *http.Request) {
 	if cert != nil {
 		appdb.UpdateLECertAutoRenew(h.db, id, !cert.AutoRenew)
 		if !cert.AutoRenew {
-			h.flash(w, r, "ok", "Авто-обновление включено")
+			h.flash(w, r, "ok", "Автооновлення увімкнено")
 		} else {
-			h.flash(w, r, "ok", "Авто-обновление отключено")
+			h.flash(w, r, "ok", "Автооновлення вимкнено")
 		}
 	}
 	http.Redirect(w, r, "/le", http.StatusFound)
@@ -220,11 +220,11 @@ func (h *Handler) LESettingsPost(w http.ResponseWriter, r *http.Request) {
 		settings.R53Region = "us-east-1"
 	}
 	if err := appdb.SaveLESettings(h.db, settings); err != nil {
-		h.flash(w, r, "err", "Ошибка сохранения: "+err.Error())
+		h.flash(w, r, "err", "Помилка збереження: "+err.Error())
 	} else {
 		h.auditSecurity(r, fmt.Sprintf("le.settings.save provider=%s email=%s cf_configured=%t r53_configured=%t",
 			settings.Provider, settings.Email, settings.CFToken != "" || settings.CFZoneID != "", settings.R53KeyID != "" || settings.R53SecretKey != ""))
-		h.flash(w, r, "ok", "Настройки сохранены")
+		h.flash(w, r, "ok", "Налаштування збережено")
 	}
 	http.Redirect(w, r, "/le/settings", http.StatusFound)
 }

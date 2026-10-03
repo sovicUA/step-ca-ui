@@ -1,12 +1,12 @@
 /*
- * themes.css — CSS-переменные всех тем
+ * themes.css — CSS-variables of all themes
  *
- * :root          — базовая (тёмная) тема
- * [data-theme="light"] — светлая
- * [data-theme="blue"]  — синяя
- * [data-theme="auto"]  — ничего не делает (JS проставляет dark/light по системе)
+ * :root          — base (dark) theme
+ * [data-theme="light"] — light
+ * [data-theme="blue"]  — blue
+ * [data-theme="auto"]  — does nothing (JS sets dark/light from the system)
  *
- * Также содержит --admin-* переменные для админ-пространства.
+ * Also contains the --admin-* variables for the admin area.
  */
 
 /* ──── extracted from base.html ──── */

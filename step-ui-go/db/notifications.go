@@ -57,8 +57,8 @@ func InitNotificationSchema(d *sql.DB) error {
 		`ALTER TABLE notification_settings ADD COLUMN IF NOT EXISTS telegram_bot_token TEXT DEFAULT ''`,
 		`ALTER TABLE notification_settings ADD COLUMN IF NOT EXISTS telegram_chat_id TEXT DEFAULT ''`,
 		`ALTER TABLE notification_log ADD COLUMN IF NOT EXISTS channel VARCHAR(20) DEFAULT 'webhook'`,
-		// Дедупликация теперь на уровне (event_key, channel): одно событие
-		// может уходить в несколько каналов.
+		// Deduplication is per (event_key, channel): one event
+		// may go to several channels.
 		`ALTER TABLE notification_log DROP CONSTRAINT IF EXISTS notification_log_event_key_key`,
 		`CREATE UNIQUE INDEX IF NOT EXISTS idx_notification_log_event_channel
 			ON notification_log(event_key, channel) WHERE event_key IS NOT NULL`,
@@ -152,7 +152,7 @@ func AddNotificationLog(d *sql.DB, l *models.NotificationLog) error {
 	return err
 }
 
-// NotificationEventExists проверяет, было ли событие уже доставлено в канал.
+// NotificationEventExists checks whether the event was already delivered to the channel.
 func NotificationEventExists(d *sql.DB, eventKey, channel string) bool {
 	if eventKey == "" {
 		return false

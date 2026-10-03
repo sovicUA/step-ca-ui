@@ -26,9 +26,9 @@ import (
 	"strings"
 )
 
-// staticHandlerWithMIME раздаёт статические файлы с ПРАВИЛЬНЫМ Content-Type.
-// Не использует http.FileServer/ServeContent, чтобы те не перезаписали MIME
-// значениями из системного /etc/mime.types (где .css может быть text/plain).
+// staticHandlerWithMIME serves static files with the CORRECT Content-Type.
+// Does not use http.FileServer/ServeContent so that they do not overwrite the MIME type
+// with values from the system /etc/mime.types (where .css may be text/plain).
 func staticHandlerWithMIME(rootDir string) http.Handler {
 	mimeByExt := map[string]string{
 		".css":   "text/css; charset=utf-8",
@@ -51,10 +51,10 @@ func staticHandlerWithMIME(rootDir string) http.Handler {
 		".txt":   "text/plain; charset=utf-8",
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// безопасная склейка пути
+		// safe path join
 		clean := filepath.Clean("/" + r.URL.Path)
 		full := filepath.Join(rootDir, clean)
-		// защита от path traversal
+		// path traversal protection
 		absRoot, _ := filepath.Abs(rootDir)
 		absFile, _ := filepath.Abs(full)
 		if !strings.HasPrefix(absFile, absRoot) {
@@ -84,9 +84,9 @@ func staticHandlerWithMIME(rootDir string) http.Handler {
 }
 
 func init() {
-	// Принудительно регистрируем корректные MIME-типы для статики.
-	// http.ServeContent использует mime.TypeByExtension() и перезаписывает
-	// любой ранее установленный Content-Type, поэтому только этот способ работает.
+	// Force-register correct MIME types for static files.
+	// http.ServeContent uses mime.TypeByExtension() and overwrites
+	// any Content-Type set before, so only this approach works.
 	mime.AddExtensionType(".css", "text/css; charset=utf-8")
 	mime.AddExtensionType(".js", "application/javascript; charset=utf-8")
 	mime.AddExtensionType(".mjs", "application/javascript; charset=utf-8")
@@ -113,7 +113,7 @@ func main() {
 	}
 
 	handlers.StartedAt = time.Now()
-	// Регистрируем типы для gob (gorilla/sessions)
+	// Register types for gob (gorilla/sessions)
 	gob.Register(int(0))
 	gob.Register(int64(0))
 	gob.Register("")
@@ -172,7 +172,7 @@ func main() {
 		return h.CA().EnableHSTS
 	}))
 
-	// Публичные маршруты
+	// Public routes
 	r.Get("/login", h.LoginGet)
 	r.Post("/login", h.LoginPost)
 	r.Get("/forgot-password", h.ForgotPasswordGet)
@@ -180,10 +180,10 @@ func main() {
 	r.Get("/reset-password", h.ResetPasswordGet)
 	r.Post("/reset-password", h.ResetPasswordPost)
 	r.Get("/logout", h.Logout)
-	// Prometheus scrape endpoint: включается METRICS_TOKEN, авторизация bearer-токеном.
+	// Prometheus scrape endpoint: enabled by METRICS_TOKEN, bearer token authorization.
 	r.Get("/metrics", h.Metrics)
 
-	// Авторизованные маршруты
+	// Authorized routes
 	r.Group(func(r chi.Router) {
 		r.Use(mw.RequireLogin(store))
 		r.Use(h.Enforce2FAPolicy)
@@ -192,13 +192,13 @@ func main() {
 		r.Get("/dashboard", h.Dashboard)
 		r.Get("/api/status", h.APIStatus)
 
-		// Сертификаты (viewer+)
+		// Certificates (viewer+)
 		r.Get("/certificates", h.Certificates)
 		r.Get("/certificates/{id}", h.CertificateDetails)
 		r.Get("/history", h.History)
 		r.Get("/provisioners", h.Provisioners)
 
-		// Скачать CA cert (admin)
+		// Download CA cert (admin)
 		r.Group(func(r chi.Router) {
 			r.Use(mw.RequireRole("admin", store))
 			r.Get("/download/ca", h.DownloadCA)
@@ -206,7 +206,7 @@ func main() {
 			r.Get("/download/full-chain", h.DownloadFullChain)
 		})
 
-		// Операции с сертификатами (manager+)
+		// Certificate operations (manager+)
 		r.Group(func(r chi.Router) {
 			r.Use(mw.RequireRole("manager", store))
 			r.Get("/issue", h.IssueGet)
@@ -220,16 +220,16 @@ func main() {
 			r.Post("/download/bundle/{id}/pkcs12", h.DownloadBundlePKCS12)
 		})
 
-		// Отзыв (admin)
+		// Revocation (admin)
 		r.Group(func(r chi.Router) {
 			r.Use(mw.RequireRole("admin", store))
 			r.Post("/revoke/{id}", h.Revoke)
 		})
 
-		// Управление пользователями (admin)
+		// User management (admin)
 		r.Group(func(r chi.Router) {
 			r.Use(mw.RequireRole("admin", store))
-			// Админ-пространство
+			// Admin area
 			r.Get("/admin", h.AdminGet)
 			r.Get("/admin/users", h.Users)
 			r.Post("/admin/users", h.UsersPost)
@@ -269,7 +269,7 @@ func main() {
 			r.Get("/le/logs", h.LELogs)
 		})
 
-		// Профиль (любой авторизованный)
+		// Profile (any authorized user)
 		r.Get("/profile", h.ProfileGet)
 		r.Post("/profile", h.ProfilePost)
 		r.Get("/profile/2fa", h.Profile2FAGet)

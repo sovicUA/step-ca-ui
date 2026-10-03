@@ -36,33 +36,33 @@ func (h *Handler) SecurityLog(w http.ResponseWriter, r *http.Request) {
 	h.render(w, "admin_security", data)
 }
 
-// SecurityPolicyPost сохраняет политику обязательного 2FA.
+// SecurityPolicyPost saves the mandatory 2FA policy.
 func (h *Handler) SecurityPolicyPost(w http.ResponseWriter, r *http.Request) {
 	if !h.requireCSRF(w, r, "/admin/security") {
 		return
 	}
 	role := strings.TrimSpace(r.FormValue("force_2fa_role"))
 	if role != "" && role != "admin" && role != "manager" {
-		h.flash(w, r, "err", "Недопустимая роль для политики 2FA")
+		h.flash(w, r, "err", "Неприпустима роль для політики 2FA")
 		http.Redirect(w, r, "/admin/security", http.StatusSeeOther)
 		return
 	}
 	if err := appdb.SaveSecuritySettings(h.db, &models.SecuritySettings{Force2FARole: role}); err != nil {
-		h.flash(w, r, "err", "Не удалось сохранить политику: "+err.Error())
+		h.flash(w, r, "err", "Не вдалося зберегти політику: "+err.Error())
 		http.Redirect(w, r, "/admin/security", http.StatusSeeOther)
 		return
 	}
 	h.auditSecurity(r, "security.policy.save force_2fa_role="+role)
 	if role == "" {
-		h.flash(w, r, "ok", "Политика обязательного 2FA отключена")
+		h.flash(w, r, "ok", "Політику обов’язкової 2FA вимкнено")
 	} else {
-		h.flash(w, r, "ok", "Политика обязательного 2FA сохранена: "+role+" и выше")
+		h.flash(w, r, "ok", "Політику обов’язкової 2FA збережено: "+role+" і вище")
 	}
 	http.Redirect(w, r, "/admin/security", http.StatusSeeOther)
 }
 
-// pending2FAPolicyUsers — активные пользователи, которым политика требует
-// включить TOTP, но у которых он ещё не настроен.
+// pending2FAPolicyUsers — active users whom the policy requires
+// to enable TOTP but who have not set it up yet.
 func (h *Handler) pending2FAPolicyUsers() []string {
 	minRole := h.force2FARole()
 	if minRole == "" {

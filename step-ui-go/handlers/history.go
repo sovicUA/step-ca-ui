@@ -10,9 +10,9 @@ import (
 const pageSize = 30
 
 func (h *Handler) History(w http.ResponseWriter, r *http.Request) {
-	// Multi-select: берём все значения ?action=... из URL
+	// Multi-select: take all ?action=... values from the URL
 	actions := r.URL.Query()["action"]
-	// Отфильтруем пустые значения
+	// Drop empty values
 	filtered := actions[:0]
 	for _, a := range actions {
 		if a != "" {

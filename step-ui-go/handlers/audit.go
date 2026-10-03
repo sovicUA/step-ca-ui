@@ -19,7 +19,7 @@ func (h *Handler) auditSecurity(r *http.Request, reason string) {
 
 func securityEventLabel(success bool, reason string) string {
 	if !success {
-		return "Отказ"
+		return "Відмова"
 	}
 	switch {
 	case strings.HasPrefix(reason, adminAuditPrefix):
@@ -30,10 +30,10 @@ func securityEventLabel(success bool, reason string) string {
 		return "2FA"
 	case strings.HasPrefix(reason, "Password reset"):
 		return "Reset"
-	case reason == "Выход":
-		return "Выход"
+	case reason == "Вихід":
+		return "Вихід"
 	default:
-		return "Вход"
+		return "Вхід"
 	}
 }
 

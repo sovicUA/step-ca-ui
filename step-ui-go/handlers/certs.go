@@ -19,7 +19,7 @@ import (
 )
 
 func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
-	// Статус CA: проверяем через step ca health
+	// CA status: checked with step ca health
 	ca := h.CA()
 	caOnline := true
 	if !ca.Configured {
@@ -33,7 +33,7 @@ func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Быстрая статистика по активным сертификатам
+	// Quick statistics of active certificates
 	certs, _ := appdb.GetCerts(h.db, "active")
 	var activeCount, expiringCount int
 	for _, c := range certs {
@@ -76,20 +76,20 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// ── Активность CA за периоды ──
+	// ── CA activity per period ──
 	act := map[string]map[string]int{
 		"24h": dashCountActions(h.db, 24*time.Hour),
 		"7d":  dashCountActions(h.db, 7*24*time.Hour),
 		"30d": dashCountActions(h.db, 30*24*time.Hour),
 	}
 
-	// ── Общая статистика ──
+	// ── Overall statistics ──
 	var allCerts, leCerts, usersCount int
 	h.db.QueryRow("SELECT COUNT(*) FROM certificates").Scan(&allCerts)
 	h.db.QueryRow("SELECT COUNT(*) FROM le_certificates").Scan(&leCerts)
 	h.db.QueryRow("SELECT COUNT(*) FROM users WHERE is_active = true").Scan(&usersCount)
 
-	// ── Аптайм сервера ──
+	// ── Server uptime ──
 	uptime := time.Since(StartedAt)
 
 	data := h.base(w, r, "dash")
@@ -110,7 +110,7 @@ func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	h.render(w, "dashboard", data)
 }
 
-// ─── helper: считает действия по типам за последний период ──────────────────
+// ─── helper: counts actions by type for the last period ──────────────────
 func dashCountActions(db *sql.DB, since time.Duration) map[string]int {
 	result := map[string]int{"issue": 0, "renew": 0, "revoke": 0, "import": 0, "total": 0}
 	rows, err := db.Query(
@@ -134,18 +134,18 @@ func dashCountActions(db *sql.DB, since time.Duration) map[string]int {
 	return result
 }
 
-// ─── helper: форматирует длительность ───────────────────────────────────────
+// ─── helper: formats a duration ──────────────────────────────────────────
 func fmtUptime(d time.Duration) string {
 	days := int(d.Hours()) / 24
 	hours := int(d.Hours()) % 24
 	mins := int(d.Minutes()) % 60
 	if days > 0 {
-		return fmt.Sprintf("%dд %dч %dм", days, hours, mins)
+		return fmt.Sprintf("%dд %dг %dхв", days, hours, mins)
 	}
 	if hours > 0 {
-		return fmt.Sprintf("%dч %dм", hours, mins)
+		return fmt.Sprintf("%dг %dхв", hours, mins)
 	}
-	return fmt.Sprintf("%dм", mins)
+	return fmt.Sprintf("%dхв", mins)
 }
 
 func (h *Handler) Certificates(w http.ResponseWriter, r *http.Request) {
@@ -173,12 +173,12 @@ func (h *Handler) IssuePost(w http.ResponseWriter, r *http.Request) {
 	data := h.base(w, r, "issue")
 	h.attachIssueProvisioners(data)
 	if name == "" || domain == "" {
-		data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Заполните все поля"}}
+		data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Заповніть усі поля"}}
 		h.render(w, "issue", data)
 		return
 	}
 	if policyErr != nil {
-		data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Ошибка policy: " + policyErr.Error()}}
+		data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Помилка політики: " + policyErr.Error()}}
 		h.render(w, "issue", data)
 		return
 	}
@@ -187,12 +187,12 @@ func (h *Handler) IssuePost(w http.ResponseWriter, r *http.Request) {
 	}
 	prov, err := appdb.GetCAProvisioner(h.db, provisionerName)
 	if err != nil || prov == nil {
-		data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Провизионер не зарегистрирован в UI"}}
+		data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Провізіонер не зареєстровано в UI"}}
 		h.render(w, "issue", data)
 		return
 	}
 	if durationExceedsMax(policy.Duration, prov.MaxDuration) {
-		data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Срок действия превышает max выбранного провизионера"}}
+		data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Строк дії перевищує максимум вибраного провізіонера"}}
 		h.render(w, "issue", data)
 		return
 	}
@@ -203,9 +203,9 @@ func (h *Handler) IssuePost(w http.ResponseWriter, r *http.Request) {
 	if err := h.issueWithRegisteredProvisioner(domain, certPath, keyPath, policy.Duration, policy.KeyType, policy.Purpose, provisionerName); err != nil {
 		h.notifyAsync("", "certificate.issue_failed", "error",
 			"Certificate issue failed",
-			fmt.Sprintf("Не удалось выпустить сертификат %s для %s: %s", name, domain, err.Error()),
+			fmt.Sprintf("Не вдалося випустити сертифікат %s для %s: %s", name, domain, err.Error()),
 			map[string]string{"name": name, "domain": domain, "template": policy.Template, "key_type": policy.KeyType})
-		data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Ошибка: " + err.Error()}}
+		data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Помилка: " + err.Error()}}
 		h.render(w, "issue", data)
 		return
 	}
@@ -214,8 +214,8 @@ func (h *Handler) IssuePost(w http.ResponseWriter, r *http.Request) {
 		Name: name, Domain: domain, CertPath: certPath, KeyPath: keyPath,
 		IssuedAt: issued, ExpiresAt: expires, Serial: serial, KeyType: policy.KeyType, Provisioner: provisionerName,
 	})
-	appdb.InsertHistory(h.db, "issue", name, domain, fmt.Sprintf("Шаблон: %s, тип: %s, срок: %s, провизионер: %s", policy.Template, policy.KeyType, policy.Duration, provisionerName), si.Username, si.Role)
-	h.flash(w, r, "ok", fmt.Sprintf("Сертификат %s для %s выпущен (%s)!", name, domain, policy.KeyType))
+	appdb.InsertHistory(h.db, "issue", name, domain, fmt.Sprintf("Шаблон: %s, тип: %s, строк: %s, провізіонер: %s", policy.Template, policy.KeyType, policy.Duration, provisionerName), si.Username, si.Role)
+	h.flash(w, r, "ok", fmt.Sprintf("Сертифікат %s для %s випущено (%s)!", name, domain, policy.KeyType))
 	http.Redirect(w, r, "/issue", http.StatusFound)
 }
 
@@ -246,15 +246,15 @@ func (h *Handler) Renew(w http.ResponseWriter, r *http.Request) {
 				Name: c.Name, Domain: c.Domain, CertPath: c.CertPath, KeyPath: c.KeyPath,
 				IssuedAt: issued, ExpiresAt: expires, Serial: serial, KeyType: keyType, Provisioner: provisionerName,
 			})
-			appdb.InsertHistory(h.db, "renew", c.Name, c.Domain, "Перевыпуск, тип: "+keyType+", провизионер: "+provisionerName, si.Username, si.Role)
+			appdb.InsertHistory(h.db, "renew", c.Name, c.Domain, "Перевипуск, тип: "+keyType+", провізіонер: "+provisionerName, si.Username, si.Role)
 			h.auditSecurity(r, fmt.Sprintf("certificate.renew id=%d name=%s domain=%s provisioner=%s", c.ID, c.Name, c.Domain, provisionerName))
-			h.flash(w, r, "ok", "Сертификат перевыпущен")
+			h.flash(w, r, "ok", "Сертифікат перевипущено")
 		} else {
 			h.notifyAsync("", "certificate.renew_failed", "error",
 				"Certificate renew failed",
-				fmt.Sprintf("Не удалось перевыпустить сертификат %s для %s: %s", c.Name, c.Domain, err.Error()),
+				fmt.Sprintf("Не вдалося перевипустити сертифікат %s для %s: %s", c.Name, c.Domain, err.Error()),
 				map[string]string{"id": strconv.Itoa(c.ID), "name": c.Name, "domain": c.Domain, "key_type": keyType})
-			h.flash(w, r, "err", "Ошибка: "+err.Error())
+			h.flash(w, r, "err", "Помилка: "+err.Error())
 		}
 	}
 	http.Redirect(w, r, "/certificates", http.StatusFound)
@@ -270,9 +270,9 @@ func (h *Handler) Revoke(w http.ResponseWriter, r *http.Request) {
 	if c != nil {
 		h.revokeStep(c.CertPath, c.KeyPath)
 		appdb.UpdateCertStatus(h.db, id, "revoked")
-		appdb.InsertHistory(h.db, "revoke", c.Name, c.Domain, "Отозван (CRL)", si.Username, si.Role)
+		appdb.InsertHistory(h.db, "revoke", c.Name, c.Domain, "Відкликано (CRL)", si.Username, si.Role)
 		h.auditSecurity(r, fmt.Sprintf("certificate.revoke id=%d name=%s domain=%s serial=%s", c.ID, c.Name, c.Domain, c.Serial))
-		h.flash(w, r, "ok", "Сертификат отозван")
+		h.flash(w, r, "ok", "Сертифікат відкликано")
 	}
 	http.Redirect(w, r, "/certificates", http.StatusFound)
 }
@@ -393,7 +393,7 @@ func (h *Handler) importUpload(w http.ResponseWriter, r *http.Request, si *model
 	data["ActiveTab"] = "upload"
 	certFile, _, err := r.FormFile("cert_file")
 	if name == "" || domain == "" || err != nil {
-		data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Заполните имя, домен и загрузите .crt файл"}}
+		data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Заповніть ім’я, домен і завантажте файл .crt"}}
 		h.render(w, "import", data)
 		return
 	}
@@ -403,7 +403,7 @@ func (h *Handler) importUpload(w http.ResponseWriter, r *http.Request, si *model
 	certPath := filepath.Join(certDir, "certificate.crt")
 	keyPath := filepath.Join(certDir, "private.key")
 	if err := saveUploadedFile(certFile, certPath); err != nil {
-		data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Ошибка сохранения файла"}}
+		data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Помилка збереження файлу"}}
 		h.render(w, "import", data)
 		return
 	}
@@ -415,7 +415,7 @@ func (h *Handler) importUpload(w http.ResponseWriter, r *http.Request, si *model
 	}
 	issued, expires, serial, err := parseCertDates(certPath)
 	if err != nil || serial == "" {
-		data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Не удалось прочитать сертификат"}}
+		data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Не вдалося прочитати сертифікат"}}
 		h.render(w, "import", data)
 		return
 	}
@@ -423,13 +423,13 @@ func (h *Handler) importUpload(w http.ResponseWriter, r *http.Request, si *model
 		cert, certErr := readPEMCert(certPath)
 		if certErr != nil {
 			os.Remove(keyPath)
-			data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Не удалось прочитать сертификат"}}
+			data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Не вдалося прочитати сертифікат"}}
 			h.render(w, "import", data)
 			return
 		}
 		if pairErr := validateKeyPair(cert, keyPath); pairErr != nil {
 			os.Remove(keyPath)
-			data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Приватный ключ не соответствует сертификату: " + pairErr.Error()}}
+			data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Приватний ключ не відповідає сертифікату: " + pairErr.Error()}}
 			h.render(w, "import", data)
 			return
 		}
@@ -439,12 +439,12 @@ func (h *Handler) importUpload(w http.ResponseWriter, r *http.Request, si *model
 		Name: name, Domain: domain, CertPath: certPath, KeyPath: keyPath,
 		IssuedAt: issued, ExpiresAt: expires, Serial: serial, KeyType: kt,
 	}); err != nil {
-		data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Сертификат уже есть в базе"}}
+		data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Сертифікат уже є в базі"}}
 		h.render(w, "import", data)
 		return
 	}
-	appdb.InsertHistory(h.db, "import", name, domain, "Загрузка с ПК, тип: "+kt, si.Username, si.Role)
-	h.flash(w, r, "ok", fmt.Sprintf("Сертификат %s загружен!", name))
+	appdb.InsertHistory(h.db, "import", name, domain, "Завантаження з ПК, тип: "+kt, si.Username, si.Role)
+	h.flash(w, r, "ok", fmt.Sprintf("Сертифікат %s завантажено!", name))
 	http.Redirect(w, r, "/import?tab=upload", http.StatusFound)
 }
 
@@ -461,14 +461,14 @@ func (h *Handler) importScan(w http.ResponseWriter, r *http.Request, si *models.
 			CertPath: item["cert_path"], KeyPath: item["key_path"],
 			IssuedAt: issued, ExpiresAt: expires, Serial: serial, KeyType: kt,
 		}) == nil {
-			appdb.InsertHistory(h.db, "import", item["name"], item["name"], "Скан сервера", si.Username, si.Role)
+			appdb.InsertHistory(h.db, "import", item["name"], item["name"], "Сканування сервера", si.Username, si.Role)
 			count++
 		}
 	}
 	if count > 0 {
-		h.flash(w, r, "ok", fmt.Sprintf("Найдено и импортировано: %d", count))
+		h.flash(w, r, "ok", fmt.Sprintf("Знайдено й імпортовано: %d", count))
 	} else {
-		h.flash(w, r, "ok", "Новых сертификатов не найдено")
+		h.flash(w, r, "ok", "Нових сертифікатів не знайдено")
 	}
 	http.Redirect(w, r, "/import?tab=scan", http.StatusFound)
 }
@@ -481,24 +481,24 @@ func (h *Handler) importManual(w http.ResponseWriter, r *http.Request, si *model
 	data := h.base(w, r, "import")
 	data["ActiveTab"] = "manual"
 	if name == "" || domain == "" || certPath == "" {
-		data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Заполните все поля"}}
+		data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Заповніть усі поля"}}
 		h.render(w, "import", data)
 		return
 	}
 	if _, err := os.Stat(certPath); err != nil {
-		data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Файл не найден: " + certPath}}
+		data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Файл не знайдено: " + certPath}}
 		h.render(w, "import", data)
 		return
 	}
 	if keyPath != "" {
 		cert, certErr := readPEMCert(certPath)
 		if certErr != nil {
-			data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Не удалось прочитать сертификат"}}
+			data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Не вдалося прочитати сертифікат"}}
 			h.render(w, "import", data)
 			return
 		}
 		if pairErr := validateKeyPair(cert, keyPath); pairErr != nil {
-			data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Приватный ключ не соответствует сертификату: " + pairErr.Error()}}
+			data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Приватний ключ не відповідає сертифікату: " + pairErr.Error()}}
 			h.render(w, "import", data)
 			return
 		}
@@ -509,12 +509,12 @@ func (h *Handler) importManual(w http.ResponseWriter, r *http.Request, si *model
 		Name: name, Domain: domain, CertPath: certPath, KeyPath: keyPath,
 		IssuedAt: issued, ExpiresAt: expires, Serial: serial, KeyType: kt,
 	}); err != nil {
-		data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Уже в базе"}}
+		data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Уже в базі"}}
 		h.render(w, "import", data)
 		return
 	}
-	appdb.InsertHistory(h.db, "import", name, domain, "Путь вручную", si.Username, si.Role)
-	h.flash(w, r, "ok", fmt.Sprintf("Сертификат %s импортирован", name))
+	appdb.InsertHistory(h.db, "import", name, domain, "Шлях вручну", si.Username, si.Role)
+	h.flash(w, r, "ok", fmt.Sprintf("Сертифікат %s імпортовано", name))
 	http.Redirect(w, r, "/import?tab=manual", http.StatusFound)
 }
 

@@ -11,8 +11,8 @@ import (
 	"step-ui/models"
 )
 
-// TestTemplatesExecute гоняет страницы через реальные шаблоны, чтобы опечатки
-// в именах полей не превращались в тихую ошибку рендера в рантайме.
+// TestTemplatesExecute renders pages through the real templates so that typos
+// in field names do not become silent render errors at runtime.
 func TestTemplatesExecute(t *testing.T) {
 	wd, err := os.Getwd()
 	if err != nil {
@@ -67,7 +67,7 @@ func TestTemplatesExecute(t *testing.T) {
 				},
 				"Total": 1, "OkC": 1, "WarnC": 0, "ExpC": 0,
 				"AllCerts": 1, "LECerts": 0, "UsersCount": 1,
-				"Uptime": "1м", "StartedAt": "2026-01-01 00:00",
+				"Uptime": "1хв", "StartedAt": "2026-01-01 00:00",
 				"Version": Version, "BuildDate": BuildDate, "GitCommit": GitCommit,
 			},
 			expect: []string{`action="/renew/1"`, "csrf_token"},
@@ -93,7 +93,7 @@ func TestTemplatesExecute(t *testing.T) {
 				"CurrentPage": 1, "TotalPages": 1,
 				"Force2FARole": "admin", "Pending2FAUsers": []string{"admin (admin)"},
 			},
-			expect: []string{"Политика обязательного 2FA", `action="/admin/security/policy"`, "admin (admin)"},
+			expect: []string{"Політика обов’язкової 2FA", `action="/admin/security/policy"`, "admin (admin)"},
 		},
 		{
 			page: "admin_notifications",
@@ -118,7 +118,7 @@ func TestTemplatesExecute(t *testing.T) {
 				"MaxOutputKB":       16,
 				"TOTPEnabled":       false,
 			},
-			expect: []string{"запуск команд заблокирован", "disabled"},
+			expect: []string{"запуск команд заблоковано", "disabled"},
 		},
 	}
 

@@ -20,9 +20,9 @@ import (
 
 const pkcs12Timeout = 15 * time.Second
 
-// DownloadBundle отдаёт готовые наборы файлов сертификата.
-// format=fullchain — leaf + intermediate + root в одном PEM (nginx/traefik).
-// format=zip — архив с сертификатом, ключом, full chain и корневым CA.
+// DownloadBundle serves ready-made sets of certificate files.
+// format=fullchain — leaf + intermediate + root in one PEM (nginx/traefik).
+// format=zip — archive with the certificate, key, full chain and root CA.
 func (h *Handler) DownloadBundle(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
 	c, _ := appdb.GetCert(h.db, id)
@@ -41,8 +41,8 @@ func (h *Handler) DownloadBundle(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// DownloadBundlePKCS12 собирает .p12 через openssl. Пароль приходит формой,
-// поэтому маршрут требует POST и CSRF-токен.
+// DownloadBundlePKCS12 builds a .p12 with openssl. The password comes from a form,
+// so the route requires POST and a CSRF token.
 func (h *Handler) DownloadBundlePKCS12(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
 	redirectTo := fmt.Sprintf("/certificates/%d", id)
@@ -55,7 +55,7 @@ func (h *Handler) DownloadBundlePKCS12(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if c.KeyPath == "" {
-		h.flash(w, r, "err", "Для PKCS#12 нужен приватный ключ, а он не сохранён в UI")
+		h.flash(w, r, "err", "Для PKCS#12 потрібен приватний ключ, а його не збережено в UI")
 		http.Redirect(w, r, redirectTo, http.StatusSeeOther)
 		return
 	}
@@ -63,14 +63,14 @@ func (h *Handler) DownloadBundlePKCS12(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("p12_password")
 	chain, err := h.caChainPEM()
 	if err != nil {
-		h.flash(w, r, "err", "Не удалось прочитать цепочку CA: "+err.Error())
+		h.flash(w, r, "err", "Не вдалося прочитати ланцюжок CA: "+err.Error())
 		http.Redirect(w, r, redirectTo, http.StatusSeeOther)
 		return
 	}
 
 	bundle, err := h.buildPKCS12(r.Context(), c, chain, password)
 	if err != nil {
-		h.flash(w, r, "err", "Не удалось собрать PKCS#12: "+err.Error())
+		h.flash(w, r, "err", "Не вдалося зібрати PKCS#12: "+err.Error())
 		http.Redirect(w, r, redirectTo, http.StatusSeeOther)
 		return
 	}
@@ -158,7 +158,7 @@ func (h *Handler) serveZipBundle(w http.ResponseWriter, r *http.Request, c *mode
 	http.ServeContent(w, r, filename, time.Now(), bytes.NewReader(buf.Bytes()))
 }
 
-// caChainPEM возвращает intermediate + root в PEM.
+// caChainPEM returns intermediate + root in PEM.
 func (h *Handler) caChainPEM() ([]byte, error) {
 	intermediate, err := os.ReadFile(h.intermediateCertPath())
 	if err != nil {
@@ -197,7 +197,7 @@ func (h *Handler) buildPKCS12(ctx context.Context, c *models.Certificate, chain 
 		"-passout", "env:STEP_UI_P12_PASS",
 		"-out", outPath,
 	)
-	// Пароль передаётся окружением, чтобы не попасть в argv и в логи процессов.
+	// The password is passed in the environment to keep it out of argv and process logs.
 	cmd.Env = append(os.Environ(), "STEP_UI_P12_PASS="+password)
 	if out, err := cmd.CombinedOutput(); err != nil {
 		return nil, fmt.Errorf("openssl: %s", strings.TrimSpace(string(out)))
@@ -215,16 +215,16 @@ func writePEMBlock(buf *bytes.Buffer, pem []byte) {
 func bundleReadme(c *models.Certificate, hasKey, hasChain bool) string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "Step-CA UI bundle\n")
-	fmt.Fprintf(&b, "Сертификат: %s\n", c.Name)
+	fmt.Fprintf(&b, "Сертифікат: %s\n", c.Name)
 	fmt.Fprintf(&b, "Домен: %s\n", c.Domain)
-	fmt.Fprintf(&b, "Серийный номер: %s\n\n", c.Serial)
-	b.WriteString("certificate.crt — только leaf сертификат\n")
+	fmt.Fprintf(&b, "Серійний номер: %s\n\n", c.Serial)
+	b.WriteString("certificate.crt — лише кінцевий (leaf) сертифікат\n")
 	if hasChain {
 		b.WriteString("fullchain.pem  — leaf + intermediate + root (nginx ssl_certificate)\n")
 		b.WriteString("ca-chain.pem   — intermediate + root (ssl_trusted_certificate)\n")
 	}
 	if hasKey {
-		b.WriteString("private.key    — приватный ключ, храните как секрет (chmod 600)\n")
+		b.WriteString("private.key    — приватний ключ, зберігайте як секрет (chmod 600)\n")
 	}
 	return b.String()
 }

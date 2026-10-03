@@ -37,18 +37,18 @@ func (h *Handler) AdminCAPost(w http.ResponseWriter, r *http.Request) {
 		settings = &models.CASettings{}
 	}
 
-	// Общая настройка HSTS (доступна в обоих режимах)
+	// Common HSTS setting (available in both modes)
 	enableHSTS := r.FormValue("enable_hsts") == "on" || r.FormValue("enable_hsts") == "true"
 	settings.EnableHSTS = enableHSTS
 
 	if ca.Mode == "bundled" {
-		// В bundled режиме реквизиты CA берутся только из env/docker
+		// In bundled mode the CA details come only from env/docker
 		if err := appdb.SaveCASettings(h.db, settings); err != nil {
-			h.flash(w, r, "err", "Ошибка сохранения настроек: "+err.Error())
+			h.flash(w, r, "err", "Помилка збереження налаштувань: "+err.Error())
 		} else {
 			_ = h.resolver.Reload()
 			h.auditSecurity(r, fmt.Sprintf("ca.settings.save mode=bundled hsts=%t", enableHSTS))
-			h.flash(w, r, "ok", "Настройки сохранены")
+			h.flash(w, r, "ok", "Налаштування збережено")
 		}
 		http.Redirect(w, r, "/admin/ca", http.StatusSeeOther)
 		return
@@ -62,7 +62,7 @@ func (h *Handler) AdminCAPost(w http.ResponseWriter, r *http.Request) {
 	if caURL != "" {
 		parsed, parseErr := url.Parse(caURL)
 		if parseErr != nil || parsed.Scheme != "https" || parsed.Host == "" {
-			h.flash(w, r, "err", "Некорректный CA URL: должен начинаться с https:// и содержать хост")
+			h.flash(w, r, "err", "Некоректний CA URL: має починатися з https:// і містити хост")
 			http.Redirect(w, r, "/admin/ca", http.StatusSeeOther)
 			return
 		}
@@ -76,14 +76,14 @@ func (h *Handler) AdminCAPost(w http.ResponseWriter, r *http.Request) {
 	if password != "" {
 		enc, encErr := security.EncryptSecret(password, h.cfg.SecretKey)
 		if encErr != nil {
-			h.flash(w, r, "err", "Ошибка шифрования пароля: "+encErr.Error())
+			h.flash(w, r, "err", "Помилка шифрування пароля: "+encErr.Error())
 			http.Redirect(w, r, "/admin/ca", http.StatusSeeOther)
 			return
 		}
 		settings.EncryptedPassword = enc
 	}
 
-	// Обработка загрузки PEM файлов (если нет bind-mount)
+	// Handle uploaded PEM files (when there is no bind mount)
 	if !ca.HostPathMounted {
 		rootFile, _, err := r.FormFile("root_cert_file")
 		if err == nil && rootFile != nil {
@@ -92,7 +92,7 @@ func (h *Handler) AdminCAPost(w http.ResponseWriter, r *http.Request) {
 			if readErr == nil && len(bytes) > 0 {
 				cert, parseErr := validateUploadedCACert(bytes)
 				if parseErr != nil {
-					h.flash(w, r, "err", "Root CA файл некорректен: "+parseErr.Error())
+					h.flash(w, r, "err", "Root CA файл некоректний: "+parseErr.Error())
 					http.Redirect(w, r, "/admin/ca", http.StatusSeeOther)
 					return
 				}
@@ -109,7 +109,7 @@ func (h *Handler) AdminCAPost(w http.ResponseWriter, r *http.Request) {
 			if readErr == nil && len(bytes) > 0 {
 				cert, parseErr := validateUploadedCACert(bytes)
 				if parseErr != nil {
-					h.flash(w, r, "err", "Intermediate CA файл некорректен: "+parseErr.Error())
+					h.flash(w, r, "err", "Intermediate CA файл некоректний: "+parseErr.Error())
 					http.Redirect(w, r, "/admin/ca", http.StatusSeeOther)
 					return
 				}
@@ -124,7 +124,7 @@ func (h *Handler) AdminCAPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := appdb.SaveCASettings(h.db, settings); err != nil {
-		h.flash(w, r, "err", "Ошибка сохранения в БД: "+err.Error())
+		h.flash(w, r, "err", "Помилка збереження в БД: "+err.Error())
 		http.Redirect(w, r, "/admin/ca", http.StatusSeeOther)
 		return
 	}
@@ -132,7 +132,7 @@ func (h *Handler) AdminCAPost(w http.ResponseWriter, r *http.Request) {
 	_ = h.resolver.Reload()
 	h.auditSecurity(r, fmt.Sprintf("ca.settings.save mode=external ca_url=%s provisioner=%s hsts=%t pw_updated=%t",
 		settings.CAURL, settings.Provisioner, enableHSTS, password != ""))
-	h.flash(w, r, "ok", "Настройки CA успешно сохранены")
+	h.flash(w, r, "ok", "Налаштування CA успішно збережено")
 	http.Redirect(w, r, "/admin/ca", http.StatusSeeOther)
 }
 
@@ -143,7 +143,7 @@ func (h *Handler) AdminCATestPost(w http.ResponseWriter, r *http.Request) {
 
 	ca := h.CA()
 	if !ca.Configured {
-		h.flash(w, r, "err", "CA ещё не сконфигурирован. Заполните URL, provisioner, пароль и сертификаты.")
+		h.flash(w, r, "err", "CA ще не налаштовано. Заповніть URL, провізіонер, пароль і сертифікати.")
 		http.Redirect(w, r, "/admin/ca", http.StatusSeeOther)
 		return
 	}
@@ -154,43 +154,43 @@ func (h *Handler) AdminCATestPost(w http.ResponseWriter, r *http.Request) {
 	out, err := runCheck(ctx, 5*time.Second, "step", "ca", "health", "--ca-url", ca.URL, "--root", ca.RootCert)
 	if err != nil {
 		h.auditSecurity(r, fmt.Sprintf("ca.test status=fail error=%q", cleanCheckOutput(out, err)))
-		h.flash(w, r, "err", "Проверка доступности step-ca health завершилась ошибкой: "+cleanCheckOutput(out, err))
+		h.flash(w, r, "err", "Перевірка доступності step-ca health завершилася помилкою: "+cleanCheckOutput(out, err))
 		http.Redirect(w, r, "/admin/ca", http.StatusSeeOther)
 		return
 	}
 
-	// Проверим также чтение списка provisioners
+	// Also check that the provisioners can be listed
 	provOut, provErr := runCheck(ctx, 5*time.Second, "step", "ca", "provisioner", "list", "--ca-url", ca.URL, "--root", ca.RootCert)
 	if provErr != nil {
 		h.auditSecurity(r, fmt.Sprintf("ca.test status=partial provisioner_err=%q", cleanCheckOutput(provOut, provErr)))
-		h.flash(w, r, "warn", "CA health доступен, но не удалось получить provisioners: "+cleanCheckOutput(provOut, provErr))
+		h.flash(w, r, "warn", "CA health доступний, але не вдалося отримати провізіонери: "+cleanCheckOutput(provOut, provErr))
 		http.Redirect(w, r, "/admin/ca", http.StatusSeeOther)
 		return
 	}
 
 	h.auditSecurity(r, "ca.test status=ok")
-	h.flash(w, r, "ok", fmt.Sprintf("Подключение к CA успешно! URL: %s, ответ health: OK", ca.URL))
+	h.flash(w, r, "ok", fmt.Sprintf("Підключення до CA успішне! URL: %s, відповідь health: OK", ca.URL))
 	http.Redirect(w, r, "/admin/ca", http.StatusSeeOther)
 }
 
 func validateUploadedCACert(pemBytes []byte) (*x509.Certificate, error) {
 	block, _ := pem.Decode(pemBytes)
 	if block == nil {
-		return nil, fmt.Errorf("PEM блок не найден")
+		return nil, fmt.Errorf("PEM блок не знайдено")
 	}
 	if block.Type != "CERTIFICATE" {
-		return nil, fmt.Errorf("ожидался тип CERTIFICATE, получен %s", block.Type)
+		return nil, fmt.Errorf("очікувався тип CERTIFICATE, отримано %s", block.Type)
 	}
 	cert, err := x509.ParseCertificate(block.Bytes)
 	if err != nil {
-		return nil, fmt.Errorf("невалидный X.509 сертификат: %w", err)
+		return nil, fmt.Errorf("невалідний сертифікат X.509: %w", err)
 	}
 	if !cert.IsCA {
-		return nil, fmt.Errorf("сертификат не помечен как CA (BasicConstraints: IsCA=false)")
+		return nil, fmt.Errorf("сертифікат не позначено як CA (BasicConstraints: IsCA=false)")
 	}
 	now := time.Now()
 	if now.Before(cert.NotBefore) || now.After(cert.NotAfter) {
-		return nil, fmt.Errorf("срок действия сертификата истёк или ещё не наступил (%s — %s)",
+		return nil, fmt.Errorf("строк дії сертифіката минув або ще не настав (%s — %s)",
 			cert.NotBefore.Format("2006-01-02"), cert.NotAfter.Format("2006-01-02"))
 	}
 	return cert, nil

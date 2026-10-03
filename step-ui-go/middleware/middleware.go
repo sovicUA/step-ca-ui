@@ -10,7 +10,7 @@ import (
 
 const SessionTimeout = 8 * time.Hour
 
-// SecurityHeaders добавляет security HTTP заголовки.
+// SecurityHeaders adds security HTTP headers.
 func SecurityHeaders(hstsProvider func() bool) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -37,7 +37,7 @@ func SecurityHeaders(hstsProvider func() bool) func(http.Handler) http.Handler {
 	}
 }
 
-// RequireLogin проверяет что пользователь авторизован
+// RequireLogin checks that the user is authorized
 func RequireLogin(store *sessions.CookieStore) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -54,7 +54,7 @@ func RequireLogin(store *sessions.CookieStore) func(http.Handler) http.Handler {
 				http.Redirect(w, r, "/login", http.StatusFound)
 				return
 			}
-			// Проверяем таймаут сессии
+			// Check the session timeout
 			if last, ok := sess.Values["last_activity"].(int64); ok {
 				if time.Since(time.Unix(last, 0)) > SessionTimeout {
 					sess.Values = map[interface{}]interface{}{}
@@ -70,7 +70,7 @@ func RequireLogin(store *sessions.CookieStore) func(http.Handler) http.Handler {
 	}
 }
 
-// RequireRole проверяет роль пользователя (viewer=1, manager=2, admin=3)
+// RequireRole checks the user's role (viewer=1, manager=2, admin=3)
 func RequireRole(minRole string, store *sessions.CookieStore) func(http.Handler) http.Handler {
 	roleLevel := map[string]int{"viewer": 1, "manager": 2, "admin": 3}
 	return func(next http.Handler) http.Handler {

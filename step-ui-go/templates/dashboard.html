@@ -1,34 +1,34 @@
 {{define "content"}}
 <div class="page-header">
-  <div><div class="breadcrumb">dashboard</div><h1>Приветствуем, {{.Session.Username}}</h1></div>
+  <div><div class="breadcrumb">dashboard</div><h1>Вітаємо, {{.Session.Username}}</h1></div>
 </div>
 
-<!-- Основные счётчики по активным сертификатам -->
+<!-- Основні лічильники активних сертифікатів -->
 <div class="stats-grid">
-  <div class="stat-card"><div class="stat-label">Активные сертификаты</div><div class="stat-value">{{.Total}}</div></div>
-  <div class="stat-card"><div class="stat-label">Здоровых</div><div class="stat-value ok">{{.OkC}}</div></div>
-  <div class="stat-card"><div class="stat-label">Истекают (30д)</div><div class="stat-value warn">{{.WarnC}}</div></div>
-  <div class="stat-card"><div class="stat-label">Просроченных</div><div class="stat-value danger">{{.ExpC}}</div></div>
+  <div class="stat-card"><div class="stat-label">Активні сертифікати</div><div class="stat-value">{{.Total}}</div></div>
+  <div class="stat-card"><div class="stat-label">Справних</div><div class="stat-value ok">{{.OkC}}</div></div>
+  <div class="stat-card"><div class="stat-label">Спливають (30 дн.)</div><div class="stat-value warn">{{.WarnC}}</div></div>
+  <div class="stat-card"><div class="stat-label">Прострочених</div><div class="stat-value danger">{{.ExpC}}</div></div>
 </div>
 
-<!-- Статистика сервера и активность CA — две карточки рядом -->
+<!-- Статистика сервера й активність CA — дві картки поруч -->
 <div style="display:grid;grid-template-columns:1fr 2fr;gap:14px;margin-bottom:14px">
 
   <!-- Сервер -->
   <div class="card" style="margin-bottom:0">
     <div class="card-header"><h3>Сервер</h3></div>
     <div class="card-body">
-      <div class="info-row"><div class="info-key">Аптайм</div><div class="info-val"><strong>{{.Uptime}}</strong></div></div>
-      <div class="info-row"><div class="info-key">Запущен</div><div class="info-val" style="color:var(--muted)">{{.StartedAt}}</div></div>
-      <div class="info-row"><div class="info-key">Всего certs</div><div class="info-val">{{.AllCerts}}</div></div>
+      <div class="info-row"><div class="info-key">Час роботи</div><div class="info-val"><strong>{{.Uptime}}</strong></div></div>
+      <div class="info-row"><div class="info-key">Запущено</div><div class="info-val" style="color:var(--muted)">{{.StartedAt}}</div></div>
+      <div class="info-row"><div class="info-key">Усього сертифікатів</div><div class="info-val">{{.AllCerts}}</div></div>
       <div class="info-row"><div class="info-key">Let's Encrypt</div><div class="info-val">{{.LECerts}}</div></div>
-      <div class="info-row"><div class="info-key">Пользователи</div><div class="info-val">{{.UsersCount}}</div></div>
+      <div class="info-row"><div class="info-key">Користувачі</div><div class="info-val">{{.UsersCount}}</div></div>
     </div>
   </div>
 
-  <!-- Активность CA -->
+  <!-- Активність CA -->
   <div class="card" style="margin-bottom:0">
-    <div class="card-header"><h3>Активность центра сертификации</h3></div>
+    <div class="card-header"><h3>Активність центру сертифікації</h3></div>
     <div class="card-body" style="padding:0">
       <div class="tbl-wrap">
   <table class="tbl" style="table-layout:fixed">
@@ -43,18 +43,18 @@
     
         <thead>
           <tr>
-            <th style="width:110px">Период</th>
-            <th>Выпуск</th>
-            <th>Перевыпуск</th>
-            <th>Отзыв</th>
-            <th>Импорт</th>
-            <th>Всего</th>
+            <th style="width:110px">Період</th>
+            <th>Випуск</th>
+            <th>Перевипуск</th>
+            <th>Відкликання</th>
+            <th>Імпорт</th>
+            <th>Усього</th>
           </tr>
         </thead>
         <tbody>
           {{with index .Activity "24h"}}
           <tr>
-            <td><strong>24 часа</strong></td>
+            <td><strong>24 години</strong></td>
             <td><span class="badge ok">{{index . "issue"}}</span></td>
             <td><span class="badge blue">{{index . "renew"}}</span></td>
             <td><span class="badge danger">{{index . "revoke"}}</span></td>
@@ -64,7 +64,7 @@
           {{end}}
           {{with index .Activity "7d"}}
           <tr>
-            <td><strong>7 дней</strong></td>
+            <td><strong>7 днів</strong></td>
             <td><span class="badge ok">{{index . "issue"}}</span></td>
             <td><span class="badge blue">{{index . "renew"}}</span></td>
             <td><span class="badge danger">{{index . "revoke"}}</span></td>
@@ -74,7 +74,7 @@
           {{end}}
           {{with index .Activity "30d"}}
           <tr>
-            <td><strong>30 дней</strong></td>
+            <td><strong>30 днів</strong></td>
             <td><span class="badge ok">{{index . "issue"}}</span></td>
             <td><span class="badge blue">{{index . "renew"}}</span></td>
             <td><span class="badge danger">{{index . "revoke"}}</span></td>
@@ -90,37 +90,37 @@
 </div>
 
 
-<!-- О системе -->
+<!-- Про систему -->
 <div class="card">
-  <div class="card-header"><h3>О системе</h3></div>
+  <div class="card-header"><h3>Про систему</h3></div>
   <div class="card-body" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px">
     <div>
-      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Версия ядра</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Версія ядра</div>
       <div style="font-size:18px;font-weight:700">v{{.Version}}</div>
     </div>
     <div>
-      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Версия билда</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Версія збірки</div>
       <div style="font-size:14px;font-weight:600"><code style="font-size:12px">{{.GitCommit}}</code></div>
-      <div style="font-size:11px;color:var(--muted);margin-top:2px">собран: {{.BuildDate}}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">зібрано: {{.BuildDate}}</div>
     </div>
     <div>
-      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Обновления</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Оновлення</div>
       <div style="font-size:14px;font-weight:600">
         <span class="badge ok">Актуально</span>
       </div>
       <div style="font-size:11px;color:var(--muted);margin-top:4px">
-        <a href="https://github.com/UncleFi1/step-ca-ui/releases" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">Список релизов &rarr;</a>
+        <a href="https://github.com/UncleFi1/step-ca-ui/releases" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">Список випусків &rarr;</a>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Сертификаты (только активные, по сроку) -->
+<!-- Сертифікати (лише активні, за строком) -->
 <div class="card">
-  <div class="card-header"><h3>Активные сертификаты · по сроку истечения</h3></div>
+  <div class="card-header"><h3>Активні сертифікати · за строком дії</h3></div>
   <div style="overflow-x:auto">
   <table>
-    <thead><tr><th>Имя</th><th>Домен</th><th>Истекает</th><th>Осталось</th><th>Тип</th><th>Действия</th></tr></thead>
+    <thead><tr><th>Ім’я</th><th>Домен</th><th>Спливає</th><th>Лишилось</th><th>Тип</th><th>Дії</th></tr></thead>
     <tbody>
     {{range .Certs}}
     <tr>
@@ -132,17 +132,17 @@
       <td>
         {{if hasRole $.Session.Role "manager"}}
         <form method="POST" action="/renew/{{.ID}}" style="display:inline"
-          data-confirm="Перевыпустить сертификат &quot;{{.Name}}&quot;? Текущий файл будет заменён новым."
-          data-confirm-btn="Перевыпустить" data-confirm-class="warning" data-confirm-title="Перевыпуск сертификата">
+          data-confirm="Перевипустити сертифікат &quot;{{.Name}}&quot;? Поточний файл буде замінено новим."
+          data-confirm-btn="Перевипустити" data-confirm-class="warning" data-confirm-title="Перевипуск сертифіката">
           <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
-          <button type="submit" class="btn btn-warn btn-sm">Перевыпустить</button>
+          <button type="submit" class="btn btn-warn btn-sm">Перевипустити</button>
         </form>
         <a href="/download/cert/{{.ID}}" class="btn btn-ghost btn-sm">CRT</a>
         {{end}}
       </td>
     </tr>
     {{else}}
-    <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Нет активных сертификатов</td></tr>
+    <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Немає активних сертифікатів</td></tr>
     {{end}}
     </tbody>
   </table>

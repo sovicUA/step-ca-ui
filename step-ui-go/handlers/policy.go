@@ -13,8 +13,8 @@ func roleAtLeast(role, minRole string) bool {
 	return roleLevels[role] >= roleLevels[minRole]
 }
 
-// force2FARole возвращает минимальную роль, для которой TOTP обязателен.
-// Пустая строка означает, что политика выключена.
+// force2FARole returns the lowest role that must use TOTP.
+// An empty string means the policy is off.
 func (h *Handler) force2FARole() string {
 	settings, err := appdb.GetSecuritySettings(h.db)
 	if err != nil || settings == nil {
@@ -27,7 +27,7 @@ func (h *Handler) force2FARole() string {
 	return role
 }
 
-// requires2FA сообщает, обязателен ли TOTP для указанной роли.
+// requires2FA reports whether TOTP is required for the given role.
 func (h *Handler) requires2FA(role string) bool {
 	minRole := h.force2FARole()
 	if minRole == "" {
@@ -36,8 +36,8 @@ func (h *Handler) requires2FA(role string) bool {
 	return roleAtLeast(role, minRole)
 }
 
-// twoFAPolicyExemptPaths — маршруты, доступные без выполненной политики 2FA,
-// иначе пользователь не смог бы включить TOTP или выйти из системы.
+// twoFAPolicyExemptPaths — routes available without meeting the 2FA policy,
+// otherwise the user could not enable TOTP or log out.
 var twoFAPolicyExemptPaths = []string{
 	"/logout",
 	"/profile/2fa",
@@ -47,8 +47,8 @@ var twoFAPolicyExemptPaths = []string{
 	"/profile/2fa/disable",
 }
 
-// Enforce2FAPolicy перенаправляет пользователей, для которых TOTP обязателен
-// по политике, но ещё не включён, на страницу настройки 2FA.
+// Enforce2FAPolicy redirects users who must use TOTP
+// by the policy but have not enabled it to the 2FA setup page.
 func (h *Handler) Enforce2FAPolicy(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		for _, p := range twoFAPolicyExemptPaths {
@@ -69,7 +69,7 @@ func (h *Handler) Enforce2FAPolicy(next http.Handler) http.Handler {
 			return
 		}
 
-		h.flash(w, r, "warn", "Политика безопасности требует включить 2FA для вашей роли.")
+		h.flash(w, r, "warn", "Політика безпеки вимагає ввімкнути 2FA для вашої ролі.")
 		http.Redirect(w, r, "/profile/2fa", http.StatusFound)
 	})
 }

@@ -1,40 +1,40 @@
 {{define "content"}}
 <div class="page-header">
-  <div><div class="breadcrumb">certificates &middot; issue</div><h1>Выпустить сертификат</h1></div>
+  <div><div class="breadcrumb">certificates &middot; issue</div><h1>Випустити сертифікат</h1></div>
 </div>
 
 <div style="display:grid;grid-template-columns:minmax(0,2fr) minmax(260px,1fr);gap:16px;align-items:start">
 
-  <!-- ═ Основная форма ═ -->
+  <!-- ═ Основна форма ═ -->
   <form method="POST" action="/issue" id="issueForm">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
     <input type="hidden" name="template" id="templateInput" value="server">
     <input type="hidden" name="key_type" id="keyTypeInput" value="EC:P-256">
     <input type="hidden" name="duration" id="durationInput" value="8760h">
 
-    <!-- ── Общие поля ── -->
+    <!-- ── Загальні поля ── -->
     <div class="card">
-      <div class="card-header"><h3>Основные параметры</h3></div>
+      <div class="card-header"><h3>Основні параметри</h3></div>
       <div class="card-body">
         <div class="form-row">
           <div>
-            <label>Название</label>
+            <label>Назва</label>
             <input type="text" name="name" id="fName" placeholder="my-service" autocomplete="off" required>
           </div>
           <div>
-            <label>Домен или IP</label>
+            <label>Домен або IP</label>
             <input type="text" name="domain" id="fDomain" placeholder="example.com" autocomplete="off" required>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ── Провизионер ── -->
+    <!-- ── Провізіонер ── -->
     <div class="card">
-      <div class="card-header"><h3>Провизионер</h3></div>
+      <div class="card-header"><h3>Провізіонер</h3></div>
       <div class="card-body">
         <div>
-          <label>Выпуск от имени</label>
+          <label>Випуск від імені</label>
           <select name="provisioner" id="provisionerSelect">
             {{range .RegisteredProvisioners}}
             <option value="{{.Name}}" data-default="{{.DefaultDuration}}" data-max="{{.MaxDuration}}" {{if eq .Name $.SelectedProvisioner}}selected{{end}}>{{.Name}}{{if .IsSystem}} (system){{end}} — max {{.MaxDuration}}</option>
@@ -42,100 +42,100 @@
             <option value="{{.SelectedProvisioner}}" selected>{{.SelectedProvisioner}}</option>
             {{end}}
           </select>
-          <span class="hint" style="display:block;margin-top:6px;font-size:12px;color:var(--muted)">Шаблоны UI не заменяют провизионер CA. Срок выпуска не может превышать max выбранного JWK.</span>
+          <span class="hint" style="display:block;margin-top:6px;font-size:12px;color:var(--muted)">Шаблони UI не замінюють провізіонер CA. Строк дії не може перевищувати максимум вибраного JWK.</span>
         </div>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-header"><h3>Шаблон и policy</h3></div>
+      <div class="card-header"><h3>Шаблон і політика</h3></div>
       <div class="card-body">
         <div class="template-grid">
           <button type="button" class="template-card active" data-template="server" data-key="EC:P-256" data-duration="8760h" data-placeholder="app.example.com">
             <span class="template-title">Server TLS</span>
-            <span class="template-sub">Обычный HTTPS/service сертификат на 1 год · serverAuth</span>
+            <span class="template-sub">Звичайний сертифікат HTTPS / сервісу на 1 рік · serverAuth</span>
           </button>
           <button type="button" class="template-card" data-template="internal" data-key="EC:P-256" data-duration="87600h" data-placeholder="service.home.local">
             <span class="template-title">Internal service</span>
-            <span class="template-sub">Внутренний сервис, срок до 10 лет · serverAuth + clientAuth</span>
+            <span class="template-sub">Внутрішній сервіс, строк до 10 років · serverAuth + clientAuth</span>
           </button>
           <button type="button" class="template-card" data-template="wildcard" data-key="EC:P-256" data-duration="8760h" data-placeholder="*.example.com">
             <span class="template-title">Wildcard</span>
-            <span class="template-sub">Только имена вида *.example.com · serverAuth</span>
+            <span class="template-sub">Лише імена виду *.example.com · serverAuth</span>
           </button>
           <button type="button" class="template-card" data-template="client" data-key="EC:P-256" data-duration="8760h" data-placeholder="client-01">
             <span class="template-title">Client identity</span>
-            <span class="template-sub">Идентификатор для mTLS/VPN сценариев · clientAuth</span>
+            <span class="template-sub">Ідентифікатор для сценаріїв mTLS/VPN · clientAuth</span>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- ── Тип ключа (карточки) ── -->
+    <!-- ── Тип ключа (картки) ── -->
     <div class="card">
       <div class="card-header"><h3>Тип ключа</h3></div>
       <div class="card-body">
         <div class="key-grid">
           <div class="key-card active" data-val="EC:P-256">
             <div class="key-title">EC P-256</div>
-            <div class="key-sub">Эллиптическая, 256 бит</div>
-            <div class="key-badge ok">Рекомендуется</div>
+            <div class="key-sub">Еліптична, 256 біт</div>
+            <div class="key-badge ok">Рекомендовано</div>
           </div>
           <div class="key-card" data-val="EC:P-384">
             <div class="key-title">EC P-384</div>
-            <div class="key-sub">Эллиптическая, 384 бит</div>
-            <div class="key-badge gray">Повышенная</div>
+            <div class="key-sub">Еліптична, 384 біт</div>
+            <div class="key-badge gray">Підвищена</div>
           </div>
           <div class="key-card" data-val="RSA:2048">
             <div class="key-title">RSA 2048</div>
-            <div class="key-sub">Совместимость</div>
-            <div class="key-badge gray">Классика</div>
+            <div class="key-sub">Сумісність</div>
+            <div class="key-badge gray">Класика</div>
           </div>
           <div class="key-card" data-val="RSA:4096">
             <div class="key-title">RSA 4096</div>
-            <div class="key-sub">Максимальная защита</div>
-            <div class="key-badge warn">Медленная</div>
+            <div class="key-sub">Максимальний захист</div>
+            <div class="key-badge warn">Повільна</div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ── Срок действия (чипы) ── -->
+    <!-- ── Строк дії (чипи) ── -->
     <div class="card">
-      <div class="card-header"><h3>Срок действия</h3></div>
+      <div class="card-header"><h3>Строк дії</h3></div>
       <div class="card-body">
         <div class="chip-row">
-          <button type="button" class="chip" data-val="720h">1 месяц</button>
-          <button type="button" class="chip" data-val="4380h">6 месяцев</button>
-          <button type="button" class="chip active" data-val="8760h">1 год</button>
-          <button type="button" class="chip" data-val="87600h">10 лет</button>
+          <button type="button" class="chip" data-val="720h">1 місяць</button>
+          <button type="button" class="chip" data-val="4380h">6 місяців</button>
+          <button type="button" class="chip active" data-val="8760h">1 рік</button>
+          <button type="button" class="chip" data-val="87600h">10 років</button>
         </div>
       </div>
     </div>
 
     <!-- ── Submit ── -->
     <button type="submit" class="btn" style="padding:10px 24px;font-size:13px;font-weight:600">
-      Выпустить сертификат
+      Випустити сертифікат
     </button>
   </form>
 
-  <!-- ═ Боковая панель — превью ═ -->
+  <!-- ═ Бічна панель — попередній перегляд ═ -->
   <div class="card" style="position:sticky;top:16px">
-    <div class="card-header"><h3>Предпросмотр</h3></div>
+    <div class="card-header"><h3>Попередній перегляд</h3></div>
     <div class="card-body">
-      <div class="info-row"><div class="info-key">Название</div><div class="info-val"><strong id="pvName" style="color:var(--muted)">—</strong></div></div>
-      <div class="info-row"><div class="info-key">Провизионер</div><div class="info-val"><code id="pvProvisioner">—</code></div></div>
+      <div class="info-row"><div class="info-key">Назва</div><div class="info-val"><strong id="pvName" style="color:var(--muted)">—</strong></div></div>
+      <div class="info-row"><div class="info-key">Провізіонер</div><div class="info-val"><code id="pvProvisioner">—</code></div></div>
       <div class="info-row"><div class="info-key">Шаблон</div><div class="info-val"><span class="badge gray" id="pvTemplate">Server TLS</span></div></div>
       <div class="info-row"><div class="info-key">Домен</div><div class="info-val"><code id="pvDomain">—</code></div></div>
       <div class="info-row"><div class="info-key">Тип ключа</div><div class="info-val"><span class="badge blue" id="pvType">EC P-256</span></div></div>
-      <div class="info-row"><div class="info-key">Срок</div><div class="info-val"><span id="pvDuration">1 год</span></div></div>
-      <div class="info-row"><div class="info-key">Истекает</div><div class="info-val" style="color:var(--muted)" id="pvExpires">—</div></div>
+      <div class="info-row"><div class="info-key">Строк</div><div class="info-val"><span id="pvDuration">1 рік</span></div></div>
+      <div class="info-row"><div class="info-key">Спливає</div><div class="info-val" style="color:var(--muted)" id="pvExpires">—</div></div>
     </div>
   </div>
 </div>
 
 <style>
-/* Карточки выбора типа ключа */
+/* Картки вибору типу ключа */
 .template-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
 .template-card{
   width:100%;text-align:left;border:1px solid var(--border);border-radius:8px;padding:13px 14px;
@@ -166,7 +166,7 @@
 .key-badge.warn{background:rgba(230,126,34,.15);color:var(--warn)}
 .key-badge.gray{background:rgba(102,102,102,.15);color:var(--muted)}
 
-/* Чипы срока */
+/* Чипи строку */
 .chip-row{display:flex;gap:8px;flex-wrap:wrap}
 .chip{
   padding:7px 14px;border-radius:20px;border:1px solid var(--border);
@@ -182,10 +182,10 @@
 (function(){
   var PROVISIONERS = {{if .ProvisionersJSON}}{{.ProvisionersJSON}}{{else}}[]{{end}};
   var DURATIONS = {
-    '720h':    { label: '1 месяц',   days: 30 },
-    '4380h':   { label: '6 месяцев', days: 182 },
-    '8760h':   { label: '1 год',     days: 365 },
-    '87600h':  { label: '10 лет',    days: 3650 }
+    '720h':    { label: '1 місяць',   days: 30 },
+    '4380h':   { label: '6 місяців', days: 182 },
+    '8760h':   { label: '1 рік',     days: 365 },
+    '87600h':  { label: '10 років',  days: 3650 }
   };
   var KEYTYPE_LABEL = {
     'EC:P-256':  'EC P-256',
@@ -291,7 +291,7 @@
     });
   });
 
-  // Карточки типа ключа
+  // Картки типу ключа
   document.querySelectorAll('.key-card').forEach(function(card){
     card.addEventListener('click', function(){
       document.querySelectorAll('.key-card').forEach(function(c){c.classList.remove('active');});
@@ -301,7 +301,7 @@
     });
   });
 
-  // Чипы срока
+  // Чипи строку
   document.querySelectorAll('.chip').forEach(function(chip){
     chip.addEventListener('click', function(){
       if (this.classList.contains('disabled')) return;

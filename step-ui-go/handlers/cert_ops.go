@@ -23,13 +23,13 @@ type IssuePolicy struct {
 	Template string
 	Duration string
 	KeyType  string
-	// Purpose передаётся в step-ca как template data переменная x509Purpose
-	// и определяет extKeyUsage выпущенного сертификата.
+	// Purpose is passed to step-ca as the template data variable x509Purpose
+	// and sets extKeyUsage of the issued certificate.
 	Purpose string
 }
 
-// Допустимые значения x509Purpose. Шаблон провизионера (см. provisioner.sh)
-// разворачивает их в extKeyUsage: server -> serverAuth, client -> clientAuth,
+// Allowed values of x509Purpose. The provisioner template (see provisioner.sh)
+// expands them to extKeyUsage: server -> serverAuth, client -> clientAuth,
 // internal -> serverAuth + clientAuth.
 const (
 	purposeServer   = "server"
@@ -84,7 +84,7 @@ func durationExceedsMax(requested, maxDur string) bool {
 func (h *Handler) issueCert(domain, certPath, keyPath, duration, keyType, purpose, provisioner, passwordFile string) error {
 	ca := h.CA()
 	if !ca.Configured {
-		return fmt.Errorf("Step-CA не настроен. Настройте подключение в разделе Админ -> Настройки CA (/admin/ca)")
+		return fmt.Errorf("Step-CA не налаштовано. Налаштуйте підключення в розділі Адмін -> Налаштування CA (/admin/ca)")
 	}
 	if provisioner == "" {
 		provisioner = ca.Provisioner
@@ -133,16 +133,16 @@ func (h *Handler) issueWithRegisteredProvisioner(domain, certPath, keyPath, dura
 		return err
 	}
 	if prov == nil {
-		return fmt.Errorf("провизионер %s не зарегистрирован в UI", provisionerName)
+		return fmt.Errorf("провізіонер %s не зареєстровано в UI", provisionerName)
 	}
 	if durationExceedsMax(duration, prov.MaxDuration) {
-		return fmt.Errorf("срок %s превышает max провизионера %s (%s)", duration, prov.Name, prov.MaxDuration)
+		return fmt.Errorf("строк %s перевищує максимум провізіонера %s (%s)", duration, prov.Name, prov.MaxDuration)
 	}
 	passwordFile := ca.PasswordFile
 	if prov.EncryptedPassword != "" {
 		plain, decErr := decryptProvisionerPassword(prov.EncryptedPassword, h.cfg.SecretKey)
 		if decErr != nil {
-			return fmt.Errorf("не удалось расшифровать пароль провизионера")
+			return fmt.Errorf("не вдалося розшифрувати пароль провізіонера")
 		}
 		tmp, writeErr := os.CreateTemp("/opt/step-ui/data", "prov-*.pw")
 		if writeErr != nil {
@@ -163,13 +163,13 @@ func (h *Handler) issueWithRegisteredProvisioner(domain, certPath, keyPath, dura
 		}
 		tmp.Close()
 	} else if !prov.IsSystem && provisionerName != ca.Provisioner {
-		return fmt.Errorf("для провизионера %s не задан пароль", provisionerName)
+		return fmt.Errorf("для провізіонера %s не задано пароль", provisionerName)
 	}
 	return h.issueCert(domain, certPath, keyPath, duration, keyType, purpose, prov.Name, passwordFile)
 }
 
-// certPurposeFromFile определяет x509Purpose по extKeyUsage существующего
-// сертификата, чтобы перевыпуск сохранял исходное назначение.
+// certPurposeFromFile derives x509Purpose from extKeyUsage of an existing
+// certificate so that reissuing keeps the original purpose.
 func certPurposeFromFile(certPath string) string {
 	cert, err := readPEMCert(certPath)
 	if err != nil {
@@ -266,7 +266,7 @@ func scanExistingCerts(certsDir string, d *sql.DB) []map[string]string {
 			if _, e := os.Stat(keyPath); e != nil {
 				keyPath = ""
 			}
-			// Проверяем не в базе ли уже
+			// Check whether it is already in the database
 			_, _, serial, e := parseCertDates(path)
 			if e != nil || serial == "" {
 				return nil

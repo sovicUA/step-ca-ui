@@ -22,7 +22,7 @@ type Config struct {
 	SSLKey        string
 	CAMode        string
 	CAHostPath    string
-	// MetricsToken включает /metrics. Пустое значение — endpoint отключён.
+	// MetricsToken enables /metrics. Empty value - endpoint disabled.
 	MetricsToken string
 }
 

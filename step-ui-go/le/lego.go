@@ -30,7 +30,7 @@ const (
 	LEStagingCA    = "https://acme-staging-v02.api.letsencrypt.org/directory"
 )
 
-// LEUser реализует интерфейс registration.User
+// LEUser implements the registration.User interface
 type LEUser struct {
 	Email        string
 	Registration *registration.Resource
@@ -41,7 +41,7 @@ func (u *LEUser) GetEmail() string                        { return u.Email }
 func (u *LEUser) GetRegistration() *registration.Resource { return u.Registration }
 func (u *LEUser) GetPrivateKey() crypto.PrivateKey        { return u.key }
 
-// LEConfig конфигурация для выпуска
+// LEConfig issuance configuration
 type LEConfig struct {
 	Email     string
 	Domain    string
@@ -54,7 +54,7 @@ type LEConfig struct {
 	Staging   bool
 }
 
-// LEResult результат выпуска
+// LEResult issuance result
 type LEResult struct {
 	CertPath  string
 	KeyPath   string
@@ -62,30 +62,30 @@ type LEResult struct {
 	ExpiresAt *time.Time
 }
 
-// IssueCert выпускает сертификат Let's Encrypt
+// IssueCert issues a Let's Encrypt certificate
 func IssueCert(cfg LEConfig) (*LEResult, error) {
 	os.MkdirAll(filepath.Join(LEDirectory, cfg.Domain), 0700)
 
-	// Загружаем или создаём ключ аккаунта
+	// Load or create the account key
 	privateKey, err := loadOrCreateKey(LEKeyFile)
 	if err != nil {
-		return nil, fmt.Errorf("ключ аккаунта: %w", err)
+		return nil, fmt.Errorf("ключ облікового запису: %w", err)
 	}
 
 	user := &LEUser{Email: cfg.Email, key: privateKey}
 
-	// Загружаем регистрацию если есть
+	// Load the registration if there is one
 	if reg, err := loadRegistration(LEAccountFile); err == nil {
 		user.Registration = reg
 	}
 
-	// Выбираем CA
+	// Choose the CA
 	caURL := LEProductionCA
 	if cfg.Staging {
 		caURL = LEStagingCA
 	}
 
-	// Создаём LEGO клиент
+	// Create the LEGO client
 	legoConfig := lego.NewConfig(user)
 	legoConfig.CADirURL = caURL
 	legoConfig.Certificate.KeyType = certcrypto.EC256
@@ -95,13 +95,13 @@ func IssueCert(cfg LEConfig) (*LEResult, error) {
 		return nil, fmt.Errorf("lego client: %w", err)
 	}
 
-	// Настраиваем challenge провайдер
+	// Set up the challenge provider
 	switch cfg.Provider {
 	case "http01":
 		client.Challenge.SetHTTP01Provider(http01.NewProviderServer("", "80"))
 	case "cloudflare":
 		if cfg.CFToken == "" {
-			return nil, fmt.Errorf("Cloudflare API token не задан. Заполните его в Настройках LE")
+			return nil, fmt.Errorf("Cloudflare API token не задано. Заповніть його в налаштуваннях LE")
 		}
 		cfConfig := cloudflare.NewDefaultConfig()
 		cfConfig.AuthToken = cfg.CFToken
@@ -112,7 +112,7 @@ func IssueCert(cfg LEConfig) (*LEResult, error) {
 		client.Challenge.SetDNS01Provider(cp)
 	case "route53":
 		if cfg.R53KeyID == "" || cfg.R53Secret == "" {
-			return nil, fmt.Errorf("AWS Route53: не заданы Access Key ID и Secret Access Key. Заполните их в Настройках LE")
+			return nil, fmt.Errorf("AWS Route53: не задано Access Key ID і Secret Access Key. Заповніть їх у налаштуваннях LE")
 		}
 		r53Config := route53.NewDefaultConfig()
 		r53Config.AccessKeyID = cfg.R53KeyID
@@ -127,30 +127,30 @@ func IssueCert(cfg LEConfig) (*LEResult, error) {
 		}
 		client.Challenge.SetDNS01Provider(rp)
 	default:
-		return nil, fmt.Errorf("неизвестный провайдер: %s", cfg.Provider)
+		return nil, fmt.Errorf("невідомий провайдер: %s", cfg.Provider)
 	}
 
-	// Регистрация если нет
+	// Register if not registered
 	if user.Registration == nil {
 		reg, err := client.Registration.Register(registration.RegisterOptions{TermsOfServiceAgreed: true})
 		if err != nil {
-			return nil, fmt.Errorf("регистрация: %w", err)
+			return nil, fmt.Errorf("реєстрація: %w", err)
 		}
 		user.Registration = reg
 		saveRegistration(LEAccountFile, reg)
 	}
 
-	// Запрашиваем сертификат
+	// Request the certificate
 	request := certificate.ObtainRequest{
 		Domains: []string{cfg.Domain},
 		Bundle:  true,
 	}
 	certs, err := client.Certificate.Obtain(request)
 	if err != nil {
-		return nil, fmt.Errorf("выпуск сертификата: %w", err)
+		return nil, fmt.Errorf("випуск сертифіката: %w", err)
 	}
 
-	// Сохраняем файлы
+	// Save the files
 	certDir := filepath.Join(LEDirectory, cfg.Domain)
 	certPath := filepath.Join(certDir, "certificate.crt")
 	keyPath := filepath.Join(certDir, "private.key")
@@ -162,7 +162,7 @@ func IssueCert(cfg LEConfig) (*LEResult, error) {
 		return nil, err
 	}
 
-	// Парсим даты
+	// Parse the dates
 	issued, expires := parseCertDates(certs.Certificate)
 
 	return &LEResult{
@@ -194,7 +194,7 @@ func loadOrCreateKey(path string) (crypto.PrivateKey, error) {
 			return x509.ParseECPrivateKey(block.Bytes)
 		}
 	}
-	// Создаём новый ключ
+	// Create a new key
 	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
 		return nil, err

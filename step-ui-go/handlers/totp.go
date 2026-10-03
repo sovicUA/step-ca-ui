@@ -39,7 +39,7 @@ func (h *Handler) Profile2FAStart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if u.TOTPEnabled {
-		h.flash(w, r, "err", "2FA уже включена")
+		h.flash(w, r, "err", "2FA уже ввімкнена")
 		http.Redirect(w, r, "/profile/2fa", http.StatusFound)
 		return
 	}
@@ -48,14 +48,14 @@ func (h *Handler) Profile2FAStart(w http.ResponseWriter, r *http.Request) {
 		AccountName: u.Username,
 	})
 	if err != nil {
-		h.flash(w, r, "err", "Не удалось создать TOTP secret: "+err.Error())
+		h.flash(w, r, "err", "Не вдалося створити секрет TOTP: "+err.Error())
 		http.Redirect(w, r, "/profile/2fa", http.StatusFound)
 		return
 	}
 	if err := appdb.UpdateUserTOTPPending(h.db, u.ID, key.Secret()); err != nil {
-		h.flash(w, r, "err", "Не удалось сохранить TOTP secret")
+		h.flash(w, r, "err", "Не вдалося зберегти секрет TOTP")
 	} else {
-		h.flash(w, r, "ok", "Отсканируйте QR-код и подтвердите 6-значным кодом")
+		h.flash(w, r, "ok", "Відскануйте QR-код і підтвердьте 6-значним кодом")
 	}
 	http.Redirect(w, r, "/profile/2fa", http.StatusFound)
 }
@@ -101,24 +101,24 @@ func (h *Handler) Profile2FAConfirm(w http.ResponseWriter, r *http.Request) {
 	si := h.sessionInfo(r)
 	u, _ := appdb.GetUserByID(h.db, si.UserID)
 	if u == nil || u.TOTPPendingSecret == "" || u.TOTPEnabled {
-		h.flash(w, r, "err", "Нет активной настройки 2FA")
+		h.flash(w, r, "err", "Немає активного налаштування 2FA")
 		http.Redirect(w, r, "/profile/2fa", http.StatusFound)
 		return
 	}
 	code := strings.TrimSpace(r.FormValue("totp_code"))
 	if !totp.Validate(code, u.TOTPPendingSecret) {
-		h.flash(w, r, "err", "Неверный TOTP код")
+		h.flash(w, r, "err", "Неправильний код TOTP")
 		http.Redirect(w, r, "/profile/2fa", http.StatusFound)
 		return
 	}
 	recoveryCodes, hashes := generateRecoveryCodes(8)
 	if err := appdb.EnableUserTOTP(h.db, u.ID, u.TOTPPendingSecret); err != nil {
-		h.flash(w, r, "err", "Не удалось включить 2FA")
+		h.flash(w, r, "err", "Не вдалося ввімкнути 2FA")
 		http.Redirect(w, r, "/profile/2fa", http.StatusFound)
 		return
 	}
 	if err := appdb.ReplaceRecoveryCodes(h.db, u.ID, hashes); err != nil {
-		h.flash(w, r, "err", "2FA включена, но recovery-коды не сохранены")
+		h.flash(w, r, "err", "2FA увімкнена, але коди відновлення не збережено")
 		http.Redirect(w, r, "/profile/2fa", http.StatusFound)
 		return
 	}
@@ -126,7 +126,7 @@ func (h *Handler) Profile2FAConfirm(w http.ResponseWriter, r *http.Request) {
 	u.TOTPSecret = u.TOTPPendingSecret
 	u.TOTPPendingSecret = ""
 	_ = appdb.LogAuth(h.db, u.Username, r.RemoteAddr, true, "2FA enabled")
-	h.flash(w, r, "ok", "2FA успешно подключена")
+	h.flash(w, r, "ok", "2FA успішно підключена")
 	data := h.base(w, r, "profile")
 	data["U"] = u
 	data["RecoveryCodes"] = recoveryCodes
@@ -146,20 +146,20 @@ func (h *Handler) Profile2FADisable(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("current_password")
 	code := strings.TrimSpace(r.FormValue("totp_code"))
 	if !security.VerifyPassword(password, u.PasswordHash) {
-		h.flash(w, r, "err", "Неверный текущий пароль")
+		h.flash(w, r, "err", "Неправильний поточний пароль")
 		http.Redirect(w, r, "/profile/2fa", http.StatusFound)
 		return
 	}
 	if !totp.Validate(code, u.TOTPSecret) {
-		h.flash(w, r, "err", "Неверный TOTP код")
+		h.flash(w, r, "err", "Неправильний код TOTP")
 		http.Redirect(w, r, "/profile/2fa", http.StatusFound)
 		return
 	}
 	if err := appdb.DisableUserTOTP(h.db, u.ID); err != nil {
-		h.flash(w, r, "err", "Не удалось отключить 2FA")
+		h.flash(w, r, "err", "Не вдалося вимкнути 2FA")
 	} else {
 		_ = appdb.LogAuth(h.db, u.Username, r.RemoteAddr, true, "2FA disabled")
-		h.flash(w, r, "ok", "2FA отключена")
+		h.flash(w, r, "ok", "2FA вимкнена")
 	}
 	http.Redirect(w, r, "/profile/2fa", http.StatusFound)
 }

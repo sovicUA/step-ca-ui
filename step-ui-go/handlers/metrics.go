@@ -20,8 +20,8 @@ var caHealthCache = struct {
 	checkedAt time.Time
 }{}
 
-// metricWriter собирает текстовый формат Prometheus: HELP/TYPE выводятся
-// один раз на метрику, затем идут её сэмплы.
+// metricWriter builds the Prometheus text format: HELP/TYPE are written
+// once per metric, followed by its samples.
 type metricWriter struct {
 	buf      strings.Builder
 	declared map[string]bool
@@ -43,9 +43,9 @@ func (m *metricWriter) gauge(name, help, labels string, value interface{}) {
 	fmt.Fprintf(&m.buf, "%s{%s} %v\n", name, labels, value)
 }
 
-// Metrics отдаёт метрики в текстовом формате Prometheus.
-// Endpoint включается переменной окружения METRICS_TOKEN и требует
-// заголовок `Authorization: Bearer <token>`.
+// Metrics serves metrics in the Prometheus text format.
+// Endpoint enabled by the METRICS_TOKEN environment variable and requires
+// the header `Authorization: Bearer <token>`.
 func (h *Handler) Metrics(w http.ResponseWriter, r *http.Request) {
 	if !h.metricsAuthorized(r) {
 		http.NotFound(w, r)
@@ -87,8 +87,8 @@ func (h *Handler) metricsAuthorized(r *http.Request) bool {
 	return subtle.ConstantTimeCompare([]byte(provided), []byte(token)) == 1
 }
 
-// caHealthy кэширует результат `step ca health`, чтобы частые scrape-запросы
-// не порождали процесс step CLI на каждый вызов.
+// caHealthy caches the result `step ca health`, so that frequent scrapes
+// do not start a step CLI process on every call.
 func (h *Handler) caHealthy(ctx context.Context) bool {
 	caHealthCache.Lock()
 	defer caHealthCache.Unlock()

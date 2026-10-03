@@ -9,16 +9,16 @@ import (
 	appdb "step-ui/db"
 )
 
-// Notifier доставляет событие в систему уведомлений UI.
-// Совпадает по сигнатуре с handlers.Handler.NotifyAsync.
+// Notifier delivers an event to the UI notification system.
+// Same signature as handlers.Handler.NotifyAsync.
 type Notifier func(eventKey, eventType, severity, title, message string, meta map[string]string)
 
-// StartRenewer запускает фоновую горутину которая проверяет сертификаты каждые 24 часа.
-// notify может быть nil, тогда уведомления не отправляются.
+// StartRenewer starts a background goroutine that checks certificates every 24 hours.
+// notify may be nil, then no notifications are sent.
 func StartRenewer(db *sql.DB, notify Notifier) {
 	go func() {
 		log.Println("[LE] Auto-renewer started (checks every 24h)")
-		// Первая проверка через 5 минут после старта
+		// First check 5 minutes after start
 		time.Sleep(5 * time.Minute)
 		for {
 			runRenewal(db, notify)
@@ -47,7 +47,7 @@ func runRenewal(db *sql.DB, notify Notifier) {
 
 	for _, cert := range certs {
 		log.Printf("[LE] Renewing %s...", cert.Domain)
-		appdb.AddLELog(db, cert.Domain, "renew", "Начало автоматического обновления")
+		appdb.AddLELog(db, cert.Domain, "renew", "Початок автоматичного оновлення")
 
 		email := cert.Email
 		if email == "" {
@@ -70,18 +70,18 @@ func runRenewal(db *sql.DB, notify Notifier) {
 		})
 		if err != nil {
 			appdb.UpdateLECertStatus(db, cert.ID, "error", err.Error())
-			appdb.AddLELog(db, cert.Domain, "error", fmt.Sprintf("Ошибка обновления: %v", err))
+			appdb.AddLELog(db, cert.Domain, "error", fmt.Sprintf("Помилка оновлення: %v", err))
 			log.Printf("[LE] Renewal failed for %s: %v", cert.Domain, err)
 			if notify != nil {
 				notify("", "certificate.renew_failed", "error",
 					"Let's Encrypt auto-renew failed",
-					fmt.Sprintf("Не удалось обновить LE сертификат %s: %v", cert.Domain, err),
+					fmt.Sprintf("Не вдалося оновити сертифікат LE %s: %v", cert.Domain, err),
 					map[string]string{"domain": cert.Domain, "provider": provider, "source": "lets-encrypt"})
 			}
 			continue
 		}
 		appdb.UpdateLECertPaths(db, cert.ID, result.CertPath, result.KeyPath, result.IssuedAt, result.ExpiresAt)
-		appdb.AddLELog(db, cert.Domain, "renew", "Сертификат успешно обновлён")
+		appdb.AddLELog(db, cert.Domain, "renew", "Сертифікат успішно оновлено")
 		log.Printf("[LE] Successfully renewed %s", cert.Domain)
 	}
 }

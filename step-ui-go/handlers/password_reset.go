@@ -22,7 +22,7 @@ const (
 	passwordResetTTL         = 30 * time.Minute
 	passwordResetLimitCount  = 3
 	passwordResetLimitWindow = 15 * time.Minute
-	passwordResetGenericInfo = "Запрос на восстановление обработан."
+	passwordResetGenericInfo = "Запит на відновлення оброблено."
 )
 
 var passwordResetRL = struct {
@@ -37,7 +37,7 @@ func (h *Handler) ForgotPasswordGet(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) ForgotPasswordPost(w http.ResponseWriter, r *http.Request) {
 	data := h.base(w, r, "")
 	if !h.csrfOK(r) {
-		data["Error"] = "Ошибка сессии. Обновите страницу."
+		data["Error"] = "Помилка сесії. Оновіть сторінку."
 		h.render(w, "forgot_password", data)
 		return
 	}
@@ -50,7 +50,7 @@ func (h *Handler) ForgotPasswordPost(w http.ResponseWriter, r *http.Request) {
 	}
 	identifier := trimStr(r.FormValue("identifier"))
 	if identifier == "" {
-		data["Error"] = "Укажите логин или email."
+		data["Error"] = "Вкажіть логін або email."
 		h.render(w, "forgot_password", data)
 		return
 	}
@@ -110,7 +110,7 @@ func (h *Handler) ResetPasswordGet(w http.ResponseWriter, r *http.Request) {
 	data := h.base(w, r, "")
 	token := trimStr(r.URL.Query().Get("token"))
 	if !h.passwordResetTokenOK(token) {
-		data["Error"] = "Ссылка сброса недействительна или истекла."
+		data["Error"] = "Посилання для скидання недійсне або застаріле."
 	} else {
 		data["Token"] = token
 	}
@@ -120,21 +120,21 @@ func (h *Handler) ResetPasswordGet(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) ResetPasswordPost(w http.ResponseWriter, r *http.Request) {
 	data := h.base(w, r, "")
 	if !h.csrfOK(r) {
-		data["Error"] = "Ошибка сессии. Обновите страницу."
+		data["Error"] = "Помилка сесії. Оновіть сторінку."
 		h.render(w, "reset_password", data)
 		return
 	}
 	token := trimStr(r.FormValue("token"))
 	resetToken, err := appdb.GetValidPasswordResetToken(h.db, passwordResetTokenHash(token))
 	if err != nil || resetToken == nil {
-		data["Error"] = "Ссылка сброса недействительна или истекла."
+		data["Error"] = "Посилання для скидання недійсне або застаріле."
 		h.render(w, "reset_password", data)
 		return
 	}
 	newPW := trimStr(r.FormValue("new_password"))
 	confirm := trimStr(r.FormValue("confirm_password"))
 	if newPW != confirm {
-		data["Error"] = "Пароли не совпадают."
+		data["Error"] = "Паролі не збігаються."
 		data["Token"] = token
 		h.render(w, "reset_password", data)
 		return
@@ -147,12 +147,12 @@ func (h *Handler) ResetPasswordPost(w http.ResponseWriter, r *http.Request) {
 	}
 	user, err := appdb.GetUserByID(h.db, resetToken.UserID)
 	if err != nil || user == nil || !user.IsActive {
-		data["Error"] = "Аккаунт недоступен."
+		data["Error"] = "Обліковий запис недоступний."
 		h.render(w, "reset_password", data)
 		return
 	}
 	if err := appdb.UpdateUserPassword(h.db, user.ID, security.HashPassword(newPW)); err != nil {
-		data["Error"] = "Не удалось обновить пароль."
+		data["Error"] = "Не вдалося оновити пароль."
 		data["Token"] = token
 		h.render(w, "reset_password", data)
 		return
@@ -160,7 +160,7 @@ func (h *Handler) ResetPasswordPost(w http.ResponseWriter, r *http.Request) {
 	_ = appdb.MarkPasswordResetTokenUsed(h.db, resetToken.ID)
 	_ = appdb.InvalidatePasswordResetTokens(h.db, user.ID)
 	_ = appdb.LogAuth(h.db, user.Username, clientIP(r), true, "Password reset completed")
-	h.flash(w, r, "ok", "Пароль обновлён. Войдите с новым паролем.")
+	h.flash(w, r, "ok", "Пароль оновлено. Увійдіть з новим паролем.")
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
@@ -226,7 +226,7 @@ func sendPasswordResetMail(ctx context.Context, host string, port int, securityM
 	return sendSMTPMail(ctx, host, port, securityMode, username, password, from, []string{to}, subject, body)
 }
 
-// sendSMTPMail отправляет plain-text письмо по настройкам SMTP из админки.
+// sendSMTPMail sends a plain-text email using the SMTP settings from the admin area.
 func sendSMTPMail(ctx context.Context, host string, port int, securityMode, username, password, from string, to []string, subject, body string) error {
 	if len(to) == 0 {
 		return fmt.Errorf("recipient list is empty")
