@@ -1,31 +1,31 @@
 {{define "content"}}
 <div class="page-header">
-  <div><div class="breadcrumb">certificates &middot; import</div><h1>Імпорт сертифікатів</h1></div>
+  <div><div class="breadcrumb">certificates &middot; import</div><h1>{{T "Імпорт сертифікатів"}}</h1></div>
 </div>
 
 <div class="tabs">
-  <a href="/import?tab=upload" class="tab {{if or (eq .ActiveTab "upload") (eq .ActiveTab "")}}active{{end}}">Завантажити файл</a>
-  <a href="/import?tab=scan"   class="tab {{if eq .ActiveTab "scan"}}active{{end}}">Сканувати сервер</a>
-  <a href="/import?tab=manual" class="tab {{if eq .ActiveTab "manual"}}active{{end}}">Вручну</a>
+  <a href="/import?tab=upload" class="tab {{if or (eq .ActiveTab "upload") (eq .ActiveTab "")}}active{{end}}">{{T "Завантажити файл"}}</a>
+  <a href="/import?tab=scan"   class="tab {{if eq .ActiveTab "scan"}}active{{end}}">{{T "Сканувати сервер"}}</a>
+  <a href="/import?tab=manual" class="tab {{if eq .ActiveTab "manual"}}active{{end}}">{{T "Вручну"}}</a>
 </div>
 
 {{if or (eq .ActiveTab "upload") (eq .ActiveTab "")}}
 <!-- ═══ UPLOAD ═══ -->
 <div class="card" style="max-width:720px">
-  <div class="card-header"><h3>Завантажити з комп’ютера</h3></div>
+  <div class="card-header"><h3>{{T "Завантажити з комп’ютера"}}</h3></div>
   <div class="card-body">
     <form method="POST" action="/import" enctype="multipart/form-data" id="uploadForm">
       <input type="hidden" name="action" value="upload">
       <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
 
       <div class="form-row">
-        <div><label>Назва</label><input type="text" name="name" id="certName" placeholder="my-cert" required autocomplete="off"></div>
-        <div><label>Домен</label><input type="text" name="domain" id="certDomain" placeholder="example.com" required autocomplete="off"></div>
+        <div><label>{{T "Назва"}}</label><input type="text" name="name" id="certName" placeholder="my-cert" required autocomplete="off"></div>
+        <div><label>{{T "Домен"}}</label><input type="text" name="domain" id="certDomain" placeholder="example.com" required autocomplete="off"></div>
       </div>
 
       <!-- Drop-зона для .crt -->
       <div class="form-full">
-        <label>Файл сертифіката (.crt)</label>
+        <label>{{T "Файл сертифіката (.crt)"}}</label>
         <div class="drop-zone" id="dropCrt" data-accept=".crt,.pem">
           <div class="drop-empty">
             <div class="drop-cloud">
@@ -34,8 +34,8 @@
                 <path d="M24 22v12M19 27l5-5 5 5"/>
               </svg>
             </div>
-            <div class="drop-title">Перетягніть .crt сюди</div>
-            <div class="drop-hint">або <span class="drop-pick">натисніть, щоб вибрати</span></div>
+            <div class="drop-title">{{T "Перетягніть .crt сюди"}}</div>
+            <div class="drop-hint">{{T "або"}} <span class="drop-pick">{{T "натисніть, щоб вибрати"}}</span></div>
             <div class="drop-accept">.crt &middot; .pem</div>
           </div>
           <div class="drop-loaded" style="display:none">
@@ -50,7 +50,7 @@
                 <div class="file-name"></div>
                 <div class="file-size"></div>
               </div>
-              <button type="button" class="file-remove" title="Прибрати">&times;</button>
+              <button type="button" class="file-remove" title="{{T "Прибрати"}}">&times;</button>
             </div>
           </div>
           <input type="file" name="cert_file" accept=".crt,.pem" required hidden>
@@ -59,7 +59,7 @@
 
       <!-- Drop-зона для .key -->
       <div class="form-full">
-        <label>Файл ключа (.key) <span style="color:var(--muted);font-weight:400;text-transform:none">— необов’язково</span></label>
+        <label>{{T "Файл ключа (.key)"}} <span style="color:var(--muted);font-weight:400;text-transform:none">— {{T "необов’язково"}}</span></label>
         <div class="drop-zone" id="dropKey" data-accept=".key,.pem">
           <div class="drop-empty">
             <div class="drop-cloud">
@@ -68,8 +68,8 @@
                 <path d="M24 24h18M36 24v6M42 24v4"/>
               </svg>
             </div>
-            <div class="drop-title">Перетягніть .key сюди</div>
-            <div class="drop-hint">або <span class="drop-pick">натисніть, щоб вибрати</span></div>
+            <div class="drop-title">{{T "Перетягніть .key сюди"}}</div>
+            <div class="drop-hint">{{T "або"}} <span class="drop-pick">{{T "натисніть, щоб вибрати"}}</span></div>
             <div class="drop-accept">.key &middot; .pem</div>
           </div>
           <div class="drop-loaded" style="display:none">
@@ -84,14 +84,14 @@
                 <div class="file-name"></div>
                 <div class="file-size"></div>
               </div>
-              <button type="button" class="file-remove" title="Прибрати">&times;</button>
+              <button type="button" class="file-remove" title="{{T "Прибрати"}}">&times;</button>
             </div>
           </div>
           <input type="file" name="key_file" accept=".key,.pem" hidden>
         </div>
       </div>
 
-      <button type="submit" class="btn" style="padding:10px 24px;font-weight:600">Завантажити</button>
+      <button type="submit" class="btn" style="padding:10px 24px;font-weight:600">{{T "Завантажити"}}</button>
     </form>
   </div>
 </div>
@@ -100,15 +100,15 @@
 {{if eq .ActiveTab "scan"}}
 <!-- ═══ SCAN ═══ -->
 <div class="card" style="max-width:560px">
-  <div class="card-header"><h3>Сканувати сервер</h3></div>
+  <div class="card-header"><h3>{{T "Сканувати сервер"}}</h3></div>
   <div class="card-body">
     <p style="color:var(--muted);margin-bottom:16px;font-size:12px">
-      Знайдено незареєстрованих: <strong style="color:var(--text)">{{len .Unregistered}}</strong>
+      {{T "Знайдено незареєстрованих:"}} <strong style="color:var(--text)">{{len .Unregistered}}</strong>
     </p>
     <form method="POST" action="/import">
       <input type="hidden" name="action" value="scan">
       <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
-      <button type="submit" class="btn">Сканувати й імпортувати</button>
+      <button type="submit" class="btn">{{T "Сканувати й імпортувати"}}</button>
     </form>
   </div>
 </div>
@@ -117,36 +117,36 @@
 {{if eq .ActiveTab "manual"}}
 <!-- ═══ MANUAL ═══ -->
 <div class="card" style="max-width:720px">
-  <div class="card-header"><h3>Вказати шлях вручну</h3></div>
+  <div class="card-header"><h3>{{T "Вказати шлях вручну"}}</h3></div>
   <div class="card-body">
     <form method="POST" action="/import">
       <input type="hidden" name="action" value="manual">
       <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
 
       <div class="form-row">
-        <div><label>Назва</label><input type="text" name="name" id="manName" placeholder="my-cert" required autocomplete="off"></div>
-        <div><label>Домен</label><input type="text" name="domain" placeholder="example.com" required autocomplete="off"></div>
+        <div><label>{{T "Назва"}}</label><input type="text" name="name" id="manName" placeholder="my-cert" required autocomplete="off"></div>
+        <div><label>{{T "Домен"}}</label><input type="text" name="domain" placeholder="example.com" required autocomplete="off"></div>
       </div>
 
       <div class="form-full">
-        <label>Шлях до .crt</label>
+        <label>{{T "Шлях до .crt"}}</label>
         <div class="path-input-wrap">
           <span class="path-prefix">/</span>
           <input type="text" name="cert_path" id="manCrtPath" placeholder="opt/step-ui/certs/my-cert/certificate.crt" required autocomplete="off">
         </div>
-        <div class="input-hint">Абсолютний шлях до файлу на сервері</div>
+        <div class="input-hint">{{T "Абсолютний шлях до файлу на сервері"}}</div>
       </div>
 
       <div class="form-full">
-        <label>Шлях до .key <span style="color:var(--muted);font-weight:400;text-transform:none">— необов’язково</span></label>
+        <label>{{T "Шлях до .key"}} <span style="color:var(--muted);font-weight:400;text-transform:none">— {{T "необов’язково"}}</span></label>
         <div class="path-input-wrap">
           <span class="path-prefix">/</span>
           <input type="text" name="key_path" id="manKeyPath" placeholder="opt/step-ui/certs/my-cert/private.key" autocomplete="off">
         </div>
-        <div class="input-hint">Якщо ключ зберігається окремо</div>
+        <div class="input-hint">{{T "Якщо ключ зберігається окремо"}}</div>
       </div>
 
-      <button type="submit" class="btn" style="padding:10px 24px;font-weight:600">Імпортувати</button>
+      <button type="submit" class="btn" style="padding:10px 24px;font-weight:600">{{T "Імпортувати"}}</button>
     </form>
   </div>
 </div>

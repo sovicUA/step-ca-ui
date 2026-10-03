@@ -4,10 +4,13 @@ import (
 	"bytes"
 	"html/template"
 	"os"
+	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
 
+	"step-ui/i18n"
 	"step-ui/models"
 )
 
@@ -23,7 +26,7 @@ func TestTemplatesExecute(t *testing.T) {
 	}
 	t.Cleanup(func() { _ = os.Chdir(wd) })
 
-	h := &Handler{tmpls: make(map[string]*template.Template)}
+	h := &Handler{tmpls: make(map[string]map[string]*template.Template)}
 	h.loadTemplates()
 
 	expires := time.Now().Add(45 * 24 * time.Hour)
@@ -38,7 +41,7 @@ func TestTemplatesExecute(t *testing.T) {
 
 	base := func(page string) map[string]interface{} {
 		return map[string]interface{}{
-			"Session":    &models.SessionInfo{UserID: 1, Username: "admin", Role: "admin", Theme: "dark"},
+			"Session":    &models.SessionInfo{UserID: 1, Username: "admin", Role: "admin", Theme: "dark", Lang: "uk"},
 			"Msgs":       []models.FlashMsg{{Type: "warn", Text: "warn"}, {Type: "ok", Text: "ok"}},
 			"ActivePage": page,
 			"CSRFToken":  "test-token",
@@ -122,29 +125,70 @@ func TestTemplatesExecute(t *testing.T) {
 		},
 	}
 
-	for _, tc := range cases {
-		t.Run(tc.page, func(t *testing.T) {
-			tmpl, ok := h.tmpls[tc.page]
-			if !ok {
-				t.Fatalf("template %s was not loaded", tc.page)
-			}
-			data := base(tc.page)
-			for k, v := range tc.extra {
-				data[k] = v
-			}
-			name := "layout"
-			if strings.HasPrefix(tc.page, "admin_") {
-				name = "admin_layout"
-			}
-			var buf bytes.Buffer
-			if err := tmpl.ExecuteTemplate(&buf, name, data); err != nil {
-				t.Fatalf("execute %s: %v", tc.page, err)
-			}
-			for _, want := range tc.expect {
-				if !strings.Contains(buf.String(), want) {
-					t.Errorf("%s: rendered output does not contain %q", tc.page, want)
+	// Text that comes from the test data itself, and the language switcher (each language in its own name)
+	testData := regexp.MustCompile(`Дата|1хв|Українська`)
+	cyrillic := regexp.MustCompile(`[А-Яа-яІіЇїЄєҐґ]+`)
+
+	for _, l := range i18n.Langs {
+		for _, tc := range cases {
+			t.Run(l.Code+"/"+tc.page, func(t *testing.T) {
+				tmpl, ok := h.tmpls[l.Code][tc.page]
+				if !ok {
+					t.Fatalf("template %s was not loaded", tc.page)
+				}
+				data := base(tc.page)
+				for k, v := range tc.extra {
+					data[k] = v
+				}
+				name := "layout"
+				if strings.HasPrefix(tc.page, "admin_") {
+					name = "admin_layout"
+				}
+				var buf bytes.Buffer
+				if err := tmpl.ExecuteTemplate(&buf, name, data); err != nil {
+					t.Fatalf("execute %s: %v", tc.page, err)
+				}
+				out := buf.String()
+				if !strings.Contains(out, `lang="`+l.Code+`"`) {
+					t.Errorf("%s: html lang is not %q", tc.page, l.Code)
+				}
+				if l.Code == i18n.Source {
+					for _, want := range tc.expect {
+						if !strings.Contains(out, want) {
+							t.Errorf("%s: rendered output does not contain %q", tc.page, want)
+						}
+					}
+					return
+				}
+				// Every Ukrainian word on a translated page is a missing translation
+				if left := cyrillic.FindAllString(testData.ReplaceAllString(out, ""), 10); len(left) > 0 {
+					t.Errorf("%s: untranslated text in %s: %v", tc.page, l.Code, left)
+				}
+			})
+		}
+	}
+}
+
+// TestTemplateKeysTranslated checks that every {{T "..."}} literal of the templates has a translation.
+func TestTemplateKeysTranslated(t *testing.T) {
+	files, err := filepath.Glob("../templates/*.html")
+	if err != nil || len(files) == 0 {
+		t.Fatalf("templates not found: %v", err)
+	}
+	keyRe := regexp.MustCompile(`\{\{T "((?:[^"\\]|\\.)*)"\}\}`)
+	for _, l := range i18n.Langs {
+		if l.Code == i18n.Source {
+			continue
+		}
+		catalog := i18n.Keys(l.Code)
+		for _, f := range files {
+			b, _ := os.ReadFile(f)
+			for _, m := range keyRe.FindAllStringSubmatch(string(b), -1) {
+				key := strings.ReplaceAll(strings.ReplaceAll(m[1], `\"`, `"`), `\\`, `\`)
+				if catalog[key] == "" {
+					t.Errorf("%s: no %s translation for %q", filepath.Base(f), l.Code, key)
 				}
 			}
-		})
+		}
 	}
 }

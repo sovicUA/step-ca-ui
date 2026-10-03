@@ -1,32 +1,32 @@
 {{define "content"}}
 <div class="page-header">
-  <div><div class="breadcrumb">ca &middot; history</div><h1>Історія операцій</h1></div>
+  <div><div class="breadcrumb">ca &middot; history</div><h1>{{T "Історія операцій"}}</h1></div>
 </div>
 
 <div class="card" style="margin-bottom:12px">
   <div class="card-body" style="padding:14px 16px">
     <form method="GET" action="/history" id="historyForm" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-      <label style="margin-bottom:0;width:auto">Дії:</label>
+      <label style="margin-bottom:0;width:auto">{{T "Дії:"}}</label>
 
       <!-- Multi-select з чипами -->
       <div class="multi-select" id="actionsMulti" data-name="action" style="min-width:280px;max-width:520px;flex:1">
         <div class="ms-box" tabindex="0">
           <div class="ms-chips" id="msChips"></div>
-          <span class="ms-placeholder" id="msPlaceholder">Усі дії</span>
+          <span class="ms-placeholder" id="msPlaceholder">{{T "Усі дії"}}</span>
           <span class="ms-arrow"></span>
         </div>
         <div class="ms-dropdown">
-          <div class="ms-opt" data-val="issue"><span class="chk">&#10003;</span>Випуск</div>
-          <div class="ms-opt" data-val="renew"><span class="chk">&#10003;</span>Перевипуск</div>
-          <div class="ms-opt" data-val="revoke"><span class="chk">&#10003;</span>Відкликання</div>
-          <div class="ms-opt" data-val="import"><span class="chk">&#10003;</span>Імпорт</div>
+          <div class="ms-opt" data-val="issue"><span class="chk">&#10003;</span>{{T "Випуск"}}</div>
+          <div class="ms-opt" data-val="renew"><span class="chk">&#10003;</span>{{T "Перевипуск"}}</div>
+          <div class="ms-opt" data-val="revoke"><span class="chk">&#10003;</span>{{T "Відкликання"}}</div>
+          <div class="ms-opt" data-val="import"><span class="chk">&#10003;</span>{{T "Імпорт"}}</div>
         </div>
       </div>
 
       {{if .FilterActions}}
-      <a href="/history" class="btn btn-ghost btn-sm">Скинути</a>
+      <a href="/history" class="btn btn-ghost btn-sm">{{T "Скинути"}}</a>
       {{end}}
-      <span style="color:var(--muted);font-size:11px;margin-left:auto">Усього: {{.Total}}</span>
+      <span style="color:var(--muted);font-size:11px;margin-left:auto">{{T "Усього:"}} {{.Total}}</span>
     </form>
   </div>
 </div>
@@ -43,7 +43,7 @@
           <col style="width:140px">
         </colgroup>
     
-    <thead><tr><th>Час</th><th>Дія</th><th>Сертифікат</th><th>Домен</th><th>Подробиці</th><th>Користувач</th></tr></thead>
+    <thead><tr><th>{{T "Час"}}</th><th>{{T "Дія"}}</th><th>{{T "Сертифікат"}}</th><th>{{T "Домен"}}</th><th>{{T "Подробиці"}}</th><th>{{T "Користувач"}}</th></tr></thead>
     <tbody>
     {{range .Entries}}
     <tr>
@@ -51,11 +51,11 @@
       <td><span class="badge {{if eq .Action "issue"}}ok{{else if eq .Action "renew"}}blue{{else if eq .Action "revoke"}}danger{{else}}gray{{end}}">{{.Action}}</span></td>
       <td><strong>{{.CertName}}</strong></td>
       <td><code>{{.Domain}}</code></td>
-      <td style="color:var(--muted)">{{.Details}}</td>
+      <td style="color:var(--muted)">{{T .Details}}</td>
       <td>{{.Username}}</td>
     </tr>
     {{else}}
-    <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Немає записів</td></tr>
+    <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">{{T "Немає записів"}}</td></tr>
     {{end}}
     </tbody>
   </table>
@@ -121,7 +121,7 @@
 <script>
 (function(){
   var selected = [{{range .FilterActions}}"{{.}}",{{end}}];
-  var LABELS = {issue:"Випуск", renew:"Перевипуск", revoke:"Відкликання", import:"Імпорт"};
+  var LABELS = {issue:"{{T "Випуск"}}", renew:"{{T "Перевипуск"}}", revoke:"{{T "Відкликання"}}", import:"{{T "Імпорт"}}"};
   var ms    = document.getElementById('actionsMulti');
   var box   = ms.querySelector('.ms-box');
   var drop  = ms.querySelector('.ms-dropdown');

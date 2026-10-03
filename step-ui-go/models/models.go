@@ -22,6 +22,7 @@ type User struct {
 	DisplayName       string
 	Email             string
 	Theme             string
+	Lang              string
 	TOTPEnabled       bool
 	TOTPSecret        string
 	TOTPPendingSecret string
@@ -82,6 +83,7 @@ type SessionInfo struct {
 	Username string
 	Role     string
 	Theme    string
+	Lang     string
 }
 
 type NotificationSettings struct {

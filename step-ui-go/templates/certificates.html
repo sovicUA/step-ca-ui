@@ -1,33 +1,33 @@
 {{define "content"}}
 <div class="page-header">
-  <div><div class="breadcrumb">certificates</div><h1>Усі сертифікати</h1></div>
+  <div><div class="breadcrumb">certificates</div><h1>{{T "Усі сертифікати"}}</h1></div>
 </div>
 
 <!-- Панель фільтрів -->
 <div class="card cert-filter-card">
   <div class="card-body cert-filter-grid">
     <div>
-      <label>Пошук за іменем або доменом</label>
+      <label>{{T "Пошук за іменем або доменом"}}</label>
       <input type="text" id="f-search" placeholder="start.example.com" autocomplete="off">
     </div>
     <div>
-      <label>Стан</label>
+      <label>{{T "Стан"}}</label>
       <select id="f-status">
-        <option value="">Усі</option>
-        <option value="active">Активні</option>
-        <option value="expired">Сплили</option>
-        <option value="revoked">Відкликані</option>
+        <option value="">{{T "Усі"}}</option>
+        <option value="active">{{T "Активні"}}</option>
+        <option value="expired">{{T "Сплили"}}</option>
+        <option value="revoked">{{T "Відкликані"}}</option>
       </select>
     </div>
     <div>
-      <label>Тип ключа</label>
+      <label>{{T "Тип ключа"}}</label>
       <select id="f-type">
-        <option value="">Усі</option>
+        <option value="">{{T "Усі"}}</option>
       </select>
     </div>
     <div style="display:flex;gap:8px;align-items:center;justify-content:flex-end">
-      <span id="f-counter" style="color:var(--muted);font-size:11px;white-space:nowrap">Усього: 0</span>
-      <button type="button" id="f-reset" class="btn btn-ghost btn-sm">Скинути</button>
+      <span id="f-counter" style="color:var(--muted);font-size:11px;white-space:nowrap">{{T "Усього: 0"}}</span>
+      <button type="button" id="f-reset" class="btn btn-ghost btn-sm">{{T "Скинути"}}</button>
     </div>
   </div>
 </div>
@@ -46,26 +46,26 @@
           <col class="cert-col-actions">
         </colgroup>
     
-    <thead><tr><th>Ім’я</th><th>Домен</th><th>Видано</th><th>Спливає</th><th>Стан</th><th>Тип</th><th>Серійний</th><th>Дії</th></tr></thead>
+    <thead><tr><th>{{T "Ім’я"}}</th><th>{{T "Домен"}}</th><th>{{T "Видано"}}</th><th>{{T "Спливає"}}</th><th>{{T "Стан"}}</th><th>{{T "Тип"}}</th><th>{{T "Серійний"}}</th><th>{{T "Дії"}}</th></tr></thead>
     <tbody>
     {{range .Certs}}
     <tr data-name="{{.Name}}" data-domain="{{.Domain}}" data-status="{{.Status}}" data-type="{{.KeyType}}">
-      <td class="cert-name-cell" data-label="Ім’я"><a href="/certificates/{{.ID}}"><strong>{{.Name}}</strong></a></td>
-      <td class="cert-domain-cell" data-label="Домен"><code>{{.Domain}}</code></td>
-      <td style="color:var(--muted)" data-label="Видано">{{fmtTime .IssuedAt}}</td>
-      <td data-label="Спливає">{{fmtTime .ExpiresAt}}</td>
-      <td data-label="Стан"><span class="badge {{if eq .Status "active"}}{{badgeClass .ExpiresAt}}{{else}}danger{{end}}">{{.Status}}</span></td>
-      <td data-label="Тип"><span class="badge gray">{{.KeyType}}</span></td>
-      <td class="cert-serial-cell" data-label="Серійний"><code title="{{.Serial}}">{{.Serial}}</code></td>
-      <td class="cert-actions-cell" data-label="Дії">
+      <td class="cert-name-cell" data-label="{{T "Ім’я"}}"><a href="/certificates/{{.ID}}"><strong>{{.Name}}</strong></a></td>
+      <td class="cert-domain-cell" data-label="{{T "Домен"}}"><code>{{.Domain}}</code></td>
+      <td style="color:var(--muted)" data-label="{{T "Видано"}}">{{fmtTime .IssuedAt}}</td>
+      <td data-label="{{T "Спливає"}}">{{fmtTime .ExpiresAt}}</td>
+      <td data-label="{{T "Стан"}}"><span class="badge {{if eq .Status "active"}}{{badgeClass .ExpiresAt}}{{else}}danger{{end}}">{{.Status}}</span></td>
+      <td data-label="{{T "Тип"}}"><span class="badge gray">{{.KeyType}}</span></td>
+      <td class="cert-serial-cell" data-label="{{T "Серійний"}}"><code title="{{.Serial}}">{{.Serial}}</code></td>
+      <td class="cert-actions-cell" data-label="{{T "Дії"}}">
         <div class="cert-actions">
-        <a href="/certificates/{{.ID}}" class="btn btn-ghost btn-sm">Подробиці</a>
+        <a href="/certificates/{{.ID}}" class="btn btn-ghost btn-sm">{{T "Подробиці"}}</a>
         {{if hasRole $.Session.Role "manager"}}
         <form method="POST" action="/renew/{{.ID}}" style="display:inline"
-          data-confirm="Перевипустити сертифікат &quot;{{.Name}}&quot;? Файл буде замінено."
-          data-confirm-btn="Перевипустити" data-confirm-class="warning" data-confirm-title="Перевипуск">
+          data-confirm="{{T "Перевипустити сертифікат"}} &quot;{{.Name}}&quot;? {{T "Файл буде замінено."}}"
+          data-confirm-btn="{{T "Перевипустити"}}" data-confirm-class="warning" data-confirm-title="{{T "Перевипуск"}}">
           <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
-          <button type="submit" class="btn btn-warn btn-sm" title="Перевипустити">&#x21BA;</button>
+          <button type="submit" class="btn btn-warn btn-sm" title="{{T "Перевипустити"}}">&#x21BA;</button>
         </form>
         <a href="/download/cert/{{.ID}}" class="btn btn-ghost btn-sm">CRT</a>
         {{if .KeyPath}}<a href="/download/key/{{.ID}}" class="btn btn-ghost btn-sm">KEY</a>{{end}}
@@ -73,17 +73,17 @@
         {{end}}
         {{if eq $.Session.Role "admin"}}{{if eq .Status "active"}}
         <form method="POST" action="/revoke/{{.ID}}" style="display:inline"
-          data-confirm="ВІДКЛИКАТИ &quot;{{.Name}}&quot;? Дія незворотна."
-          data-confirm-btn="Відкликати" data-confirm-class="danger" data-confirm-title="Відкликання сертифіката">
+          data-confirm="{{T "ВІДКЛИКАТИ"}} &quot;{{.Name}}&quot;? {{T "Дія незворотна."}}"
+          data-confirm-btn="{{T "Відкликати"}}" data-confirm-class="danger" data-confirm-title="{{T "Відкликання сертифіката"}}">
           <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
-          <button type="submit" class="btn btn-danger btn-sm">Відкликати</button>
+          <button type="submit" class="btn btn-danger btn-sm">{{T "Відкликати"}}</button>
         </form>
         {{end}}{{end}}
         </div>
       </td>
     </tr>
     {{else}}
-    <tr id="emptyRow"><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">Немає сертифікатів</td></tr>
+    <tr id="emptyRow"><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">{{T "Немає сертифікатів"}}</td></tr>
     {{end}}
     </tbody>
   </table>
@@ -128,7 +128,7 @@
       r.style.display = visible ? '' : 'none';
       if(visible) shown++;
     });
-    counter.textContent = (shown === total) ? ('Усього: ' + total) : ('Знайдено: ' + shown + ' з ' + total);
+    counter.textContent = (shown === total) ? ('{{T "Усього:"}} ' + total) : ('{{T "Знайдено:"}} ' + shown + ' {{T "з"}} ' + total);
   }
 
   fSearch.addEventListener('input', applyFilters);

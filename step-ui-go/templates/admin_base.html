@@ -1,9 +1,9 @@
 {{define "admin_layout"}}<!DOCTYPE html>
-<html lang="uk" data-theme="{{if .Session.Theme}}{{if eq .Session.Theme "auto"}}dark{{else}}{{.Session.Theme}}{{end}}{{else}}dark{{end}}">
+<html lang="{{lang}}" data-theme="{{if .Session.Theme}}{{if eq .Session.Theme "auto"}}dark{{else}}{{.Session.Theme}}{{end}}{{else}}dark{{end}}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Адмін-панель · Step-CA</title>
+  <title>{{T "Адмін-панель · Step-CA"}}</title>
   <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
   <link rel="stylesheet" href="/static/css/themes.css">
   <link rel="stylesheet" href="/static/css/base.css">
@@ -17,45 +17,46 @@
     <span class="admin-topbrand-icon">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 7v5c0 5 3.5 9.5 9 11 5.5-1.5 9-6 9-11V7l-9-5z"/></svg>
     </span>
-    <span>Адмін-панель</span>
+    <span>{{T "Адмін-панель"}}</span>
   </a>
-  <nav class="admin-topmenu" aria-label="Адмін-навігація">
+  <nav class="admin-topmenu" aria-label="{{T "Адмін-навігація"}}">
     <details class="admin-dd">
-      <summary>Огляд</summary>
+      <summary>{{T "Огляд"}}</summary>
       <div class="admin-dd-menu">
-        <a href="/admin" class="{{if eq .ActivePage "admin"}}active{{end}}">Панель керування</a>
-        <a href="/admin/activity" class="{{if eq .ActivePage "admin_activity"}}active{{end}}">Активність CA</a>
+        <a href="/admin" class="{{if eq .ActivePage "admin"}}active{{end}}">{{T "Панель керування"}}</a>
+        <a href="/admin/activity" class="{{if eq .ActivePage "admin_activity"}}active{{end}}">{{T "Активність CA"}}</a>
       </div>
     </details>
     <details class="admin-dd">
-      <summary>Користувачі</summary>
+      <summary>{{T "Користувачі"}}</summary>
       <div class="admin-dd-menu">
-        <a href="/admin/users" class="{{if eq .ActivePage "admin_users"}}active{{end}}">Усі користувачі</a>
-        <a href="/admin/users-temp" class="{{if eq .ActivePage "admin_users_temp"}}active{{end}}">Тимчасові користувачі</a>
+        <a href="/admin/users" class="{{if eq .ActivePage "admin_users"}}active{{end}}">{{T "Усі користувачі"}}</a>
+        <a href="/admin/users-temp" class="{{if eq .ActivePage "admin_users_temp"}}active{{end}}">{{T "Тимчасові користувачі"}}</a>
       </div>
     </details>
     <details class="admin-dd">
-      <summary>Безпека</summary>
+      <summary>{{T "Безпека"}}</summary>
       <div class="admin-dd-menu">
-        <a href="/admin/security" class="{{if eq .ActivePage "admin_security"}}active{{end}}">Журнал безпеки</a>
+        <a href="/admin/security" class="{{if eq .ActivePage "admin_security"}}active{{end}}">{{T "Журнал безпеки"}}</a>
       </div>
     </details>
     <details class="admin-dd">
-      <summary>Сервер</summary>
+      <summary>{{T "Сервер"}}</summary>
       <div class="admin-dd-menu">
-        <a href="/admin/ca" class="{{if eq .ActivePage "admin_ca"}}active{{end}}">Налаштування CA</a>
-        <a href="/admin/console" class="{{if eq .ActivePage "admin_console"}}active{{end}}">Консоль сервера</a>
-        <a href="/admin/about" class="{{if eq .ActivePage "admin_about"}}active{{end}}">Про систему</a>
+        <a href="/admin/ca" class="{{if eq .ActivePage "admin_ca"}}active{{end}}">{{T "Налаштування CA"}}</a>
+        <a href="/admin/console" class="{{if eq .ActivePage "admin_console"}}active{{end}}">{{T "Консоль сервера"}}</a>
+        <a href="/admin/about" class="{{if eq .ActivePage "admin_about"}}active{{end}}">{{T "Про систему"}}</a>
         <a href="/admin/integrity" class="{{if eq .ActivePage "admin_integrity"}}active{{end}}">CA integrity</a>
-        <a href="/admin/backup" class="{{if eq .ActivePage "admin_backup"}}active{{end}}">Резервна копія</a>
-        <a href="/admin/notifications" class="{{if eq .ActivePage "admin_notifications"}}active{{end}}">Сповіщення</a>
+        <a href="/admin/backup" class="{{if eq .ActivePage "admin_backup"}}active{{end}}">{{T "Резервна копія"}}</a>
+        <a href="/admin/notifications" class="{{if eq .ActivePage "admin_notifications"}}active{{end}}">{{T "Сповіщення"}}</a>
       </div>
     </details>
     <details class="admin-dd admin-dd-right">
-      <summary>Обліковий запис</summary>
+      <summary>{{T "Обліковий запис"}}</summary>
       <div class="admin-dd-menu">
-        <a href="/">Повернутися до застосунку</a>
-        <a href="/logout" class="admin-danger-link">Вийти</a>
+        <a href="/">{{T "Повернутися до застосунку"}}</a>
+        <a href="/logout" class="admin-danger-link">{{T "Вийти"}}</a>
+        <div class="lang-switch" aria-label="Language">{{range langs}}<a href="/lang/{{.Code}}" title="{{.Name}}" lang="{{.Code}}"{{if eq .Code lang}} class="active" aria-current="true"{{end}}>{{.Short}}</a>{{end}}</div>
       </div>
     </details>
   </nav>
@@ -67,51 +68,51 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 7v5c0 5 3.5 9.5 9 11 5.5-1.5 9-6 9-11V7l-9-5z"/></svg>
       </div>
       <div class="admin-title">
-        <b>Адмін-панель</b>
+        <b>{{T "Адмін-панель"}}</b>
         <span>Step-CA · Control</span>
       </div>
     </div>
 
     <nav class="admin-nav">
-      <div class="admin-nav-section">Огляд</div>
+      <div class="admin-nav-section">{{T "Огляд"}}</div>
       <a href="/admin" class="{{if eq .ActivePage "admin"}}active{{end}}">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        <span>Панель керування</span>
+        <span>{{T "Панель керування"}}</span>
       </a>
       <a href="/admin/activity" class="{{if eq .ActivePage "admin_activity"}}active{{end}}">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-        <span>Активність CA</span>
-        <span class="stub-badge">НЕЗАБАРОМ</span>
+        <span>{{T "Активність CA"}}</span>
+        <span class="stub-badge">{{T "НЕЗАБАРОМ"}}</span>
       </a>
 
-      <div class="admin-nav-section">Користувачі</div>
+      <div class="admin-nav-section">{{T "Користувачі"}}</div>
       <a href="/admin/users" class="{{if eq .ActivePage "admin_users"}}active{{end}}">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        <span>Усі користувачі</span>
+        <span>{{T "Усі користувачі"}}</span>
       </a>
       <a href="/admin/users-temp" class="{{if eq .ActivePage "admin_users_temp"}}active{{end}}">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <span>Тимчасові користувачі</span>
+        <span>{{T "Тимчасові користувачі"}}</span>
       </a>
 
-      <div class="admin-nav-section">Безпека</div>
+      <div class="admin-nav-section">{{T "Безпека"}}</div>
       <a href="/admin/security" class="{{if eq .ActivePage "admin_security"}}active{{end}}">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        <span>Журнал безпеки</span>
+        <span>{{T "Журнал безпеки"}}</span>
       </a>
 
-      <div class="admin-nav-section">Сервер</div>
+      <div class="admin-nav-section">{{T "Сервер"}}</div>
       <a href="/admin/ca" class="{{if eq .ActivePage "admin_ca"}}active{{end}}">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 7v5c0 5 3.5 9.5 9 11 5.5-1.5 9-6 9-11V7l-9-5z"/><polyline points="9 12 11 14 15 10"/></svg>
-        <span>Налаштування CA</span>
+        <span>{{T "Налаштування CA"}}</span>
       </a>
       <a href="/admin/console" class="{{if eq .ActivePage "admin_console"}}active{{end}}">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
-        <span>Консоль сервера</span>
+        <span>{{T "Консоль сервера"}}</span>
       </a>
       <a href="/admin/about" class="{{if eq .ActivePage "admin_about"}}active{{end}}">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-        <span>Про систему</span>
+        <span>{{T "Про систему"}}</span>
       </a>
       <a href="/admin/integrity" class="{{if eq .ActivePage "admin_integrity"}}active{{end}}">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 8-8 9-4.5-1-8-4-8-9V5l8-3 8 3v8Z"/><path d="m9 12 2 2 4-5"/></svg>
@@ -119,22 +120,22 @@
       </a>
       <a href="/admin/backup" class="{{if eq .ActivePage "admin_backup"}}active{{end}}">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        <span>Резервна копія</span>
+        <span>{{T "Резервна копія"}}</span>
       </a>
       <a href="/admin/notifications" class="{{if eq .ActivePage "admin_notifications"}}active{{end}}">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 7h18s-3 0-3-7"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        <span>Сповіщення</span>
+        <span>{{T "Сповіщення"}}</span>
       </a>
     </nav>
 
     <div class="admin-side-footer">
       <a href="/">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-        <span>Повернутися до застосунку</span>
+        <span>{{T "Повернутися до застосунку"}}</span>
       </a>
       <a href="/logout" class="admin-danger-link">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-        <span>Вийти</span>
+        <span>{{T "Вийти"}}</span>
       </a>
     </div>
   </aside>
@@ -143,12 +144,12 @@
     {{if and (eq .CARuntime.Mode "external") (not .CARuntime.Configured)}}
     <div class="admin-header-banner" style="background:rgba(239,68,68,0.15);border-color:var(--err);color:#fca5a5">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      <span><strong>Увага:</strong> Зовнішній Step-CA ще не налаштовано. <a href="/admin/ca" style="color:#fff;text-decoration:underline">Налаштуйте підключення до CA</a> для випуску й відкликання сертифікатів.</span>
+      <span><strong>{{T "Увага:"}}</strong> {{T "Зовнішній Step-CA ще не налаштовано."}} <a href="/admin/ca" style="color:#fff;text-decoration:underline">{{T "Налаштуйте підключення до CA"}}</a> {{T "для випуску й відкликання сертифікатів."}}</span>
     </div>
     {{end}}
     <div class="admin-header-banner">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 7v5c0 5 3.5 9.5 9 11 5.5-1.5 9-6 9-11V7l-9-5z"/></svg>
-      <span>Захищена зона адміністратора. Критичні дії записуються в журнал.</span>
+      <span>{{T "Захищена зона адміністратора. Критичні дії записуються в журнал."}}</span>
     </div>
 
     {{template "content" .}}
@@ -173,11 +174,11 @@
 
 <div class="modal-overlay" id="confirmModal">
   <div class="modal-box">
-    <div class="modal-title" id="modalTitle">Підтвердьте дію</div>
+    <div class="modal-title" id="modalTitle">{{T "Підтвердьте дію"}}</div>
     <div class="modal-msg" id="modalMsg"></div>
     <div class="modal-actions">
-      <button class="modal-btn-cancel" onclick="closeModal()">Скасувати</button>
-      <button class="modal-btn-confirm danger" id="modalConfirmBtn" onclick="modalConfirm()">Підтвердити</button>
+      <button class="modal-btn-cancel" onclick="closeModal()">{{T "Скасувати"}}</button>
+      <button class="modal-btn-confirm danger" id="modalConfirmBtn" onclick="modalConfirm()">{{T "Підтвердити"}}</button>
     </div>
   </div>
 </div>

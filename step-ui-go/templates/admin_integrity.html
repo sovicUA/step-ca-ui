@@ -1,7 +1,7 @@
 {{define "content"}}
 <div class="admin-page-header">
   <h1 class="admin-page-title">CA integrity</h1>
-  <p class="admin-page-subtitle">Перевірка ланцюжка CA, claims провізіонера, синхронізації пароля й безпечного оновлення step-ca</p>
+  <p class="admin-page-subtitle">{{T "Перевірка ланцюжка CA, claims провізіонера, синхронізації пароля й безпечного оновлення step-ca"}}</p>
 </div>
 
 <div class="admin-stats" style="margin-bottom:14px">
@@ -37,7 +37,7 @@
           <col>
         </colgroup>
         <thead>
-          <tr><th>Перевірка</th><th>Стан</th><th>Подробиці</th></tr>
+          <tr><th>{{T "Перевірка"}}</th><th>{{T "Стан"}}</th><th>{{T "Подробиці"}}</th></tr>
         </thead>
         <tbody>
           {{range .Checks}}
@@ -48,7 +48,7 @@
               {{if eq .Status "warn"}}<span class="badge warn">WARN</span>{{end}}
               {{if eq .Status "err"}}<span class="badge danger">ERROR</span>{{end}}
             </td>
-            <td style="word-break:break-word"><code>{{.Detail}}</code></td>
+            <td style="word-break:break-word"><code>{{T .Detail}}</code></td>
           </tr>
           {{end}}
         </tbody>

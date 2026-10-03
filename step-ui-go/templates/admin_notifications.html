@@ -1,11 +1,11 @@
 {{define "content"}}
 <div class="admin-page-header">
-  <h1 class="admin-page-title">Сповіщення</h1>
-  <p class="admin-page-subtitle">Webhook, email і Telegram для критичних подій CA, помилок випуску й сертифікатів, що спливають</p>
+  <h1 class="admin-page-title">{{T "Сповіщення"}}</h1>
+  <p class="admin-page-subtitle">Webhook, email {{T "і Telegram для критичних подій CA, помилок випуску й сертифікатів, що спливають"}}</p>
 </div>
 
 {{range .Msgs}}
-  <div class="alert {{if eq .Type "ok"}}alert-ok{{else if eq .Type "warn"}}alert-warn{{else}}alert-err{{end}}">{{.Text}}</div>
+  <div class="alert {{if eq .Type "ok"}}alert-ok{{else if eq .Type "warn"}}alert-warn{{else}}alert-err{{end}}">{{T .Text}}</div>
 {{end}}
 
 <div class="card">
@@ -16,7 +16,7 @@
 
       <label class="check-row">
         <input type="checkbox" name="webhook_enabled" {{if .Settings.WebhookEnabled}}checked{{end}}>
-        <span>Увімкнути надсилання через вебхук</span>
+        <span>{{T "Увімкнути надсилання через вебхук"}}</span>
       </label>
 
       <label>
@@ -27,26 +27,26 @@
       <div class="form-row">
         <label class="check-row">
           <input type="checkbox" name="notify_expiry" {{if .Settings.NotifyExpiry}}checked{{end}}>
-          <span>Сертифікати скоро спливають</span>
+          <span>{{T "Сертифікати скоро спливають"}}</span>
         </label>
         <label>
-          <span>Поріг, днів</span>
+          <span>{{T "Поріг, днів"}}</span>
           <input type="number" name="expiry_days" min="1" max="365" value="{{.Settings.ExpiryDays}}">
         </label>
       </div>
 
       <label class="check-row">
         <input type="checkbox" name="notify_failures" {{if .Settings.NotifyFailures}}checked{{end}}>
-        <span>Помилки випуску й перевипуску сертифікатів</span>
+        <span>{{T "Помилки випуску й перевипуску сертифікатів"}}</span>
       </label>
 
       <label class="check-row">
         <input type="checkbox" name="notify_auth_burst" {{if .Settings.NotifyAuthBurst}}checked{{end}}>
-        <span>Серія невдалих входів до блокування IP</span>
+        <span>{{T "Серія невдалих входів до блокування IP"}}</span>
       </label>
 
       <div class="form-actions">
-        <button class="btn primary" type="submit">Зберегти</button>
+        <button class="btn primary" type="submit">{{T "Зберегти"}}</button>
       </div>
     </form>
   </div>
@@ -55,7 +55,7 @@
 <div class="card">
   <div class="card-header"><strong>SMTP / Email</strong></div>
   <div class="card-body">
-    <p class="muted" style="margin-top:0">Використовується для відновлення пароля і, якщо задано отримувачів, для надсилання сповіщень. Пароль SMTP назад у форму не виводиться.</p>
+    <p class="muted" style="margin-top:0">{{T "Використовується для відновлення пароля і, якщо задано отримувачів, для надсилання сповіщень. Пароль SMTP назад у форму не виводиться."}}</p>
     <form method="POST" action="/admin/notifications" class="form-grid">
       <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
       <input type="hidden" name="webhook_enabled" value="{{if .Settings.WebhookEnabled}}on{{end}}">
@@ -67,7 +67,7 @@
 
       <label class="check-row">
         <input type="checkbox" name="smtp_enabled" {{if .Settings.SMTPEnabled}}checked{{end}}>
-        <span>Увімкнути SMTP для відновлення пароля</span>
+        <span>{{T "Увімкнути SMTP для відновлення пароля"}}</span>
       </label>
 
       <div class="form-row">
@@ -97,7 +97,7 @@
         </label>
         <label>
           <span>Password</span>
-          <input type="password" name="smtp_password" placeholder="залиште порожнім, щоб не змінювати" autocomplete="new-password">
+          <input type="password" name="smtp_password" placeholder="{{T "залиште порожнім, щоб не змінювати"}}" autocomplete="new-password">
         </label>
       </div>
 
@@ -107,13 +107,13 @@
       </label>
 
       <label>
-        <span>Отримувачі сповіщень</span>
+        <span>{{T "Отримувачі сповіщень"}}</span>
         <input type="text" name="notify_email_to" value="{{.Settings.NotifyEmailTo}}" placeholder="ops@example.com, admin@example.com" autocomplete="off">
-        <span class="muted">Через кому. Порожньо — SMTP використовується лише для відновлення пароля.</span>
+        <span class="muted">{{T "Через кому. Порожньо — SMTP використовується лише для відновлення пароля."}}</span>
       </label>
 
       <div class="form-actions">
-        <button class="btn primary" type="submit">Зберегти SMTP</button>
+        <button class="btn primary" type="submit">{{T "Зберегти SMTP"}}</button>
       </div>
     </form>
   </div>
@@ -122,7 +122,7 @@
 <div class="card">
   <div class="card-header"><strong>Telegram</strong></div>
   <div class="card-body">
-    <p class="muted" style="margin-top:0">Бот створюється через @BotFather. Токен назад у форму не виводиться.</p>
+    <p class="muted" style="margin-top:0">{{T "Бот створюється через @BotFather. Токен назад у форму не виводиться."}}</p>
     <form method="POST" action="/admin/notifications" class="form-grid">
       <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
       <input type="hidden" name="webhook_enabled" value="{{if .Settings.WebhookEnabled}}on{{end}}">
@@ -134,12 +134,12 @@
 
       <label class="check-row">
         <input type="checkbox" name="telegram_enabled" {{if .Settings.TelegramEnabled}}checked{{end}}>
-        <span>Увімкнути надсилання в Telegram</span>
+        <span>{{T "Увімкнути надсилання в Telegram"}}</span>
       </label>
 
       <label>
         <span>Bot token</span>
-        <input type="password" name="telegram_bot_token" placeholder="залиште порожнім, щоб не змінювати" autocomplete="new-password">
+        <input type="password" name="telegram_bot_token" placeholder="{{T "залиште порожнім, щоб не змінювати"}}" autocomplete="new-password">
       </label>
 
       <label>
@@ -148,29 +148,29 @@
       </label>
 
       <div class="form-actions">
-        <button class="btn primary" type="submit">Зберегти Telegram</button>
+        <button class="btn primary" type="submit">{{T "Зберегти Telegram"}}</button>
       </div>
     </form>
   </div>
 </div>
 
 <div class="card">
-  <div class="card-header"><strong>Перевірка</strong></div>
+  <div class="card-header"><strong>{{T "Перевірка"}}</strong></div>
   <div class="card-body">
     <form method="POST" action="/admin/notifications/test">
       <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
-      <button class="btn" type="submit">Надіслати тест в усі ввімкнені канали</button>
+      <button class="btn" type="submit">{{T "Надіслати тест в усі ввімкнені канали"}}</button>
     </form>
   </div>
 </div>
 
 <div class="card">
-  <div class="card-header"><strong>Журнал надсилань</strong></div>
+  <div class="card-header"><strong>{{T "Журнал надсилань"}}</strong></div>
   <div class="card-body" style="padding:0">
     <div class="tbl-wrap">
       <table class="tbl">
         <thead>
-          <tr><th>Час</th><th>Подія</th><th>Канал</th><th>Стан</th><th>Повідомлення</th></tr>
+          <tr><th>{{T "Час"}}</th><th>{{T "Подія"}}</th><th>{{T "Канал"}}</th><th>{{T "Стан"}}</th><th>{{T "Повідомлення"}}</th></tr>
         </thead>
         <tbody>
           {{range .Logs}}
@@ -181,12 +181,12 @@
             <td>{{if .Success}}<span class="badge ok">OK</span>{{else}}<span class="badge danger">FAIL</span>{{end}}</td>
             <td>
               <strong>{{.Title}}</strong><br>
-              <span class="muted">{{.Message}}</span>
-              {{if .Error}}<br><code>{{.Error}}</code>{{end}}
+              <span class="muted">{{T .Message}}</span>
+              {{if .Error}}<br><code>{{T .Error}}</code>{{end}}
             </td>
           </tr>
           {{else}}
-          <tr><td colspan="5" class="muted">Подій поки немає</td></tr>
+          <tr><td colspan="5" class="muted">{{T "Подій поки немає"}}</td></tr>
           {{end}}
         </tbody>
       </table>

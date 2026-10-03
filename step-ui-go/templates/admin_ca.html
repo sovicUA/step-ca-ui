@@ -1,16 +1,16 @@
 {{define "content"}}
 <div class="admin-page-header">
-  <h1 class="admin-page-title">Налаштування Step-CA</h1>
-  <p class="admin-page-subtitle">Режим роботи, параметри підключення, сертифікати центру й параметри безпеки</p>
+  <h1 class="admin-page-title">{{T "Налаштування Step-CA"}}</h1>
+  <p class="admin-page-subtitle">{{T "Режим роботи, параметри підключення, сертифікати центру й параметри безпеки"}}</p>
 </div>
 
 {{range .Msgs}}
-  <div class="alert {{if eq .Type "ok"}}alert-ok{{else if eq .Type "warn"}}alert-warn{{else}}alert-err{{end}}">{{.Text}}</div>
+  <div class="alert {{if eq .Type "ok"}}alert-ok{{else if eq .Type "warn"}}alert-warn{{else}}alert-err{{end}}">{{T .Text}}</div>
 {{end}}
 
 <div class="card">
   <div class="card-header">
-    <strong>Поточний режим</strong>
+    <strong>{{T "Поточний режим"}}</strong>
     <span class="badge {{if eq .CARuntime.Mode "bundled"}}ok{{else}}warn{{end}}" style="margin-left:auto">
       CA_MODE: {{.CARuntime.Mode}}
     </span>
@@ -18,32 +18,32 @@
   <div class="card-body">
     {{if eq .CARuntime.Mode "bundled"}}
       <p style="margin-top:0">
-        Step-CA запущено як вбудований сервіс Docker (<code>step-ca:9443</code>).
-        Параметри підключення й пароль провізіонера керуються автоматично через Docker Compose і <code>.env</code>.
+        Step-CA {{T "запущено як вбудований сервіс Docker ("}}<code>step-ca:9443</code>).
+        {{T "Параметри підключення й пароль провізіонера керуються автоматично через Docker Compose і"}} <code>.env</code>.
       </p>
     {{else}}
       <p style="margin-top:0">
-        Step-CA працює в режимі <strong>External</strong> (нативний сервіс systemd на Ubuntu або віддалений хост).
-        Параметри API і ключі налаштовуються тут, у вебінтерфейсі.
+        Step-CA {{T "працює в режимі"}} <strong>External</strong> ({{T "нативний сервіс systemd на Ubuntu або віддалений хост)."}}
+        {{T "Параметри API і ключі налаштовуються тут, у вебінтерфейсі."}}
       </p>
     {{end}}
 
     <table class="tbl admin-kv-table">
       <tbody>
-        <tr><td><strong>Активний CA URL</strong></td><td><code>{{.CARuntime.URL}}</code></td></tr>
+        <tr><td><strong>{{T "Активний CA URL"}}</strong></td><td><code>{{.CARuntime.URL}}</code></td></tr>
         <tr><td><strong>Provisioner</strong></td><td><code>{{.CARuntime.Provisioner}}</code></td></tr>
-        <tr><td><strong>Root CA шлях</strong></td><td><code>{{.CARuntime.RootCert}}</code></td></tr>
-        <tr><td><strong>Root CA відбиток (SHA-256)</strong></td><td><code>{{if .CARuntime.RootFingerprint}}{{.CARuntime.RootFingerprint}}{{else}}—{{end}}</code></td></tr>
+        <tr><td><strong>Root CA {{T "шлях"}}</strong></td><td><code>{{.CARuntime.RootCert}}</code></td></tr>
+        <tr><td><strong>Root CA {{T "відбиток (SHA-256)"}}</strong></td><td><code>{{if .CARuntime.RootFingerprint}}{{.CARuntime.RootFingerprint}}{{else}}—{{end}}</code></td></tr>
         <tr><td><strong>Intermediate CA</strong></td><td>{{if .CARuntime.IntermediateSubject}}{{.CARuntime.IntermediateSubject}}{{else}}<code>{{.CARuntime.IntermediateCert}}</code>{{end}}</td></tr>
-        <tr><td><strong>Стан конфігурації</strong></td><td>
+        <tr><td><strong>{{T "Стан конфігурації"}}</strong></td><td>
           {{if .CARuntime.Configured}}
-            <span class="badge ok">Готовий до роботи</span>
+            <span class="badge ok">{{T "Готовий до роботи"}}</span>
           {{else}}
-            <span class="badge danger">Потрібне налаштування</span>
+            <span class="badge danger">{{T "Потрібне налаштування"}}</span>
           {{end}}
         </td></tr>
         {{if .CARuntime.HostPathMounted}}
-        <tr><td><strong>Bind-mount хоста</strong></td><td><span class="badge ok">Активний (/home/step)</span></td></tr>
+        <tr><td><strong>Bind-mount {{T "хоста"}}</strong></td><td><span class="badge ok">{{T "Активний (/home/step)"}}</span></td></tr>
         {{end}}
       </tbody>
     </table>
@@ -51,7 +51,7 @@
     <div style="margin-top:16px;display:flex;gap:10px">
       <form method="POST" action="/admin/ca/test" style="display:inline">
         <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
-        <button class="btn btn-ghost" type="submit">Перевірити зв’язок із CA</button>
+        <button class="btn btn-ghost" type="submit">{{T "Перевірити зв’язок із CA"}}</button>
       </form>
     </div>
   </div>
@@ -59,14 +59,14 @@
 
 <div class="card">
   <div class="card-header">
-    <strong>Параметри підключення до Step-CA</strong>
+    <strong>{{T "Параметри підключення до Step-CA"}}</strong>
   </div>
   <div class="card-body">
     <form method="POST" action="/admin/ca" enctype="multipart/form-data" class="form-grid">
       <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
 
       {{if eq .CARuntime.Mode "bundled"}}
-        <p class="muted" style="margin-top:0">У режимі bundled параметри CA фіксовані й беруться з оточення контейнера.</p>
+        <p class="muted" style="margin-top:0">{{T "У режимі bundled параметри CA фіксовані й беруться з оточення контейнера."}}</p>
         <label>
           <span>CA URL</span>
           <input type="text" value="{{.CARuntime.URL}}" disabled>
@@ -78,45 +78,45 @@
       {{else}}
         <label>
           <span>CA URL (HTTPS)</span>
-          <input type="url" name="ca_url" value="{{if .Settings.CAURL}}{{.Settings.CAURL}}{{else}}{{.CARuntime.URL}}{{end}}" placeholder="https://ca.lan:9443 або https://192.168.1.50:9443" required>
-          <span class="hint" style="font-size:12px;color:var(--muted)">Адреса API step-ca. localhost/127.0.0.1 з контейнера — це loopback самого UI, а не CA на хості. Для CA на цьому сервері задайте CA_PUBLIC_HOST у .env (DNS-ім’я без порту) і перестворіть step-ui.</span>
+          <input type="url" name="ca_url" value="{{if .Settings.CAURL}}{{.Settings.CAURL}}{{else}}{{.CARuntime.URL}}{{end}}" placeholder="https://ca.lan:9443 {{T "або https://192.168.1.50:9443"}}" required>
+          <span class="hint" style="font-size:12px;color:var(--muted)">{{T "Адреса API step-ca. localhost/127.0.0.1 з контейнера — це loopback самого UI, а не CA на хості. Для CA на цьому сервері задайте CA_PUBLIC_HOST у .env (DNS-ім’я без порту) і перестворіть step-ui."}}</span>
         </label>
 
         <label>
-          <span>Ім’я провізіонера (JWK)</span>
+          <span>{{T "Ім’я провізіонера (JWK)"}}</span>
           <input type="text" name="provisioner" value="{{if .Settings.Provisioner}}{{.Settings.Provisioner}}{{else}}{{.CARuntime.Provisioner}}{{end}}" placeholder="admin" required>
         </label>
 
         <label>
-          <span>Пароль провізіонера</span>
-          <input type="password" name="password" placeholder="{{if .Settings.EncryptedPassword}}•••••••• (залиште порожнім, щоб не змінювати){{else}}Введіть пароль JWK-провізіонера{{end}}" autocomplete="new-password">
-          <span class="hint" style="font-size:12px;color:var(--muted)">Пароль зберігається в БД у зашифрованому вигляді (AES-256-GCM) і назовні не передається.</span>
+          <span>{{T "Пароль провізіонера"}}</span>
+          <input type="password" name="password" placeholder="{{if .Settings.EncryptedPassword}}•••••••• ({{T "залиште порожнім, щоб не змінювати)"}}{{else}}{{T "Введіть пароль JWK-провізіонера"}}{{end}}" autocomplete="new-password">
+          <span class="hint" style="font-size:12px;color:var(--muted)">{{T "Пароль зберігається в БД у зашифрованому вигляді (AES-256-GCM) і назовні не передається."}}</span>
         </label>
 
         {{if .CARuntime.HostPathMounted}}
           <div class="alert alert-ok" style="margin-top:8px">
-            Каталог CA змонтовано з хоста (<code>CA_HOST_PATH</code>). Кореневий і проміжний сертифікати читаються автоматично з <code>/home/step/certs/</code>.
+            {{T "Каталог CA змонтовано з хоста ("}}<code>CA_HOST_PATH</code>). {{T "Кореневий і проміжний сертифікати читаються автоматично з"}} <code>/home/step/certs/</code>.
           </div>
         {{else}}
           <div style="border-top:1px solid var(--border);padding-top:14px;margin-top:10px">
-            <h4 style="margin:0 0 8px 0;font-size:14px">Сертифікати центру (PEM)</h4>
+            <h4 style="margin:0 0 8px 0;font-size:14px">{{T "Сертифікати центру (PEM)"}}</h4>
             <p class="muted" style="margin:0 0 12px 0;font-size:12px">
-              Завантажте файли root_ca.crt і intermediate_ca.crt вашого наявного Step-CA.
+              {{T "Завантажте файли root_ca.crt і intermediate_ca.crt вашого наявного Step-CA."}}
             </p>
 
             <label style="margin-bottom:12px">
-              <span>Кореневий сертифікат (Root CA CRT/PEM)</span>
+              <span>{{T "Кореневий сертифікат (Root CA CRT/PEM)"}}</span>
               <input type="file" name="root_cert_file" accept=".crt,.pem,.cer">
               {{if .Settings.RootCertPEM}}
-                <span class="hint" style="font-size:12px;color:var(--ok)">✓ Root CA збережено (відбиток: <code>{{.Settings.RootFingerprint}}</code>)</span>
+                <span class="hint" style="font-size:12px;color:var(--ok)">✓ Root CA {{T "збережено (відбиток:"}} <code>{{.Settings.RootFingerprint}}</code>)</span>
               {{end}}
             </label>
 
             <label>
-              <span>Проміжний сертифікат (Intermediate CA CRT/PEM)</span>
+              <span>{{T "Проміжний сертифікат (Intermediate CA CRT/PEM)"}}</span>
               <input type="file" name="intermediate_cert_file" accept=".crt,.pem,.cer">
               {{if .Settings.IntermediatePEM}}
-                <span class="hint" style="font-size:12px;color:var(--ok)">✓ Intermediate CA збережено (Subject: <code>{{.Settings.IntermediateSubject}}</code>)</span>
+                <span class="hint" style="font-size:12px;color:var(--ok)">✓ Intermediate CA {{T "збережено (Subject:"}} <code>{{.Settings.IntermediateSubject}}</code>)</span>
               {{end}}
             </label>
           </div>
@@ -124,18 +124,18 @@
       {{end}}
 
       <div style="border-top:1px solid var(--border);padding-top:14px;margin-top:14px">
-        <h4 style="margin:0 0 8px 0;font-size:14px">Безпека вебінтерфейсу</h4>
+        <h4 style="margin:0 0 8px 0;font-size:14px">{{T "Безпека вебінтерфейсу"}}</h4>
         <label class="check-row">
           <input type="checkbox" name="enable_hsts" {{if .CARuntime.EnableHSTS}}checked{{end}}>
-          <span>Увімкнути HTTP Strict Transport Security (HSTS)</span>
+          <span>{{T "Увімкнути HTTP Strict Transport Security (HSTS)"}}</span>
         </label>
         <span class="hint" style="font-size:12px;color:var(--muted);display:block;margin-top:4px">
-          Вмикайте лише з довіреним TLS-сертифікатом (наприклад, через зворотний проксі).
+          {{T "Вмикайте лише з довіреним TLS-сертифікатом (наприклад, через зворотний проксі)."}}
         </span>
       </div>
 
       <div class="form-actions" style="margin-top:16px">
-        <button class="btn primary" type="submit">Зберегти налаштування</button>
+        <button class="btn primary" type="submit">{{T "Зберегти налаштування"}}</button>
       </div>
     </form>
   </div>
@@ -144,23 +144,23 @@
 {{if eq .CARuntime.Mode "external"}}
 <div class="card" style="margin-top:20px">
   <div class="card-header">
-    <strong>Інструкція: створення JWK-провізіонера на зовнішньому Step-CA</strong>
+    <strong>{{T "Інструкція: створення JWK-провізіонера на зовнішньому Step-CA"}}</strong>
   </div>
   <div class="card-body">
-    <p style="margin-top:0">Step-CA UI взаємодіє зі Step-CA через <strong>JWK-провізіонер</strong> і випускає сертифікати строком дії до 10 років (<code>87600h</code>). На сервері зовнішнього CA виконайте:</p>
+    <p style="margin-top:0">Step-CA UI {{T "взаємодіє зі Step-CA через"}} <strong>JWK-{{T "провізіонер"}}</strong> {{T "і випускає сертифікати строком дії до 10 років ("}}<code>87600h</code>). {{T "На сервері зовнішнього CA виконайте:"}}</p>
 
     <div style="margin-bottom:12px">
-      <strong>1. Створення нового JWK-провізіонера з паролем і потрібними обмеженнями:</strong>
+      <strong>1. {{T "Створення нового JWK-провізіонера з паролем і потрібними обмеженнями:"}}</strong>
       <pre style="background:var(--bg-card);padding:10px;border-radius:6px;border:1px solid var(--border);overflow-x:auto;margin:6px 0"><code>step ca provisioner add admin \
   --type JWK \
   --create \
   --x509-default-dur 8760h \
   --x509-max-dur 87600h</code></pre>
-      <span class="hint" style="font-size:12px;color:var(--muted)">CLI запитає пароль для шифрування ключа провізіонера. Якщо конфігурація не в типовому каталозі, вкажіть <code>--ca-config /etc/step-ca/config/ca.json</code>.</span>
+      <span class="hint" style="font-size:12px;color:var(--muted)">CLI {{T "запитає пароль для шифрування ключа провізіонера. Якщо конфігурація не в типовому каталозі, вкажіть"}} <code>--ca-config /etc/step-ca/config/ca.json</code>.</span>
     </div>
 
     <div style="margin-bottom:12px">
-      <strong>2. Якщо провізіонер уже існує, оновіть його claims:</strong>
+      <strong>2. {{T "Якщо провізіонер уже існує, оновіть його claims:"}}</strong>
       <pre style="background:var(--bg-card);padding:10px;border-radius:6px;border:1px solid var(--border);overflow-x:auto;margin:6px 0"><code>step ca provisioner update admin \
   --x509-default-dur 8760h \
   --x509-max-dur 87600h \
@@ -168,11 +168,11 @@
     </div>
 
     <div style="margin-bottom:12px">
-      <strong>3. Перезапустіть службу step-ca:</strong>
+      <strong>3. {{T "Перезапустіть службу step-ca:"}}</strong>
       <pre style="background:var(--bg-card);padding:10px;border-radius:6px;border:1px solid var(--border);overflow-x:auto;margin:6px 0"><code>sudo systemctl restart step-ca</code></pre>
     </div>
 
-    <p class="muted" style="margin-bottom:0;font-size:12px">Після цього введіть ім’я провізіонера й заданий пароль у формі вище, завантажте сертифікати Root і Intermediate CA і натисніть «Зберегти налаштування».</p>
+    <p class="muted" style="margin-bottom:0;font-size:12px">{{T "Після цього введіть ім’я провізіонера й заданий пароль у формі вище, завантажте сертифікати Root і Intermediate CA і натисніть «Зберегти налаштування»."}}</p>
   </div>
 </div>
 {{end}}

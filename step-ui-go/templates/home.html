@@ -1,26 +1,26 @@
 {{define "content"}}
 <div class="home-hero">
   <div class="home-hero-text">
-    <div class="home-greeting">Ласкаво просимо, <strong>{{if .Session.Username}}{{.Session.Username}}{{else}}гість{{end}}</strong></div>
+    <div class="home-greeting">{{T "Ласкаво просимо,"}} <strong>{{if .Session.Username}}{{.Session.Username}}{{else}}{{T "гість"}}{{end}}</strong></div>
     <h1>Step-CA Manager</h1>
-    <p>Робоча панель для локального CA, публічних сертифікатів і контролю стану PKI.</p>
+    <p>{{T "Робоча панель для локального CA, публічних сертифікатів і контролю стану PKI."}}</p>
     <div class="home-hero-actions">
-      {{if hasRole .Session.Role "manager"}}<a href="/issue" class="btn primary">Випустити сертифікат</a>{{end}}
-      <a href="/certificates" class="btn btn-ghost">Усі сертифікати</a>
+      {{if hasRole .Session.Role "manager"}}<a href="/issue" class="btn primary">{{T "Випустити сертифікат"}}</a>{{end}}
+      <a href="/certificates" class="btn btn-ghost">{{T "Усі сертифікати"}}</a>
     </div>
   </div>
   <div class="home-status {{if .CAOnline}}ok{{else}}danger{{end}}">
     <div class="status-dot"></div>
     <div>
-      <div class="status-label">Центр сертифікації ({{.CAMode}})</div>
+      <div class="status-label">{{T "Центр сертифікації ("}}{{.CAMode}})</div>
       <div class="status-value">
-        {{if .CAOnline}}Онлайн{{else}}Недоступний{{end}}
+        {{if .CAOnline}}{{T "Онлайн"}}{{else}}{{T "Недоступний"}}{{end}}
       </div>
       <div class="status-sub">
         {{if and (eq .CAMode "external") (not .CAConfigured)}}
-          <a href="/admin/ca" style="color:var(--err);text-decoration:underline">Не налаштовано</a>
+          <a href="/admin/ca" style="color:var(--err);text-decoration:underline">{{T "Не налаштовано"}}</a>
         {{else}}
-          Час роботи: {{.Uptime}}
+          {{T "Час роботи:"}} {{T .Uptime}}
         {{end}}
       </div>
     </div>
@@ -30,11 +30,11 @@
 <div class="home-summary">
   <div class="home-stat">
     <div class="stat-num">{{.ActiveCerts}}</div>
-    <div class="stat-cap">Активних сертифікатів</div>
+    <div class="stat-cap">{{T "Активних сертифікатів"}}</div>
   </div>
   <div class="home-stat">
     <div class="stat-num {{if gt .ExpiringCerts 0}}warn{{end}}">{{.ExpiringCerts}}</div>
-    <div class="stat-cap">Спливають за 30 днів</div>
+    <div class="stat-cap">{{T "Спливають за 30 днів"}}</div>
   </div>
   <div class="home-stat">
     <div class="stat-num">{{.LECerts}}</div>
@@ -42,7 +42,7 @@
   </div>
 </div>
 
-<div class="home-section-title">Швидкі дії</div>
+<div class="home-section-title">{{T "Швидкі дії"}}</div>
 <div class="home-actions">
   {{if hasRole .Session.Role "manager"}}
   <a href="/issue" class="action-card c-blue">
@@ -53,8 +53,8 @@
         <line x1="9" y1="12" x2="15" y2="12"/>
       </svg>
     </div>
-    <div class="action-title">Випустити сертифікат</div>
-    <div class="action-sub">Локальний CA, EC або RSA</div>
+    <div class="action-title">{{T "Випустити сертифікат"}}</div>
+    <div class="action-sub">{{T "Локальний CA, EC або RSA"}}</div>
   </a>
   {{end}}
 
@@ -65,7 +65,7 @@
       </svg>
     </div>
     <div class="action-title">Let's Encrypt</div>
-    <div class="action-sub">Публічні сертифікати на 90 днів</div>
+    <div class="action-sub">{{T "Публічні сертифікати на 90 днів"}}</div>
   </a>
 
   {{if eq .Session.Role "admin"}}
@@ -76,8 +76,8 @@
         <line x1="5" y1="21" x2="19" y2="21"/>
       </svg>
     </div>
-    <div class="action-title">Завантажити сертифікати CA</div>
-    <div class="action-sub">Root, Intermediate і повний ланцюжок</div>
+    <div class="action-title">{{T "Завантажити сертифікати CA"}}</div>
+    <div class="action-sub">Root, Intermediate {{T "і повний ланцюжок"}}</div>
   </a>
   {{end}}
 
@@ -90,27 +90,27 @@
         <rect x="3" y="16" width="7" height="5" rx="1"/>
       </svg>
     </div>
-    <div class="action-title">Відкрити панель</div>
-    <div class="action-sub">Повна статистика й активність</div>
+    <div class="action-title">{{T "Відкрити панель"}}</div>
+    <div class="action-sub">{{T "Повна статистика й активність"}}</div>
   </a>
 </div>
 
-<div class="home-section-title">Про проєкт</div>
+<div class="home-section-title">{{T "Про проєкт"}}</div>
 <div class="card home-about-card">
   <div class="home-about-grid">
     <div>
       <div class="home-about-title">Step-CA Manager</div>
       <p>
-        Вебінтерфейс для зручного керування центром сертифікації на основі <strong style="color:var(--text)">Smallstep CA</strong>.
-        Випуск, відкликання, ротація й зберігання сертифікатів SSL/TLS в одному вікні.
+        {{T "Вебінтерфейс для зручного керування центром сертифікації на основі"}} <strong style="color:var(--text)">Smallstep CA</strong>.
+        {{T "Випуск, відкликання, ротація й зберігання сертифікатів SSL/TLS в одному вікні."}}
       </p>
       <p>
-        Підтримка <strong style="color:var(--text)">Let's Encrypt</strong> з автоматичним оновленням.
-        Вбудований аудит безпеки й рольова модель доступу.
+        {{T "Підтримка"}} <strong style="color:var(--text)">Let's Encrypt</strong> {{T "з автоматичним оновленням."}}
+        {{T "Вбудований аудит безпеки й рольова модель доступу."}}
       </p>
     </div>
     <div>
-      <div class="home-about-title">Стек технологій</div>
+      <div class="home-about-title">{{T "Стек технологій"}}</div>
       <div class="tech-chips">
         <span class="tech-chip">Go</span>
         <span class="tech-chip">PostgreSQL</span>
@@ -119,7 +119,7 @@
         <span class="tech-chip">lego (LE)</span>
       </div>
       <div class="home-version">
-        Версія <code>v{{.Version}}</code> &middot;
+        {{T "Версія"}} <code>v{{.Version}}</code> &middot;
         <a href="https://github.com/UncleFi1/step-ca-ui" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">GitHub &rarr;</a>
       </div>
     </div>

@@ -4,14 +4,14 @@
 </div>
 
 <div class="stats-grid">
-  <div class="stat-card"><div class="stat-label">Усього сертифікатів</div><div class="stat-value">{{.LETotal}}</div></div>
-  <div class="stat-card"><div class="stat-label">Активних</div><div class="stat-value ok">{{.LEActive}}</div></div>
-  <div class="stat-card"><div class="stat-label">Спливають (30 дн.)</div><div class="stat-value warn">{{.LEExpiring}}</div></div>
-  <div class="stat-card"><div class="stat-label">Прострочених</div><div class="stat-value danger">{{.LEExpired}}</div></div>
+  <div class="stat-card"><div class="stat-label">{{T "Усього сертифікатів"}}</div><div class="stat-value">{{.LETotal}}</div></div>
+  <div class="stat-card"><div class="stat-label">{{T "Активних"}}</div><div class="stat-value ok">{{.LEActive}}</div></div>
+  <div class="stat-card"><div class="stat-label">{{T "Спливають (30 дн.)"}}</div><div class="stat-value warn">{{.LEExpiring}}</div></div>
+  <div class="stat-card"><div class="stat-label">{{T "Прострочених"}}</div><div class="stat-value danger">{{.LEExpired}}</div></div>
 </div>
 
 <div class="card">
-  <div class="card-header"><h3>Сертифікати Let's Encrypt</h3></div>
+  <div class="card-header"><h3>{{T "Сертифікати Let's Encrypt"}}</h3></div>
   <div class="tbl-wrap">
   <table class="tbl">
     <colgroup>
@@ -25,7 +25,7 @@
           <col>
         </colgroup>
     
-    <thead><tr><th>Домен</th><th>Email</th><th>Провайдер</th><th>Видано</th><th>Спливає</th><th>Стан</th><th>Авто</th><th>Дії</th></tr></thead>
+    <thead><tr><th>{{T "Домен"}}</th><th>Email</th><th>{{T "Провайдер"}}</th><th>{{T "Видано"}}</th><th>{{T "Спливає"}}</th><th>{{T "Стан"}}</th><th>{{T "Авто"}}</th><th>{{T "Дії"}}</th></tr></thead>
     <tbody>
     {{range .LECerts}}
     <tr>
@@ -35,16 +35,16 @@
       <td style="color:var(--muted)">{{fmtTime .IssuedAt}}</td>
       <td>{{fmtTime .ExpiresAt}}</td>
       <td>
-        {{if eq .Status "active"}}<span class="badge ok">активний</span>
-        {{else if eq .Status "pending"}}<span class="badge blue">випускається</span>
-        {{else if eq .Status "error"}}<span class="badge danger" title="{{.LastError}}">помилка</span>
+        {{if eq .Status "active"}}<span class="badge ok">{{T "активний"}}</span>
+        {{else if eq .Status "pending"}}<span class="badge blue">{{T "випускається"}}</span>
+        {{else if eq .Status "error"}}<span class="badge danger" title="{{.LastError}}">{{T "помилка"}}</span>
         {{else}}<span class="badge gray">{{.Status}}</span>{{end}}
       </td>
       <td>
         <form method="POST" action="/le/{{.ID}}/autorenew" style="display:inline">
           <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
-          <button type="submit" class="btn btn-sm {{if .AutoRenew}}btn-success{{else}}btn-ghost{{end}}" title="{{if .AutoRenew}}Автооновлення увімкнено{{else}}Автооновлення вимкнено{{end}}">
-            {{if .AutoRenew}}Авто&nbsp;увімк{{else}}Вимк{{end}}
+          <button type="submit" class="btn btn-sm {{if .AutoRenew}}btn-success{{else}}btn-ghost{{end}}" title="{{if .AutoRenew}}{{T "Автооновлення увімкнено"}}{{else}}{{T "Автооновлення вимкнено"}}{{end}}">
+            {{if .AutoRenew}}{{T "Авто"}}&nbsp;{{T "увімк"}}{{else}}{{T "Вимк"}}{{end}}
           </button>
         </form>
       </td>
@@ -54,22 +54,22 @@
         <a href="/le/download/key/{{.ID}}" class="btn btn-ghost btn-sm">KEY</a>
         {{end}}
         <form method="POST" action="/le/{{.ID}}/renew" style="display:inline"
-          data-confirm="Перевипустити сертифікат для {{.Domain}}?"
-          data-confirm-btn="Перевипустити" data-confirm-class="warning" data-confirm-title="Оновлення сертифіката LE">
+          data-confirm="{{T "Перевипустити сертифікат для"}} {{.Domain}}?"
+          data-confirm-btn="{{T "Перевипустити"}}" data-confirm-class="warning" data-confirm-title="{{T "Оновлення сертифіката LE"}}">
           <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
-          <button type="submit" class="btn btn-warn btn-sm" title="Перевипустити">&#x21BA;</button>
+          <button type="submit" class="btn btn-warn btn-sm" title="{{T "Перевипустити"}}">&#x21BA;</button>
         </form>
         <form method="POST" action="/le/{{.ID}}/delete" style="display:inline"
-          data-confirm="Видалити сертифікат для {{.Domain}}? Файли лишаться на диску."
-          data-confirm-btn="Видалити" data-confirm-title="Видалення сертифіката LE">
+          data-confirm="{{T "Видалити сертифікат для"}} {{.Domain}}? {{T "Файли лишаться на диску."}}"
+          data-confirm-btn="{{T "Видалити"}}" data-confirm-title="{{T "Видалення сертифіката LE"}}">
           <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
-          <button type="submit" class="btn btn-danger btn-sm" title="Видалити">&times;</button>
+          <button type="submit" class="btn btn-danger btn-sm" title="{{T "Видалити"}}">&times;</button>
         </form>
       </td>
     </tr>
     {{else}}
     <tr><td colspan="8" style="text-align:center;color:var(--muted);padding:32px">
-      Немає сертифікатів. <a href="/le/issue" style="color:var(--accent)">Випустити перший</a>
+      {{T "Немає сертифікатів."}} <a href="/le/issue" style="color:var(--accent)">{{T "Випустити перший"}}</a>
     </td></tr>
     {{end}}
     </tbody>
@@ -80,19 +80,19 @@
 {{if .LELogs}}
 <div class="card">
   <div class="card-header">
-    <h3>Останні події</h3>
-    <a href="/le/logs" style="font-size:11px;color:var(--accent);text-decoration:none">Усі журнали &rarr;</a>
+    <h3>{{T "Останні події"}}</h3>
+    <a href="/le/logs" style="font-size:11px;color:var(--accent);text-decoration:none">{{T "Усі журнали"}} &rarr;</a>
   </div>
   <div style="overflow-x:auto">
   <table>
-    <thead><tr><th>Час</th><th>Домен</th><th>Подія</th><th>Повідомлення</th></tr></thead>
+    <thead><tr><th>{{T "Час"}}</th><th>{{T "Домен"}}</th><th>{{T "Подія"}}</th><th>{{T "Повідомлення"}}</th></tr></thead>
     <tbody>
     {{range .LELogs}}
     <tr>
       <td style="color:var(--muted);font-size:11px">{{fmtLog .CreatedAt}}</td>
       <td><code>{{.Domain}}</code></td>
       <td><span class="badge {{if eq .Action "error"}}danger{{else if eq .Action "issue"}}ok{{else if eq .Action "renew"}}blue{{else}}gray{{end}}">{{.Action}}</span></td>
-      <td style="color:var(--muted)">{{.Message}}</td>
+      <td style="color:var(--muted)">{{T .Message}}</td>
     </tr>
     {{end}}
     </tbody>

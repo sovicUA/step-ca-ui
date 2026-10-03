@@ -1,7 +1,7 @@
 {{define "content"}}
 <div class="admin-page-header">
-  <h1 class="admin-page-title">Про систему</h1>
-  <p class="admin-page-subtitle">Версія, оточення й попередні перевірки готовності до роботи</p>
+  <h1 class="admin-page-title">{{T "Про систему"}}</h1>
+  <p class="admin-page-subtitle">{{T "Версія, оточення й попередні перевірки готовності до роботи"}}</p>
 </div>
 
 <div class="admin-stats" style="margin-bottom:14px">
@@ -12,27 +12,27 @@
 </div>
 
 <div class="card">
-  <div class="card-header"><strong>Система</strong></div>
+  <div class="card-header"><strong>{{T "Система"}}</strong></div>
   <div class="card-body">
     <table class="tbl admin-kv-table">
       <tbody>
-        <tr><td><strong>Продукт</strong></td><td>Step-CA UI</td></tr>
-        <tr><td><strong>Версія</strong></td><td><code>{{.System.Version}}</code></td></tr>
-        <tr><td><strong>Збірка</strong></td><td><code>{{.System.BuildDate}}</code> · <code>{{.System.GitCommit}}</code></td></tr>
-        <tr><td><strong>Час роботи</strong></td><td>{{.System.Uptime}}</td></tr>
-        <tr><td><strong>Запущено</strong></td><td>{{fmtLog .System.StartedAt}}</td></tr>
-        <tr><td><strong>Репозиторій</strong></td><td><a href="https://github.com/UncleFi1/step-ca-ui" target="_blank" rel="noopener">UncleFi1/step-ca-ui</a></td></tr>
+        <tr><td><strong>{{T "Продукт"}}</strong></td><td>Step-CA UI</td></tr>
+        <tr><td><strong>{{T "Версія"}}</strong></td><td><code>{{.System.Version}}</code></td></tr>
+        <tr><td><strong>{{T "Збірка"}}</strong></td><td><code>{{.System.BuildDate}}</code> · <code>{{.System.GitCommit}}</code></td></tr>
+        <tr><td><strong>{{T "Час роботи"}}</strong></td><td>{{T .System.Uptime}}</td></tr>
+        <tr><td><strong>{{T "Запущено"}}</strong></td><td>{{fmtLog .System.StartedAt}}</td></tr>
+        <tr><td><strong>{{T "Репозиторій"}}</strong></td><td><a href="https://github.com/UncleFi1/step-ca-ui" target="_blank" rel="noopener">UncleFi1/step-ca-ui</a></td></tr>
       </tbody>
     </table>
   </div>
 </div>
 
 <div class="card">
-  <div class="card-header"><strong>Конфігурація</strong></div>
+  <div class="card-header"><strong>{{T "Конфігурація"}}</strong></div>
   <div class="card-body">
     <table class="tbl admin-kv-table">
       <tbody>
-        <tr><td><strong>Режим CA (CA_MODE)</strong></td><td><code>{{.CARuntime.Mode}}</code></td></tr>
+        <tr><td><strong>{{T "Режим CA (CA_MODE)"}}</strong></td><td><code>{{.CARuntime.Mode}}</code></td></tr>
         <tr><td><strong>CA URL</strong></td><td><code>{{.System.CAURL}}</code></td></tr>
         {{if eq .CARuntime.Mode "bundled"}}
         <tr><td><strong>step-ca image</strong></td><td><code>{{.System.StepCAImage}}</code></td></tr>
@@ -60,7 +60,7 @@
           <col>
         </colgroup>
         <thead>
-          <tr><th>Перевірка</th><th>Стан</th><th>Подробиці</th></tr>
+          <tr><th>{{T "Перевірка"}}</th><th>{{T "Стан"}}</th><th>{{T "Подробиці"}}</th></tr>
         </thead>
         <tbody>
           {{range .Checks}}
@@ -71,7 +71,7 @@
               {{if eq .Status "warn"}}<span class="badge warn">WARN</span>{{end}}
               {{if eq .Status "err"}}<span class="badge danger">ERROR</span>{{end}}
             </td>
-            <td style="word-break:break-word"><code>{{.Detail}}</code></td>
+            <td style="word-break:break-word"><code>{{T .Detail}}</code></td>
           </tr>
           {{end}}
         </tbody>

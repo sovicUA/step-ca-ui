@@ -20,9 +20,26 @@
 (function () {
   'use strict';
 
-  const MONTHS = ['Січень','Лютий','Березень','Квітень','Травень','Червень',
-                  'Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
-  const WEEKDAYS = ['пн','вт','ср','чт','пт','сб','нд'];
+  // Texts in the page language (<html lang>), Ukrainian by default
+  const I18N = {
+    uk: {
+      months: ['Січень','Лютий','Березень','Квітень','Травень','Червень',
+               'Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'],
+      weekdays: ['пн','вт','ср','чт','пт','сб','нд'],
+      placeholder: 'Виберіть дату й час', prev: 'Попередній місяць', next: 'Наступний місяць',
+      time: 'Час:', hh: 'гг', mm: 'хх', clear: 'Очистити', ok: 'Готово', error: 'Вкажіть години й хвилини'
+    },
+    en: {
+      months: ['January','February','March','April','May','June',
+               'July','August','September','October','November','December'],
+      weekdays: ['Mo','Tu','We','Th','Fr','Sa','Su'],
+      placeholder: 'Choose date and time', prev: 'Previous month', next: 'Next month',
+      time: 'Time:', hh: 'hh', mm: 'mm', clear: 'Clear', ok: 'Done', error: 'Enter hours and minutes'
+    }
+  };
+  const L = I18N[(document.documentElement.lang || 'uk').slice(0, 2)] || I18N.uk;
+  const MONTHS = L.months;
+  const WEEKDAYS = L.weekdays;
 
   function pad(n) { return String(n).padStart(2, '0'); }
 
@@ -43,7 +60,7 @@
     wrap.dataset.dpInit = '1';
 
     const name        = wrap.dataset.name || 'custom_datetime';
-    const placeholder = wrap.dataset.placeholder || 'Виберіть дату й час';
+    const placeholder = wrap.dataset.placeholder || L.placeholder;
     const minMode     = wrap.dataset.min || ''; // "now" — forbids the past
 
     // State
@@ -68,26 +85,26 @@
       <input type="hidden" name="${name}" value="">
       <div class="dp-pop">
         <div class="dp-head">
-          <button type="button" class="dp-nav dp-prev" aria-label="Попередній місяць">‹</button>
+          <button type="button" class="dp-nav dp-prev" aria-label="${L.prev}">‹</button>
           <div class="dp-title"></div>
-          <button type="button" class="dp-nav dp-next" aria-label="Наступний місяць">›</button>
+          <button type="button" class="dp-nav dp-next" aria-label="${L.next}">›</button>
         </div>
         <div class="dp-weekdays">
           ${WEEKDAYS.map(w => `<div class="dp-weekday">${w}</div>`).join('')}
         </div>
         <div class="dp-grid"></div>
         <div class="dp-time">
-          <span class="dp-time-label">Час:</span>
-          <input type="number" class="dp-hh" min="0" max="23" placeholder="гг" inputmode="numeric">
+          <span class="dp-time-label">${L.time}</span>
+          <input type="number" class="dp-hh" min="0" max="23" placeholder="${L.hh}" inputmode="numeric">
           <span class="dp-time-sep">:</span>
-          <input type="number" class="dp-mm" min="0" max="59" placeholder="хх" inputmode="numeric">
+          <input type="number" class="dp-mm" min="0" max="59" placeholder="${L.mm}" inputmode="numeric">
         </div>
         <div class="dp-foot">
-          <button type="button" class="dp-clear">Очистити</button>
-          <button type="button" class="dp-ok">Готово</button>
+          <button type="button" class="dp-clear">${L.clear}</button>
+          <button type="button" class="dp-ok">${L.ok}</button>
         </div>
       </div>
-      <div class="dp-error">Вкажіть години й хвилини</div>
+      <div class="dp-error">${L.error}</div>
     `;
 
     const inputDisplay = wrap.querySelector('.dp-input');

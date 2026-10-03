@@ -3,33 +3,33 @@
 <div class="flash-stack" style="margin-bottom:14px;display:flex;flex-direction:column;gap:8px">
   {{range .Flashes}}
     <div class="flash flash-{{.Type}}" style="padding:10px 14px;border-radius:8px;border:1px solid {{if eq .Type "err"}}#cc3d3d{{else}}#2e7d32{{end}};background:{{if eq .Type "err"}}rgba(204,61,61,.12){{else}}rgba(46,125,50,.12){{end}};color:var(--text)">
-      {{if eq .Type "err"}}⛔ {{else}}✓ {{end}}{{.Text}}
+      {{if eq .Type "err"}}⛔ {{else}}✓ {{end}}{{T .Text}}
     </div>
   {{end}}
 </div>
 {{end}}
 <div class="page-header">
-  <h1 style="margin:0 0 4px;font-size:22px;font-weight:700">Тимчасові користувачі</h1>
-  <p class="muted" style="margin:0">Короткострокові облікові записи для підрядників і гостей</p>
+  <h1 style="margin:0 0 4px;font-size:22px;font-weight:700">{{T "Тимчасові користувачі"}}</h1>
+  <p class="muted" style="margin:0">{{T "Короткострокові облікові записи для підрядників і гостей"}}</p>
 </div>
 
 {{if .NewUsername}}
 <div class="card" style="margin-top:18px;border-color:color-mix(in srgb, #16a34a 50%, var(--admin-border))">
   <div class="card-header">
-    <strong style="color:#16a34a">Обліковий запис створено — передайте ці дані користувачу</strong>
+    <strong style="color:#16a34a">{{T "Обліковий запис створено — передайте ці дані користувачу"}}</strong>
   </div>
   <div class="card-body">
     <p class="muted" style="margin:0 0 12px">
-      Пароль показано лише цей один раз. Збережіть або передайте його зараз.
+      {{T "Пароль показано лише цей один раз. Збережіть або передайте його зараз."}}
     </p>
     <table class="tbl" style="margin-bottom:12px">
       <tbody>
         <tr>
-          <td style="width:140px"><strong>Логін</strong></td>
+          <td style="width:140px"><strong>{{T "Логін"}}</strong></td>
           <td><code style="font-size:14px">{{.NewUsername}}</code></td>
         </tr>
         <tr>
-          <td><strong>Пароль</strong></td>
+          <td><strong>{{T "Пароль"}}</strong></td>
           <td>
             <code id="newpwd" style="font-size:14px;user-select:all">{{.NewPassword}}</code>
           </td>
@@ -37,11 +37,11 @@
       </tbody>
     </table>
     <details>
-      <summary class="muted" style="cursor:pointer;font-size:12px">Готовий рядок для передачі</summary>
-<div style="display:flex;justify-content:flex-end;margin:6px 0"><button type="button" class="btn btn-sm btn-ghost" onclick="copyShareLine(this)">📋 Скопіювати рядок</button></div>
+      <summary class="muted" style="cursor:pointer;font-size:12px">{{T "Готовий рядок для передачі"}}</summary>
+<div style="display:flex;justify-content:flex-end;margin:6px 0"><button type="button" class="btn btn-sm btn-ghost" onclick="copyShareLine(this)">📋 {{T "Скопіювати рядок"}}</button></div>
 
       <div style="margin-top:10px;padding:10px;background:var(--admin-bg);border:1px solid var(--admin-border);border-radius:6px;font-family:var(--mono,monospace);font-size:12px" id="credShareLine">
-        Логін: <b>{{.NewUsername}}</b> · Пароль: <b>{{.NewPassword}}</b> · URL: <code>{{.LoginURL}}</code>
+        {{T "Логін:"}} <b>{{.NewUsername}}</b> · {{T "Пароль:"}} <b>{{.NewPassword}}</b> · URL: <code>{{.LoginURL}}</code>
       </div>
     </details>
   </div>
@@ -50,52 +50,52 @@
 {{end}}
 
 <div class="card" style="margin-top:18px">
-  <div class="card-header"><strong>Створити тимчасового користувача</strong></div>
+  <div class="card-header"><strong>{{T "Створити тимчасового користувача"}}</strong></div>
   <div class="card-body">
     <form method="post" action="/admin/users-temp">
       <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
         <div>
-          <label>Роль</label>
+          <label>{{T "Роль"}}</label>
           <select name="role">
-            <option value="viewer" selected>viewer — лише перегляд</option>
-            <option value="manager">manager — може випускати сертифікати</option>
-            <option value="admin">admin — повний доступ</option>
+            <option value="viewer" selected>viewer — {{T "лише перегляд"}}</option>
+            <option value="manager">manager — {{T "може випускати сертифікати"}}</option>
+            <option value="admin">admin — {{T "повний доступ"}}</option>
           </select>
         </div>
         <div>
-          <label>Строк дії — шаблон</label>
+          <label>{{T "Строк дії — шаблон"}}</label>
           <select name="preset">
-            <option value="30m">30 хвилин</option>
-            <option value="1h">1 година</option>
-            <option value="4h">4 години</option>
-            <option value="24h" selected>1 день</option>
-            <option value="7d">7 днів</option>
-            <option value="30d">30 днів</option>
+            <option value="30m">30 {{T "хвилин"}}</option>
+            <option value="1h">1 {{T "година"}}</option>
+            <option value="4h">4 {{T "години"}}</option>
+            <option value="24h" selected>1 {{T "день"}}</option>
+            <option value="7d">7 {{T "днів"}}</option>
+            <option value="30d">30 {{T "днів"}}</option>
           </select>
         </div>
       </div>
 
       <div style="margin-bottom:14px">
-        <label>Або точні дата й час (замість шаблону)</label>
-        <div class="dp-wrap" data-datepicker data-name="custom_datetime" data-min="now" data-placeholder="Виберіть дату й час"></div>
+        <label>{{T "Або точні дата й час (замість шаблону)"}}</label>
+        <div class="dp-wrap" data-datepicker data-name="custom_datetime" data-min="now" data-placeholder="{{T "Виберіть дату й час"}}"></div>
       </div>
 
       <div style="margin-bottom:14px">
-        <label>Примітка (для чого / кому)</label>
-        <input type="text" name="note" placeholder="напр. Шевченко Т. — аудит 19 квітня" maxlength="200">
+        <label>{{T "Примітка (для чого / кому)"}}</label>
+        <input type="text" name="note" placeholder="{{T "напр. Шевченко Т. — аудит 19 квітня"}}" maxlength="200">
       </div>
 
-      <button type="submit" class="btn btn-primary">Створити</button>
+      <button type="submit" class="btn btn-primary">{{T "Створити"}}</button>
     </form>
   </div>
 </div>
 
 <div class="card" style="margin-top:18px">
   <div class="card-header">
-    <strong>Список тимчасових користувачів</strong>
-    <span class="muted" style="margin-left:auto;font-size:12px">Усього: {{len .Users}}</span>
+    <strong>{{T "Список тимчасових користувачів"}}</strong>
+    <span class="muted" style="margin-left:auto;font-size:12px">{{T "Усього:"}} {{len .Users}}</span>
   </div>
   <div class="card-body">
     {{if .Users}}
@@ -111,12 +111,12 @@
         </colgroup>
         <thead>
           <tr>
-            <th>Логін</th>
-            <th>Роль</th>
-            <th>Стан</th>
-            <th>Створено</th>
-            <th>Спливає</th>
-            <th>Примітка</th>
+            <th>{{T "Логін"}}</th>
+            <th>{{T "Роль"}}</th>
+            <th>{{T "Стан"}}</th>
+            <th>{{T "Створено"}}</th>
+            <th>{{T "Спливає"}}</th>
+            <th>{{T "Примітка"}}</th>
           </tr>
         </thead>
                 <tbody>
@@ -126,11 +126,11 @@
             <td>{{.Role}}</td>
             <td>
               {{if eq .Status "active"}}
-                <span class="badge ok">активний</span>
+                <span class="badge ok">{{T "активний"}}</span>
               {{else if eq .Status "expired"}}
-                <span class="badge danger">сплив</span>
+                <span class="badge danger">{{T "сплив"}}</span>
               {{else}}
-                <span class="badge">заблок.</span>
+                <span class="badge">{{T "заблок."}}</span>
               {{end}}
             </td>
             <td>{{.CreatedAt}}</td>
@@ -142,7 +142,7 @@
       </table>
     </div>
     {{else}}
-    <p class="muted" style="margin:0">Ще не створено жодного тимчасового користувача.</p>
+    <p class="muted" style="margin:0">{{T "Ще не створено жодного тимчасового користувача."}}</p>
     {{end}}
   </div>
 </div>

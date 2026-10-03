@@ -1,41 +1,41 @@
 {{define "content"}}
 <div class="page-header">
   <div>
-    <div class="breadcrumb">користувачі &middot; профіль</div>
+    <div class="breadcrumb">{{T "користувачі"}} &middot; {{T "профіль"}}</div>
     <h1 style="display:flex;align-items:center;gap:10px">
-      <a href="/admin/users" class="back-link" title="Назад до користувачів">&larr;</a>
+      <a href="/admin/users" class="back-link" title="{{T "Назад до користувачів"}}">&larr;</a>
       <span>{{.U.Username}}</span>
-      {{if .U.IsActive}}<span class="badge ok" style="font-size:11px">активний</span>
-      {{else}}<span class="badge danger" style="font-size:11px">заблокований</span>{{end}}
+      {{if .U.IsActive}}<span class="badge ok" style="font-size:11px">{{T "активний"}}</span>
+      {{else}}<span class="badge danger" style="font-size:11px">{{T "заблокований"}}</span>{{end}}
     </h1>
   </div>
 </div>
 
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
   <div class="card">
-    <div class="card-header"><h3>Інформація</h3></div>
+    <div class="card-header"><h3>{{T "Інформація"}}</h3></div>
     <div class="card-body">
-      <div class="info-row"><div class="info-key">Логін</div><div class="info-val">{{.U.Username}}</div></div>
-      <div class="info-row"><div class="info-key">Роль</div><div class="info-val">
+      <div class="info-row"><div class="info-key">{{T "Логін"}}</div><div class="info-val">{{.U.Username}}</div></div>
+      <div class="info-row"><div class="info-key">{{T "Роль"}}</div><div class="info-val">
         {{if eq .U.Role "admin"}}<span class="badge purple">admin</span>
         {{else if eq .U.Role "manager"}}<span class="badge blue">manager</span>
         {{else}}<span class="badge gray">viewer</span>{{end}}
       </div></div>
-      <div class="info-row"><div class="info-key">Створено</div><div class="info-val">{{fmtTime .U.CreatedAt}}</div></div>
-      <div class="info-row"><div class="info-key">Останній вхід</div><div class="info-val">{{fmtTime .U.LastLogin}}</div></div>
-      <div class="info-row"><div class="info-key">Останній IP</div><div class="info-val">{{if .U.LastIP}}{{deref .U.LastIP}}{{else}}&mdash;{{end}}</div></div>
-      <div class="info-row"><div class="info-key">Успішних входів</div><div class="info-val" style="color:var(--green)">{{.TotalOK}}</div></div>
-      <div class="info-row"><div class="info-key">Невдалих спроб</div><div class="info-val" style="color:var(--danger)">{{.TotalFail}}</div></div>
-      <div class="info-row"><div class="info-key">IP блокування</div><div class="info-val">
-        {{if .IPBlocked}}<span class="badge danger">заблокований</span>
-        {{else}}<span class="badge ok">не заблокований</span>{{end}}
+      <div class="info-row"><div class="info-key">{{T "Створено"}}</div><div class="info-val">{{fmtTime .U.CreatedAt}}</div></div>
+      <div class="info-row"><div class="info-key">{{T "Останній вхід"}}</div><div class="info-val">{{fmtTime .U.LastLogin}}</div></div>
+      <div class="info-row"><div class="info-key">{{T "Останній IP"}}</div><div class="info-val">{{if .U.LastIP}}{{deref .U.LastIP}}{{else}}&mdash;{{end}}</div></div>
+      <div class="info-row"><div class="info-key">{{T "Успішних входів"}}</div><div class="info-val" style="color:var(--green)">{{.TotalOK}}</div></div>
+      <div class="info-row"><div class="info-key">{{T "Невдалих спроб"}}</div><div class="info-val" style="color:var(--danger)">{{.TotalFail}}</div></div>
+      <div class="info-row"><div class="info-key">IP {{T "блокування"}}</div><div class="info-val">
+        {{if .IPBlocked}}<span class="badge danger">{{T "заблокований"}}</span>
+        {{else}}<span class="badge ok">{{T "не заблокований"}}</span>{{end}}
       </div></div>
     </div>
   </div>
 
   <div style="display:flex;flex-direction:column;gap:14px">
     <div class="card">
-      <div class="card-header"><h3>Змінити роль</h3></div>
+      <div class="card-header"><h3>{{T "Змінити роль"}}</h3></div>
       <div class="card-body">
         <form method="POST" action="/admin/users">
           <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
@@ -49,27 +49,27 @@
               <option value="admin"   {{if eq .U.Role "admin"}}selected{{end}}>admin</option>
             </select>
           </div>
-          <button type="submit" class="btn btn-sm">Зберегти роль</button>
+          <button type="submit" class="btn btn-sm">{{T "Зберегти роль"}}</button>
         </form>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-header"><h3>Скинути пароль</h3></div>
+      <div class="card-header"><h3>{{T "Скинути пароль"}}</h3></div>
       <div class="card-body">
         <form method="POST" action="/admin/users">
           <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
           <input type="hidden" name="return_to" value="/admin/users/{{.U.ID}}">
           <input type="hidden" name="action" value="reset_password">
           <input type="hidden" name="uid" value="{{.U.ID}}">
-          <div class="form-full"><label>Новий пароль</label><input type="password" name="new_password" placeholder="Мін. 8 симв. + цифра + спецсимвол" required></div>
-          <button type="submit" class="btn btn-warn btn-sm">Скинути пароль</button>
+          <div class="form-full"><label>{{T "Новий пароль"}}</label><input type="password" name="new_password" placeholder="{{T "Мін. 8 симв. + цифра + спецсимвол"}}" required></div>
+          <button type="submit" class="btn btn-warn btn-sm">{{T "Скинути пароль"}}</button>
         </form>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-header"><h3>Керування доступом</h3></div>
+      <div class="card-header"><h3>{{T "Керування доступом"}}</h3></div>
       <div class="card-body" style="display:flex;gap:8px;flex-wrap:wrap">
         {{if .IPBlocked}}
         <form method="POST" action="/admin/users" style="display:inline">
@@ -78,29 +78,29 @@
           <input type="hidden" name="action" value="unblock_ip">
           <input type="hidden" name="uid" value="{{.U.ID}}">
           {{if .U.LastIP}}<input type="hidden" name="target_ip" value="{{deref .U.LastIP}}">{{end}}
-          <button type="submit" class="btn btn-success btn-sm">Розблокувати IP</button>
+          <button type="submit" class="btn btn-success btn-sm">{{T "Розблокувати IP"}}</button>
         </form>
         {{end}}
         <form method="POST" action="/admin/users"
-          data-confirm="{{if .U.IsActive}}Заблокувати{{else}}Розблокувати{{end}} обліковий запис {{.U.Username}}?"
-          data-confirm-btn="{{if .U.IsActive}}Заблокувати{{else}}Розблокувати{{end}}"
-          data-confirm-class="warning" data-confirm-title="{{if .U.IsActive}}Блокування{{else}}Розблокування{{end}} облікового запису">
+          data-confirm="{{if .U.IsActive}}{{T "Заблокувати"}}{{else}}{{T "Розблокувати"}}{{end}} {{T "обліковий запис"}} {{.U.Username}}?"
+          data-confirm-btn="{{if .U.IsActive}}{{T "Заблокувати"}}{{else}}{{T "Розблокувати"}}{{end}}"
+          data-confirm-class="warning" data-confirm-title="{{if .U.IsActive}}{{T "Блокування"}}{{else}}{{T "Розблокування"}}{{end}} {{T "облікового запису"}}">
           <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
           <input type="hidden" name="return_to" value="/admin/users/{{.U.ID}}">
           <input type="hidden" name="action" value="toggle_active">
           <input type="hidden" name="uid" value="{{.U.ID}}">
           <button type="submit" class="btn btn-sm {{if .U.IsActive}}btn-warn{{else}}btn-success{{end}}">
-            {{if .U.IsActive}}Заблокувати{{else}}Розблокувати{{end}}
+            {{if .U.IsActive}}{{T "Заблокувати"}}{{else}}{{T "Розблокувати"}}{{end}}
           </button>
         </form>
         <form method="POST" action="/admin/users"
-          data-confirm="Видалити користувача {{.U.Username}}? Дія незворотна."
-          data-confirm-btn="Видалити" data-confirm-title="Видалення користувача">
+          data-confirm="{{T "Видалити користувача"}} {{.U.Username}}? {{T "Дія незворотна."}}"
+          data-confirm-btn="{{T "Видалити"}}" data-confirm-title="{{T "Видалення користувача"}}">
           <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
           <input type="hidden" name="return_to" value="/admin/users">
           <input type="hidden" name="action" value="delete">
           <input type="hidden" name="uid" value="{{.U.ID}}">
-          <button type="submit" class="btn btn-danger btn-sm">Видалити користувача</button>
+          <button type="submit" class="btn btn-danger btn-sm">{{T "Видалити користувача"}}</button>
         </form>
       </div>
     </div>
@@ -109,8 +109,8 @@
 
 <div class="card">
   <div class="card-header">
-    <h3>Історія входів (останні 50)</h3>
-    <div><span class="badge ok">{{.TotalOK}} успішних</span> &nbsp; <span class="badge danger">{{.TotalFail}} невдалих</span></div>
+    <h3>{{T "Історія входів (останні 50)"}}</h3>
+    <div><span class="badge ok">{{.TotalOK}} {{T "успішних"}}</span> &nbsp; <span class="badge danger">{{.TotalFail}} {{T "невдалих"}}</span></div>
   </div>
   <div class="tbl-wrap">
   <table class="tbl">
@@ -121,20 +121,20 @@
           <col>
         </colgroup>
     
-    <thead><tr><th>Час</th><th>IP адреса</th><th>Подія</th><th>Подробиці</th></tr></thead>
+    <thead><tr><th>{{T "Час"}}</th><th>IP {{T "адреса"}}</th><th>{{T "Подія"}}</th><th>{{T "Подробиці"}}</th></tr></thead>
     <tbody>
     {{range .Logs}}
     <tr>
       <td style="color:var(--muted);font-size:11px">{{fmtLog .CreatedAt}}</td>
       <td><code>{{.IP}}</code></td>
       <td>
-        {{if .Success}}<span class="badge ok">Вхід</span>
-        {{else}}<span class="badge danger">Відмова</span>{{end}}
+        {{if .Success}}<span class="badge ok">{{T "Вхід"}}</span>
+        {{else}}<span class="badge danger">{{T "Відмова"}}</span>{{end}}
       </td>
-      <td style="color:var(--muted)">{{.Reason}}</td>
+      <td style="color:var(--muted)">{{T .Reason}}</td>
     </tr>
     {{else}}
-    <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px">Немає записів</td></tr>
+    <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px">{{T "Немає записів"}}</td></tr>
     {{end}}
     </tbody>
   </table>

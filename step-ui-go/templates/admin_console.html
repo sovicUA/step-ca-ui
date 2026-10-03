@@ -1,46 +1,46 @@
 {{define "content"}}
 <div class="admin-page-header">
-  <h1 class="admin-page-title">Консоль сервера</h1>
-  <p class="admin-page-subtitle">Обмежений запуск дозволених діагностичних команд усередині контейнера step-ui</p>
+  <h1 class="admin-page-title">{{T "Консоль сервера"}}</h1>
+  <p class="admin-page-subtitle">{{T "Обмежений запуск дозволених діагностичних команд усередині контейнера step-ui"}}</p>
 </div>
 
 <div class="card admin-console-warning">
   <div class="card-body">
-    <strong>Режим списку дозволених</strong>
+    <strong>{{T "Режим списку дозволених"}}</strong>
     <p class="muted">
-      Довільний shell вимкнено. Доступні лише заздалегідь дозволені команди без аргументів користувача.
-      Кожен запуск записується в журнал безпеки.
+      {{T "Довільний shell вимкнено. Доступні лише заздалегідь дозволені команди без аргументів користувача."}}
+      {{T "Кожен запуск записується в журнал безпеки."}}
     </p>
     {{if .TOTPEnabled}}
-      <span class="badge ok">2FA увімкнена</span>
+      <span class="badge ok">2FA {{T "увімкнена"}}</span>
     {{else}}
-      <span class="badge danger">2FA не ввімкнена — запуск команд заблоковано</span>
-      <a href="/profile/2fa" class="btn btn-ghost btn-sm">Налаштувати 2FA</a>
+      <span class="badge danger">2FA {{T "не ввімкнена — запуск команд заблоковано"}}</span>
+      <a href="/profile/2fa" class="btn btn-ghost btn-sm">{{T "Налаштувати 2FA"}}</a>
     {{end}}
   </div>
 </div>
 
 <div class="card">
-  <div class="card-header"><strong>Запуск команди</strong></div>
+  <div class="card-header"><strong>{{T "Запуск команди"}}</strong></div>
   <div class="card-body">
-    {{if .ConsoleError}}<div class="flash err">{{.ConsoleError}}</div>{{end}}
+    {{if .ConsoleError}}<div class="flash err">{{T .ConsoleError}}</div>{{end}}
     <form method="POST" action="/admin/console" class="admin-console-form">
       <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
-      <label for="command_id">Команда</label>
+      <label for="command_id">{{T "Команда"}}</label>
       <div class="admin-console-row">
         <select id="command_id" name="command_id" required {{if not .TOTPEnabled}}disabled{{end}}>
-          <option value="">Виберіть команду</option>
+          <option value="">{{T "Виберіть команду"}}</option>
           {{range .Commands}}
-            <option value="{{.ID}}" {{if eq $.SelectedCommandID .ID}}selected{{end}}>{{.Label}} — {{.Name}}{{range .Args}} {{.}}{{end}}</option>
+            <option value="{{.ID}}" {{if eq $.SelectedCommandID .ID}}selected{{end}}>{{T .Label}} — {{.Name}}{{range .Args}} {{.}}{{end}}</option>
           {{end}}
         </select>
-        <button class="btn primary" type="submit" {{if not .TOTPEnabled}}disabled{{end}}>Виконати</button>
+        <button class="btn primary" type="submit" {{if not .TOTPEnabled}}disabled{{end}}>{{T "Виконати"}}</button>
       </div>
       <div class="admin-console-command-list">
         {{range .Commands}}
           <div class="admin-console-command">
             <code>{{.Name}}{{range .Args}} {{.}}{{end}}</code>
-            <span>{{.Description}}</span>
+            <span>{{T .Description}}</span>
           </div>
         {{end}}
       </div>
@@ -51,14 +51,14 @@
 {{if .Result}}
 <div class="card">
   <div class="card-header admin-console-result-head">
-    <strong>Результат</strong>
+    <strong>{{T "Результат"}}</strong>
     {{if .Result.Success}}<span class="badge ok">exit 0</span>{{else}}<span class="badge danger">exit {{.Result.ExitCode}}</span>{{end}}
   </div>
   <div class="card-body">
     <div class="admin-console-meta">
-      <span><b>Команда:</b> <code>{{.Result.CommandLine}}</code></span>
-      <span><b>Час:</b> {{.Result.Duration}}</span>
-      <span><b>Обмеження:</b> {{.Timeout}}, {{.MaxOutputKB}} KB</span>
+      <span><b>{{T "Команда:"}}</b> <code>{{.Result.CommandLine}}</code></span>
+      <span><b>{{T "Час:"}}</b> {{.Result.Duration}}</span>
+      <span><b>{{T "Обмеження:"}}</b> {{.Timeout}}, {{.MaxOutputKB}} KB</span>
       {{if .Result.Truncated}}<span class="badge warn">output truncated</span>{{end}}
     </div>
     <pre class="admin-console-output">{{.Result.Output}}</pre>

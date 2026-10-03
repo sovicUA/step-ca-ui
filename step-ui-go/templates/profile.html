@@ -61,7 +61,7 @@
 </style>
 {{define "content"}}
 <div class="page-header">
-  <div><div class="breadcrumb">account &middot; profile</div><h1>Мій профіль</h1></div>
+  <div><div class="breadcrumb">account &middot; profile</div><h1>{{T "Мій профіль"}}</h1></div>
 </div>
 
 <div style="display:grid;grid-template-columns:minmax(280px,1fr) minmax(320px,1.4fr);gap:14px">
@@ -69,22 +69,22 @@
   <!-- ═ Інформація про користувача ═ -->
   <div data-profile-left-col="1" style="display:flex;flex-direction:column;gap:14px">
 <div class="card" style="margin-bottom:0">
-    <div class="card-header"><h3>Про мене</h3></div>
+    <div class="card-header"><h3>{{T "Про мене"}}</h3></div>
     <div class="card-body">
       <div class="info-row">
-        <div class="info-key">Логін</div>
+        <div class="info-key">{{T "Логін"}}</div>
         <div class="info-val"><strong>{{.U.Username}}</strong></div>
       </div>
       <div class="info-row">
-        <div class="info-key">Ім’я</div>
-        <div class="info-val">{{if .U.DisplayName}}{{.U.DisplayName}}{{else}}<span style="color:var(--muted)">не вказано</span>{{end}}</div>
+        <div class="info-key">{{T "Ім’я"}}</div>
+        <div class="info-val">{{if .U.DisplayName}}{{.U.DisplayName}}{{else}}<span style="color:var(--muted)">{{T "не вказано"}}</span>{{end}}</div>
       </div>
       <div class="info-row">
         <div class="info-key">Email</div>
-        <div class="info-val">{{if .U.Email}}<code>{{.U.Email}}</code>{{else}}<span style="color:var(--muted)">не вказано</span>{{end}}</div>
+        <div class="info-val">{{if .U.Email}}<code>{{.U.Email}}</code>{{else}}<span style="color:var(--muted)">{{T "не вказано"}}</span>{{end}}</div>
       </div>
       <div class="info-row">
-        <div class="info-key">Роль</div>
+        <div class="info-key">{{T "Роль"}}</div>
         <div class="info-val">
           {{if eq .U.Role "admin"}}<span class="badge purple">admin</span>
           {{else if eq .U.Role "manager"}}<span class="badge blue">manager</span>
@@ -93,59 +93,59 @@
         </div>
       </div>
       <div class="info-row">
-        <div class="info-key">Стан</div>
+        <div class="info-key">{{T "Стан"}}</div>
         <div class="info-val">
-          {{if .U.IsActive}}<span class="badge ok">активний</span>
-          {{else}}<span class="badge danger">заблокований</span>
+          {{if .U.IsActive}}<span class="badge ok">{{T "активний"}}</span>
+          {{else}}<span class="badge danger">{{T "заблокований"}}</span>
 {{end}}
         </div>
       </div>
       <div class="info-row">
         <div class="info-key">2FA</div>
         <div class="info-val">
-          {{if .U.TOTPEnabled}}<span class="badge ok">увімкнена</span>
-          {{else}}<span class="badge warn">вимкнена</span>{{end}}
+          {{if .U.TOTPEnabled}}<span class="badge ok">{{T "увімкнена"}}</span>
+          {{else}}<span class="badge warn">{{T "вимкнена"}}</span>{{end}}
         </div>
       </div>
       <div class="info-row">
-        <div class="info-key">Обліковий запис створено</div>
+        <div class="info-key">{{T "Обліковий запис створено"}}</div>
         <div class="info-val">{{fmtTime .U.CreatedAt}}</div>
       </div>
       <div class="info-row">
-        <div class="info-key">Останній вхід</div>
+        <div class="info-key">{{T "Останній вхід"}}</div>
         <div class="info-val" style="color:var(--muted)">{{fmtTime .U.LastLogin}}</div>
       </div>
       <div class="info-row">
-        <div class="info-key">Останній IP</div>
+        <div class="info-key">{{T "Останній IP"}}</div>
         <div class="info-val" style="color:var(--muted)">{{if .U.LastIP}}{{deref .U.LastIP}}{{else}}&mdash;{{end}}</div>
       </div>
     </div>
   </div>
 {{if eq .U.Role "admin"}}
 <div class="card" style="margin-bottom:0;border-color:color-mix(in srgb, #f59e0b 40%, var(--border))">
-  <div class="card-header"><h3 style="margin:0">Адміністрування</h3></div>
+  <div class="card-header"><h3 style="margin:0">{{T "Адміністрування"}}</h3></div>
   <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
     <div style="display:flex;align-items:center;gap:12px">
       <div style="flex-shrink:0;width:44px;height:44px;border-radius:10px;background:color-mix(in srgb, #f59e0b 18%, transparent);color:#f59e0b;display:flex;align-items:center;justify-content:center">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 7v5c0 5 3.5 9.5 9 11 5.5-1.5 9-6 9-11V7l-9-5z"/></svg>
       </div>
       <div style="flex:1;min-width:0">
-        <div style="font-weight:700;line-height:1.2">Адмін-панель</div>
-        <div class="muted" style="font-size:12px;margin-top:2px">Доступно лише адміністраторам</div>
+        <div style="font-weight:700;line-height:1.2">{{T "Адмін-панель"}}</div>
+        <div class="muted" style="font-size:12px;margin-top:2px">{{T "Доступно лише адміністраторам"}}</div>
       </div>
     </div>
-    <a href="/admin" class="btn btn-primary" style="background:#f59e0b;border-color:#f59e0b;color:#111;text-align:center;font-weight:700">Увійти →</a>
+    <a href="/admin" class="btn btn-primary" style="background:#f59e0b;border-color:#f59e0b;color:#111;text-align:center;font-weight:700">{{T "Увійти →"}}</a>
   </div>
 </div>
 {{end}}
 <div class="card" style="margin-bottom:0">
-  <div class="card-header"><h3 style="margin:0">Двофакторний захист</h3></div>
+  <div class="card-header"><h3 style="margin:0">{{T "Двофакторний захист"}}</h3></div>
   <div class="card-body" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
     <div>
-      <div style="font-weight:700">{{if .U.TOTPEnabled}}2FA увімкнена{{else}}2FA не ввімкнена{{end}}</div>
-      <div class="muted" style="font-size:12px;margin-top:2px">TOTP через застосунок-автентифікатор і коди відновлення</div>
+      <div style="font-weight:700">{{if .U.TOTPEnabled}}2FA {{T "увімкнена"}}{{else}}2FA {{T "не ввімкнена"}}{{end}}</div>
+      <div class="muted" style="font-size:12px;margin-top:2px">TOTP {{T "через застосунок-автентифікатор і коди відновлення"}}</div>
     </div>
-    <a href="/profile/2fa" class="btn btn-ghost">Налаштувати</a>
+    <a href="/profile/2fa" class="btn btn-ghost">{{T "Налаштувати"}}</a>
   </div>
 </div>
 </div>
@@ -158,98 +158,98 @@
 
     <!-- ── Редагувати профіль ── -->
     <div class="card" style="margin-bottom:0">
-      <div class="card-header"><h3>Редагувати профіль</h3></div>
+      <div class="card-header"><h3>{{T "Редагувати профіль"}}</h3></div>
       <div class="card-body">
         <form method="POST" action="/profile">
           <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
           <input type="hidden" name="action" value="update_info">
           <div class="form-full">
-            <label>Логін</label>
+            <label>{{T "Логін"}}</label>
             <input type="text" name="username" value="{{.U.Username}}" required autocomplete="off">
-            <div style="font-size:10px;color:var(--muted);margin-top:4px">Використовується для входу до системи</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:4px">{{T "Використовується для входу до системи"}}</div>
           </div>
           <div class="form-full">
-            <label>Ім’я</label>
-            <input type="text" name="display_name" value="{{.U.DisplayName}}" placeholder="Іван Петренко" autocomplete="off">
-            <div style="font-size:10px;color:var(--muted);margin-top:4px">Показується в інтерфейсі</div>
+            <label>{{T "Ім’я"}}</label>
+            <input type="text" name="display_name" value="{{.U.DisplayName}}" placeholder="{{T "Іван Петренко"}}" autocomplete="off">
+            <div style="font-size:10px;color:var(--muted);margin-top:4px">{{T "Показується в інтерфейсі"}}</div>
           </div>
           <div class="form-full">
             <label>Email</label>
             <input type="email" name="email" value="{{.U.Email}}" placeholder="user@example.com" autocomplete="off">
-            <div style="font-size:10px;color:var(--muted);margin-top:4px">Для сповіщень і відновлення доступу</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:4px">{{T "Для сповіщень і відновлення доступу"}}</div>
           </div>
-          <button type="submit" class="btn" style="padding:8px 18px;font-weight:600">Зберегти зміни</button>
+          <button type="submit" class="btn" style="padding:8px 18px;font-weight:600">{{T "Зберегти зміни"}}</button>
         </form>
       </div>
     </div>
 
     <!-- ── Змінити пароль ── -->
     <div class="card" style="margin-bottom:0">
-      <div class="card-header"><h3>Змінити пароль</h3></div>
+      <div class="card-header"><h3>{{T "Змінити пароль"}}</h3></div>
       <div class="card-body">
         <form method="POST" action="/profile">
           <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
           <input type="hidden" name="action" value="change_password">
           <div class="form-full">
-            <label>Поточний пароль</label>
+            <label>{{T "Поточний пароль"}}</label>
             <input type="password" name="current_password" required autocomplete="current-password">
           </div>
           <div class="form-row">
             <div>
-              <label>Новий пароль</label>
-              <input type="password" name="new_password" placeholder="Мін. 8 симв. + цифра + спецсимвол" required autocomplete="new-password">
+              <label>{{T "Новий пароль"}}</label>
+              <input type="password" name="new_password" placeholder="{{T "Мін. 8 симв. + цифра + спецсимвол"}}" required autocomplete="new-password">
             </div>
             <div>
-              <label>Підтвердити</label>
+              <label>{{T "Підтвердити"}}</label>
               <input type="password" name="confirm_password" required autocomplete="new-password">
             </div>
           </div>
-          <button type="submit" class="btn btn-warn" style="padding:8px 18px;font-weight:600">Зберегти пароль</button>
+          <button type="submit" class="btn btn-warn" style="padding:8px 18px;font-weight:600">{{T "Зберегти пароль"}}</button>
         </form>
       </div>
     </div>
     <!-- ── Зовнішній вигляд ── -->
     <div class="card" style="margin-bottom:0;overflow:visible">
-      <div class="card-header"><h3>Зовнішній вигляд</h3></div>
+      <div class="card-header"><h3>{{T "Зовнішній вигляд"}}</h3></div>
       <div class="card-body">
         <form method="POST" action="/profile" id="themeForm">
           <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
           <input type="hidden" name="action" value="theme">
-          <label>Тема оформлення</label>
+          <label>{{T "Тема оформлення"}}</label>
           {{$cur := .U.Theme}}
           <div class="theme-select" id="themeSelect">
             <div class="ts-box" id="tsBox">
               <div class="ts-preview ts-{{$cur}}"><span></span><span></span></div>
               <div class="ts-label" id="tsLabel">
-                {{if eq $cur "dark"}}Темна
-                {{else if eq $cur "light"}}Світла
-                {{else if eq $cur "blue"}}Синя
-                {{else if eq $cur "auto"}}Авто (системна)
-                {{else}}Темна{{end}}
+                {{if eq $cur "dark"}}{{T "Темна"}}
+                {{else if eq $cur "light"}}{{T "Світла"}}
+                {{else if eq $cur "blue"}}{{T "Синя"}}
+                {{else if eq $cur "auto"}}{{T "Авто (системна)"}}
+                {{else}}{{T "Темна"}}{{end}}
               </div>
               <span class="ts-arrow"></span>
             </div>
             <div class="ts-dropdown" id="tsDropdown">
               <div class="ts-opt {{if eq $cur "dark"}}selected{{end}}"  data-val="dark">
                 <div class="ts-preview ts-dark"><span></span><span></span></div>
-                <div><div class="ts-opt-name">Темна</div><div class="ts-opt-sub">Класична, типова</div></div>
+                <div><div class="ts-opt-name">{{T "Темна"}}</div><div class="ts-opt-sub">{{T "Класична, типова"}}</div></div>
               </div>
               <div class="ts-opt {{if eq $cur "light"}}selected{{end}}" data-val="light">
                 <div class="ts-preview ts-light"><span></span><span></span></div>
-                <div><div class="ts-opt-name">Світла</div><div class="ts-opt-sub">Для роботи вдень</div></div>
+                <div><div class="ts-opt-name">{{T "Світла"}}</div><div class="ts-opt-sub">{{T "Для роботи вдень"}}</div></div>
               </div>
               <div class="ts-opt {{if eq $cur "blue"}}selected{{end}}"  data-val="blue">
                 <div class="ts-preview ts-blue"><span></span><span></span></div>
-                <div><div class="ts-opt-name">Синя</div><div class="ts-opt-sub">Морська ніч</div></div>
+                <div><div class="ts-opt-name">{{T "Синя"}}</div><div class="ts-opt-sub">{{T "Морська ніч"}}</div></div>
               </div>
               <div class="ts-opt {{if eq $cur "auto"}}selected{{end}}"  data-val="auto">
                 <div class="ts-preview ts-auto"><span></span><span></span></div>
-                <div><div class="ts-opt-name">Авто</div><div class="ts-opt-sub">Стежить за системною темою</div></div>
+                <div><div class="ts-opt-name">{{T "Авто"}}</div><div class="ts-opt-sub">{{T "Стежить за системною темою"}}</div></div>
               </div>
             </div>
           </div>
           <input type="hidden" name="theme" id="themeInput" value="{{$cur}}">
-          <button type="submit" class="btn" style="margin-top:14px;padding:8px 18px;font-weight:600">Зберегти тему</button>
+          <button type="submit" class="btn" style="margin-top:14px;padding:8px 18px;font-weight:600">{{T "Зберегти тему"}}</button>
         </form>
       </div>
     </div>
@@ -287,7 +287,7 @@
   var input = document.getElementById('themeInput');
   var label = document.getElementById('tsLabel');
   var preview = box.querySelector('.ts-preview');
-  var LABELS = {dark:'Темна', light:'Світла', blue:'Синя', auto:'Авто (системна)'};
+  var LABELS = {dark:'{{T "Темна"}}', light:'{{T "Світла"}}', blue:'{{T "Синя"}}', auto:'{{T "Авто (системна)"}}'};
   box.addEventListener('click', function(){
     box.classList.toggle('open');
     drop.classList.toggle('open');

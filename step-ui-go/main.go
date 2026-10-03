@@ -180,6 +180,8 @@ func main() {
 	r.Get("/reset-password", h.ResetPasswordGet)
 	r.Post("/reset-password", h.ResetPasswordPost)
 	r.Get("/logout", h.Logout)
+	// Interface language switcher (cookie + profile of a logged-in user)
+	r.Get("/lang/{code}", h.SetLang)
 	// Prometheus scrape endpoint: enabled by METRICS_TOKEN, bearer token authorization.
 	r.Get("/metrics", h.Metrics)
 
