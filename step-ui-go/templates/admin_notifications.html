@@ -4,10 +4,6 @@
   <p class="admin-page-subtitle">Webhook, email {{T "і Telegram для критичних подій CA, помилок випуску й сертифікатів, що спливають"}}</p>
 </div>
 
-{{range .Msgs}}
-  <div class="alert {{if eq .Type "ok"}}alert-ok{{else if eq .Type "warn"}}alert-warn{{else}}alert-err{{end}}">{{T .Text}}</div>
-{{end}}
-
 <div class="card">
   <div class="card-header"><strong>Webhook</strong></div>
   <div class="card-body">

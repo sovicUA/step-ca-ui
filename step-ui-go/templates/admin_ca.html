@@ -4,10 +4,6 @@
   <p class="admin-page-subtitle">{{T "Режим роботи, параметри підключення, сертифікати центру й параметри безпеки"}}</p>
 </div>
 
-{{range .Msgs}}
-  <div class="alert {{if eq .Type "ok"}}alert-ok{{else if eq .Type "warn"}}alert-warn{{else}}alert-err{{end}}">{{T .Text}}</div>
-{{end}}
-
 <div class="card">
   <div class="card-header">
     <strong>{{T "Поточний режим"}}</strong>

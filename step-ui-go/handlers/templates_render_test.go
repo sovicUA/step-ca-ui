@@ -192,3 +192,53 @@ func TestTemplateKeysTranslated(t *testing.T) {
 		}
 	}
 }
+
+// TestAdminPagesShowFlash checks that the admin layout shows flash messages once: a POST handler stores the
+// result in the session and redirects, and the next page pops it - a page that does not render it loses it.
+func TestAdminPagesShowFlash(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("getwd: %v", err)
+	}
+	if err := os.Chdir(".."); err != nil {
+		t.Fatalf("chdir to module root: %v", err)
+	}
+	t.Cleanup(func() { _ = os.Chdir(wd) })
+
+	h := &Handler{tmpls: make(map[string]map[string]*template.Template)}
+	h.loadTemplates()
+
+	const probe = "flash-probe-message"
+	pages := map[string]map[string]interface{}{
+		"admin_users":         {},
+		"admin_users_temp":    {"Users": []interface{}{}},
+		"admin_security":      {"CurrentPage": 1, "TotalPages": 1},
+		"admin_ca":            {},
+		"admin_notifications": {},
+	}
+	for page, extra := range pages {
+		t.Run(page, func(t *testing.T) {
+			tmpl, ok := h.tmpls[i18n.Source][page]
+			if !ok {
+				t.Fatalf("template %s was not loaded", page)
+			}
+			data := map[string]interface{}{
+				"Session":    &models.SessionInfo{UserID: 1, Username: "admin", Role: "admin", Theme: "dark", Lang: i18n.Source},
+				"Msgs":       []models.FlashMsg{{Type: "err", Text: probe}},
+				"ActivePage": page,
+				"CSRFToken":  "test-token",
+				"CARuntime":  models.CARuntime{Mode: "bundled", Configured: true},
+			}
+			for k, v := range extra {
+				data[k] = v
+			}
+			var buf bytes.Buffer
+			if err := tmpl.ExecuteTemplate(&buf, "admin_layout", data); err != nil {
+				t.Fatalf("execute %s: %v", page, err)
+			}
+			if n := strings.Count(buf.String(), probe); n != 1 {
+				t.Errorf("%s: flash message rendered %d times, want 1", page, n)
+			}
+		})
+	}
+}

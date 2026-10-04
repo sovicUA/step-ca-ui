@@ -152,6 +152,9 @@
       <span>{{T "Захищена зона адміністратора. Критичні дії записуються в журнал."}}</span>
     </div>
 
+    {{range .Msgs}}
+    <div class="alert {{if eq .Type "ok"}}alert-ok{{else if eq .Type "warn"}}alert-warn{{else}}alert-err{{end}}">{{T .Text}}</div>
+    {{end}}
     {{template "content" .}}
   </main>
 </div>

@@ -60,7 +60,6 @@ func (h *Handler) AdminUsersTempGet(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	data["LoginURL"] = scheme + "://" + r.Host + "/login"
-	data["Flashes"] = h.popFlash(w, r)
 	data["Users"] = vms
 	data["Now"] = time.Now()
 

@@ -3,10 +3,6 @@
   <div><h1>{{T "Журнал безпеки"}}</h1></div>
 </div>
 
-{{range .Msgs}}
-  <div class="alert {{if eq .Type "ok"}}alert-ok{{else if eq .Type "warn"}}alert-warn{{else}}alert-err{{end}}">{{T .Text}}</div>
-{{end}}
-
 <div class="card" style="margin-bottom:16px">
   <div class="card-header"><strong>{{T "Політика обов’язкової 2FA"}}</strong></div>
   <div class="card-body">
