@@ -2,7 +2,7 @@
 
 # Step-CA UI
 
-**Self-hosted web interface for [Smallstep step-ca](https://smallstep.com/docs/step-ca/) — manage your private PKI from a browser.**
+**Вебінтерфейс для [Smallstep step-ca](https://smallstep.com/docs/step-ca/) на власному сервері — керуйте своєю PKI з браузера.**
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Made with Go](https://img.shields.io/badge/Made%20with-Go%201.22-00ADD8.svg)](https://go.dev)
@@ -10,51 +10,70 @@
 [![Current version](https://img.shields.io/badge/version-v1.7.0-success.svg)](https://github.com/UncleFi1/step-ca-ui/releases/tag/v1.7.0)
 [![Latest release](https://img.shields.io/badge/release-v1.7.0-success.svg)](https://github.com/UncleFi1/step-ca-ui/releases/latest)
 
-🇬🇧 **English** · [🇷🇺 Русский](README.ru.md)
+🇺🇦 **Українська** · [🇬🇧 English](README.en.md) · [🇷🇺 Русский](README.ru.md)
 
 </div>
 
 ---
 
-> A small-team-friendly web UI on top of `smallstep/step-ca`. No SaaS, no telemetry, no vendor lock-in — runs entirely on your own server in three Docker containers.
+> Зручний вебінтерфейс над `smallstep/step-ca` для невеликих команд. Без хмарних сервісів, телеметрії й прив’язки до постачальника — усе працює на вашому сервері в трьох контейнерах Docker.
 
-## Current Release
+## Цей форк
 
-**Latest stable:** [v1.7.0](https://github.com/UncleFi1/step-ca-ui/releases/tag/v1.7.0)
+Гілка `uk` — наша версія, `main` — upstream без змін (зміни upstream потрапляють у `uk` злиттям після перегляду
+коду). Відмінності від upstream:
 
-Highlights:
-- restricted admin web console with predefined diagnostic commands, timeout, output limit and audit log
-- password recovery UX cleanup: neutral result message, no account enumeration and cleared identifier field after submit
-- password recovery with SMTP, expiring reset tokens, rate limiting and audit events
-- admin audit hardening for user actions, key downloads, backups and settings changes
-- responsive top navigation with dropdown groups for narrow windows
-- TOTP 2FA with authenticator app enrollment, QR code and recovery codes
-- login 2FA challenge after password verification
-- polished main page, 2FA page and certificate list layout
-- responsive certificate list for desktop, laptop and narrow browser windows
+- **Інтерфейс українською й англійською** з перемикачем UA / EN (бічна панель, меню облікового запису, сторінка
+  входу). Вибір зберігається в профілі й cookie; без вибору — за мовою браузера, інакше українська. Українська —
+  мова вихідного тексту, англійський каталог — `step-ui-go/i18n/locales/en.json` (докладніше — нижче, «Переклад»).
+- **«Адмін → Огляд → Усі сертифікати CA»** — усе, що підписав step-ca (ACME, випуск з CLI, сам інтерфейс), а не
+  лише облік UI. Потрібні step-ca на PostgreSQL і `CA_DB_URL` — роль лише для читання таблиць `x509_certs`,
+  `x509_certs_data` і `revoked_x509_certs`. Дії: завантажити сертифікат, відкликати будь-який чинний, випустити
+  заново з тими самими іменами (новий ключ, в обліку UI); за замовчуванням показано лише чинні.
+- **Кілька імен під час випуску** — поле «Додаткові імена (SAN)»; поновлення зберігає всі імена сертифіката.
+- **Робота за зворотним проксі** (TLS на проксі, застосунок — HTTP): перевірки «Preflight» не вважають помилкою
+  відсутній власний сертифікат і незмонтований `ca.json` зовнішнього CA.
+- **Повідомлення на сторінках адмінки** (помилки й результати дій) — в upstream більшість сторінок їх губила.
 
-## Features
+Збирання й розгортання нашої версії — у документації інфраструктури (репозиторій `xDevOps/xInfra`, `docs/deploy/pki.md`).
 
-- 📋 **Certificate management** — issue, renew, revoke and import X.509 certificates
-- 👥 **Role-based access** — `admin` / `manager` / `viewer`
-- 🔄 **Dual CA mode** — run with bundled containerized `step-ca` or connect to existing native/remote Smallstep CA *(new)*
-- ⏱️ **Temporary users** — short-lived guest accounts with automatic expiration *(new in v1.4.0)*
-- 📅 **Custom date picker** — site-themed, no native browser widget *(new in v1.4.0)*
-- 🌍 **Timezone-aware** — configurable with the `TZ` environment variable
-- 🎨 **4 themes** — dark, light, blue, auto (follows OS)
-- 🧭 **Admin workspace** — polished admin UI with matching dark, light and blue themes *(new in v1.4.11)*
-- 🛡️ **Built-in security** — CSRF tokens, rate limiting, IP blocking, security log
-- 🌐 **Provisioner inspection** — list CA provisioners and issue certificates as registered JWK classes
-- 💾 **Backup export** — admin UI and CLI backup bundles with manifest checksums *(new in v1.4.9)*
-- 🔎 **CA integrity checks** — root/intermediate chain, provisioner claims, password sync and pinned step-ca image *(new in v1.5.0)*
-- 🔬 **Certificate details** — SANs, fingerprints, key usage, cert/key pair and chain validation *(new in v1.5.1)*
-- 🧩 **Certificate templates** — server, internal service, wildcard and client identity presets *(new in v1.5.2)*
-- 🔔 **Webhook notifications** — test webhook, failed issue/renew alerts, login burst alerts and expiry watcher *(new in v1.5.3)*
-- 🔐 **TOTP 2FA** — authenticator app enrollment, QR code login challenge and recovery codes *(new in v1.6.0)*
-- 🔁 **Password recovery** — SMTP reset links with TTL, rate limit, audit trail and neutral public responses *(updated in v1.6.3)*
-- 🖥️ **Restricted admin console** — allowlisted diagnostics inside the UI container with audit logging *(new in v1.7.0)*
+## Поточний реліз upstream
 
-## Quick Start
+**Остання стабільна версія:** [v1.7.0](https://github.com/UncleFi1/step-ca-ui/releases/tag/v1.7.0)
+
+Головне:
+- обмежена консоль адміністратора з наперед визначеними командами діагностики, тайм-аутом, обмеженням виводу й журналом аудиту
+- відновлення пароля: нейтральне повідомлення про результат, без розкриття наявності облікових записів, поле очищається після надсилання
+- відновлення пароля через SMTP: токени зі строком дії, обмеження частоти, події аудиту
+- посилений аудит дій адміністратора: користувачі, завантаження ключів, резервні копії, зміни налаштувань
+- адаптивне верхнє меню з випадними групами для вузьких вікон
+- TOTP 2FA: підключення застосунку-автентифікатора, QR-код і коди відновлення
+- запит 2FA під час входу після перевірки пароля
+- оновлені головна сторінка, сторінка 2FA й список сертифікатів
+- адаптивний список сертифікатів для настільних комп’ютерів, ноутбуків і вузьких вікон браузера
+
+## Можливості
+
+- 📋 **Керування сертифікатами** — випуск, поновлення, відкликання й імпорт сертифікатів X.509
+- 👥 **Доступ за ролями** — `admin` / `manager` / `viewer`
+- 🔄 **Два режими CA** — вбудований step-ca в контейнері або підключення до наявного (на хості чи віддаленого) Smallstep CA
+- ⏱️ **Тимчасові користувачі** — короткострокові гостьові облікові записи, що вимикаються автоматично
+- 📅 **Власний вибір дати** — в оформленні сайту, без вбудованого віджета браузера
+- 🌍 **Часовий пояс** — задається змінною середовища `TZ`
+- 🎨 **4 теми** — темна, світла, синя, автоматична (як в ОС)
+- 🧭 **Робочий простір адміністратора** — окремий інтерфейс адмінки в тих самих темах
+- 🛡️ **Вбудований захист** — токени CSRF, обмеження частоти, блокування IP, журнал безпеки
+- 🌐 **Перегляд провізіонерів** — перелік провізіонерів CA і випуск сертифікатів від зареєстрованих JWK
+- 💾 **Експорт резервних копій** — архіви з контрольними сумами в маніфесті, з інтерфейсу й з командного рядка
+- 🔎 **Перевірки цілісності CA** — ланцюжок кореневого й проміжного сертифікатів, обмеження провізіонерів, синхронізація пароля, закріплений образ step-ca
+- 🔬 **Подробиці сертифіката** — SAN, відбитки, призначення ключа, перевірка пари сертифікат / ключ і ланцюжка
+- 🧩 **Шаблони сертифікатів** — сервер, внутрішній сервіс, wildcard, клієнтський
+- 🔔 **Сповіщення через вебхуки** — тестовий вебхук, помилки випуску й поновлення, серії невдалих входів, спливання строку
+- 🔐 **TOTP 2FA** — підключення застосунку-автентифікатора, QR-код, запит під час входу, коди відновлення
+- 🔁 **Відновлення пароля** — посилання через SMTP зі строком дії, обмеженням частоти, аудитом і нейтральними відповідями
+- 🖥️ **Обмежена консоль адміністратора** — лише дозволені команди діагностики в контейнері UI, із записом у журнал
+
+## Швидкий старт
 
 ```bash
 git clone https://github.com/UncleFi1/step-ca-ui.git
@@ -62,101 +81,100 @@ cd step-ca-ui
 sudo ./install.sh
 ```
 
-The installer can run in Russian or English and supports both clean installs and
-safe updates:
+Інсталятор працює російською або англійською і підтримує як чисте встановлення, так і безпечне оновлення:
 
 ```bash
 sudo ./install.sh --mode install --lang en
 sudo ./install.sh --mode update --lang en
 ```
 
-Update mode creates a backup first, preserves `.env` and Docker volumes, then
-runs `docker compose up -d --build`. It does not run `docker compose down -v`.
+Режим оновлення спершу робить резервну копію, зберігає `.env` і томи Docker, потім запускає
+`docker compose up -d --build`. `docker compose down -v` він не виконує.
 
-That's it. The installer:
-1. Detects your OS and installs Docker if needed
-2. Auto-detects your server IP (with confirmation)
-3. Generates strong passwords for everything
-4. Writes `.env` and `credentials.txt` (chmod 600)
-5. Builds and starts the containers
-6. Prints the URL and admin password
+От і все. Інсталятор:
+1. Визначає ОС і за потреби встановлює Docker
+2. Сам знаходить IP сервера (з підтвердженням)
+3. Генерує надійні паролі для всього
+4. Записує `.env` і `credentials.txt` (права 600)
+5. Збирає й запускає контейнери
+6. Виводить адресу й пароль адміністратора
 
-The whole thing takes 2–4 minutes on a fresh VM.
+На чистій віртуальній машині це займає 2–4 хвилини.
 
-## Requirements
+## Вимоги
 
-|                | Minimum | Recommended | High-load |
-|----------------|---------|-------------|-----------|
-| **CPU**        | 1 vCPU  | 2 vCPU      | 4+ vCPU   |
-| **RAM**        | 1 GB    | 2 GB        | 4+ GB     |
-| **Disk**       | 5 GB    | 20 GB SSD   | 50+ GB NVMe |
-| **Network**    | 10 Mbit/s | 100 Mbit/s | 1 Gbit/s  |
-| **Users**      | up to 50 | up to 500  | 500+      |
-| **Certificates**| up to 500 | up to 10k | 10k+     |
+|                | Мінімум | Рекомендовано | Високе навантаження |
+|----------------|---------|---------------|---------------------|
+| **CPU**        | 1 vCPU  | 2 vCPU        | 4+ vCPU             |
+| **RAM**        | 1 ГБ    | 2 ГБ          | 4+ ГБ               |
+| **Диск**       | 5 ГБ    | 20 ГБ SSD     | 50+ ГБ NVMe         |
+| **Мережа**     | 10 Мбіт/с | 100 Мбіт/с  | 1 Гбіт/с            |
+| **Користувачі**| до 50   | до 500        | 500+                |
+| **Сертифікати**| до 500  | до 10 тис.    | 10 тис.+            |
 
-**Software:**
-- Linux kernel 4.4+ (Ubuntu 20.04+, Debian 11+, CentOS Stream 9+, Rocky 9+, Alma 9+)
-- Docker Engine 20.10+ with Compose plugin v2+
-- Open ports: `443/tcp` (HTTPS UI), optionally `9000/tcp` (step-ca API)
+**Програмне забезпечення:**
+- ядро Linux 4.4+ (Ubuntu 20.04+, Debian 11+, CentOS Stream 9+, Rocky 9+, Alma 9+)
+- Docker Engine 20.10+ з плагіном Compose v2+
+- відкриті порти: `443/tcp` (HTTPS інтерфейсу), за потреби `9000/tcp` (API step-ca)
 
-> Untested but should work: macOS / Windows via Docker Desktop (development only). \
-> **Not supported:** shared hosting without Docker, Raspberry Pi Zero (insufficient RAM).
+> Не перевірялося, але має працювати: macOS / Windows через Docker Desktop (лише для розробки). \
+> **Не підтримується:** хостинг без Docker, Raspberry Pi Zero (замало пам’яті).
 
-## Stack
+## Стек
 
-| Layer        | Technology                  |
+| Рівень       | Технологія                  |
 |--------------|-----------------------------|
-| Backend      | Go 1.22, [chi](https://github.com/go-chi/chi) router |
-| Frontend     | Server-rendered HTML + vanilla JS, no build step |
-| Database     | PostgreSQL 16 |
+| Бекенд       | Go 1.22, маршрутизатор [chi](https://github.com/go-chi/chi) |
+| Фронтенд     | HTML, що рендериться на сервері, + звичайний JS, без збирання |
+| База даних   | PostgreSQL 16 |
 | CA           | [smallstep/step-ca](https://hub.docker.com/r/smallstep/step-ca) |
-| Deploy       | Docker Compose |
-| Container OS | Alpine 3.19 + tzdata        |
+| Розгортання  | Docker Compose |
+| ОС контейнера| Alpine 3.19 + tzdata        |
 
-## Architecture
+## Архітектура
 
 ```
                           ┌────────────┐
-   Browser  ─── HTTPS ───►│  step-ui   │  Go web app, port 8443
+   Браузер  ─── HTTPS ───►│  step-ui   │  вебзастосунок на Go, порт 8443
                           │  (chi)     │
                           └──┬─────┬───┘
                              │     │
                   SQL ◄──────┘     └──────► HTTPS API
                              │     │
                           ┌──▼──┐ ┌▼──────────┐
-                          │ pg  │ │ step-ca   │  port 9000
+                          │ pg  │ │ step-ca   │  порт 9000
                           │ 16  │ │ (PKI)     │
                           └─────┘ └───────────┘
 
-   step-ui exposes :443  →  internally redirects to :8443
-   step-ca exposes :9000 →  internal-only by default
+   step-ui відкриває :443  →  усередині переспрямовує на :8443
+   step-ca відкриває :9000 →  за замовчуванням лише всередині
 ```
 
-## Roles
+## Ролі
 
-| Role    | View | Issue/Import | Revoke | Manage Users |
-|---------|------|--------------|--------|--------------|
-| viewer  | ✅   | ❌           | ❌     | ❌           |
-| manager | ✅   | ✅           | ❌     | ❌           |
-| admin   | ✅   | ✅           | ✅     | ✅           |
+| Роль    | Перегляд | Випуск / імпорт | Відкликання | Керування користувачами |
+|---------|----------|-----------------|-------------|-------------------------|
+| viewer  | ✅       | ❌              | ❌          | ❌                      |
+| manager | ✅       | ✅              | ❌          | ❌                      |
+| admin   | ✅       | ✅              | ✅          | ✅                      |
 
-**Temporary users** can have any role; they're auto-blocked when `expires_at` passes (a goroutine checks every minute).
+**Тимчасові користувачі** можуть мати будь-яку роль; щойно мине `expires_at`, їх автоматично блокує фонова перевірка (щохвилини).
 
-## Security
+## Безпека
 
-- ✅ **CSRF protection** — tokens on every form and server-side checks on POST routes
-- ✅ **Rate limiting** — 5 failed login attempts → 15-minute IP block
-- ✅ **Security headers** — CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, optional HSTS
-- ✅ **Session timeout** — 8 hours, sliding
-- ✅ **Login audit log** — every login attempt is recorded with IP and User-Agent
-- ✅ **Self-signed TLS** — auto-generated on first boot, 10-year validity
-- ✅ **Password hashing** — bcrypt for new/updated passwords, with transparent migration from legacy SHA-256 hashes on next successful login
+- ✅ **Захист від CSRF** — токени в кожній формі й перевірка на сервері для POST-маршрутів
+- ✅ **Обмеження частоти** — 5 невдалих спроб входу → блокування IP на 15 хвилин
+- ✅ **Заголовки безпеки** — CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, за бажанням HSTS
+- ✅ **Тайм-аут сесії** — 8 годин, продовжується під час роботи
+- ✅ **Журнал входів** — кожна спроба входу записується з IP і User-Agent
+- ✅ **Самопідписаний TLS** — створюється автоматично під час першого запуску, строк — 10 років
+- ✅ **Хешування паролів** — bcrypt для нових і змінених паролів; старі хеші SHA-256 прозоро переводяться на bcrypt після наступного вдалого входу
 
-> 🔒 **Production tip:** put step-ui behind a reverse proxy (Caddy/nginx) with a real TLS certificate, restrict access via VPN/Tailscale, and back up the `step-ca-data` volume regularly.
+> 🔒 **Порада для продакшну:** поставте step-ui за зворотний проксі (Caddy / nginx) зі справжнім сертифікатом TLS, обмежте доступ через VPN / Tailscale і регулярно робіть резервні копії тому `step-ca-data`.
 
-## Configuration
+## Налаштування
 
-All configuration lives in `.env`. The installer creates this file for you, but you can edit it manually:
+Усі налаштування — у `.env`. Інсталятор створює цей файл сам, але його можна змінити вручну:
 
 ```env
 # CA mode: bundled (Docker container) or external (native/remote step-ca)
@@ -176,68 +194,74 @@ POSTGRES_PASSWORD=<generated>      # database password
 TZ=UTC                             # container timezone
 STEPCA_DEFAULT_TLS_CERT_DURATION=8760h
 STEPCA_MAX_TLS_CERT_DURATION=87600h
+# fork: step-ca database (PostgreSQL, read-only role) for Admin -> All CA certificates
+# CA_DB_URL=postgres://stepui_ro:<password>@<ca-db-host>:5432/stepca?sslmode=disable
 ```
 
-In `external` mode, parameters like CA URL, provisioner name, provisioner password, and Root/Intermediate CA certificates are configured directly from the Web UI under **Admin -> CA Settings** (`/admin/ca`).
+У режимі `external` адреса CA, ім’я й пароль провізіонера, кореневий і проміжний сертифікати задаються просто у вебінтерфейсі: **Адмін → Налаштування CA** (`/admin/ca`).
 
-After changing `.env`, recreate the containers:
+Після зміни `.env` перестворіть контейнери:
 
 ```bash
 sudo docker compose up -d --force-recreate
 ```
 
-## FAQ
+## Часті питання
 
 <details>
-<summary><b>How do I change the HTTPS port from 443?</b></summary>
+<summary><b>Як змінити порт HTTPS з 443?</b></summary>
 
-Edit `docker-compose.yml`:
+Змініть `docker-compose.yml`:
 ```yaml
 services:
   step-ui:
     ports:
       - "8443:8443"   # was "443:8443"
 ```
-Then restart: `sudo docker compose up -d --force-recreate step-ui`.
+Потім перезапустіть: `sudo docker compose up -d --force-recreate step-ui`.
 </details>
 
 <details>
-<summary><b>How do I back up and restore the data?</b></summary>
+<summary><b>Як зробити резервну копію даних і відновити їх?</b></summary>
 
-Use the admin UI: `Admin -> Backup -> Download backup bundle`.
+В інтерфейсі: `Адмін → Резервна копія → Завантажити резервну копію`.
 
-CLI export is also supported:
+Також можна з командного рядка:
 
 ```bash
 sudo ./install.sh --mode backup --lang en
 ```
 
-Backups include PostgreSQL, `step-ca-data`, Step-CA UI data/certs/uploads and
-`manifest.json` with SHA-256 checksums. Restore is manual by design; follow
-[BACKUP_RESTORE.md](BACKUP_RESTORE.md).
+Копія містить PostgreSQL, `step-ca-data`, дані, сертифікати й завантаження Step-CA UI та `manifest.json` з
+контрольними сумами SHA-256. Відновлення навмисно ручне — за [BACKUP_RESTORE.md](BACKUP_RESTORE.md).
 </details>
 
 <details>
-<summary><b>How do I add and configure provisioners (web, mTLS, client, acme, scep, sshpop, custom)?</b></summary>
+<summary><b>Як додати й налаштувати провізіонери (web, mTLS, client, acme, scep, sshpop, custom)?</b></summary>
 
-Do not put the UI `admin` JWK password on service hosts. Create provisioners using the CLI on the Docker host:
+Не кладіть пароль JWK `admin` вебінтерфейсу на хости сервісів. Створюйте провізіонери командним рядком на хості Docker:
 
 ```bash
 sudo ./provisioner.sh --mode create --playbook web --lang en
 ```
 
-Recipes live in `playbooks/provisioners/`:
-- `web` — JWK for web servers/proxies with optional **SAN domain restrictions** (e.g., only `*.corp.local`);
-- `mtls` — JWK for service-to-service authentication (server/client);
-- `client` — JWK for client identities (VPN, workstations);
-- `acme` — Built-in ACME server for automation with Certbot, Caddy, Traefik (DNS-01, HTTP-01, TLS-ALPN-01);
-- `scep` — SCEP protocol for managed network hardware (switches, routers, Wi-Fi APs);
-- `sshpop` — Renewal and rekeying of host SSH certificates (SSHPOP);
-- `custom` — Custom interactive setup for any type (JWK/ACME/SCEP/SSHPOP).
+Рецепти — у `playbooks/provisioners/`:
+- `web` — JWK для вебсерверів і проксі з необов’язковим **обмеженням доменів у SAN** (напр., лише `*.corp.local`);
+- `mtls` — JWK для автентифікації між сервісами (сервер / клієнт);
+- `client` — JWK для клієнтських сертифікатів (VPN, робочі станції);
+- `acme` — вбудований сервер ACME для автоматизації з Certbot, Caddy, Traefik (DNS-01, HTTP-01, TLS-ALPN-01);
+- `scep` — протокол SCEP для керованого мережевого обладнання (комутатори, маршрутизатори, точки доступу Wi-Fi);
+- `sshpop` — поновлення й заміна ключів SSH-сертифікатів хостів (SSHPOP);
+- `custom` — інтерактивне налаштування будь-якого типу (JWK / ACME / SCEP / SSHPOP).
 
-For JWK, the CLI asks for name, default/max duration (`720h` / `4380h` / `8760h` / `87600h`), SAN domain restrictions, and a JWK password (generated or entered). `--mode create` writes configuration into `ca.json` (bundled container or same-host native CA via `CA_HOST_PATH`, default `/etc/step-ca`), reloads step-ca (SIGHUP), and registers the password in PostgreSQL for web issuance. ACME, SCEP, and SSHPOP provisioners operate directly over their respective protocols without storing passwords in the UI DB. `register-only` is for an existing JWK that needs to be registered in the UI.
+Для JWK командний рядок запитує ім’я, строк за замовчуванням і максимальний (`720h` / `4380h` / `8760h` / `87600h`),
+обмеження доменів у SAN і пароль JWK (згенерований або введений). `--mode create` записує налаштування в `ca.json`
+(вбудованого контейнера або CA на тому самому хості через `CA_HOST_PATH`, за замовчуванням `/etc/step-ca`),
+перечитує step-ca (SIGHUP) і реєструє пароль у PostgreSQL для випуску з вебінтерфейсу. Провізіонери ACME, SCEP і
+SSHPOP працюють своїми протоколами й паролів у базі UI не зберігають. `register-only` — для наявного JWK, який
+треба лише зареєструвати в UI.
 
-If the provisioner already exists on the CA:
+Якщо провізіонер уже є в CA:
 
 ```bash
 sudo ./provisioner.sh --mode update --playbook web --lang en
@@ -245,18 +269,22 @@ sudo ./provisioner.sh --mode register-only --playbook web --lang en
 sudo ./provisioner.sh --mode list --lang en
 ```
 
-`--mode update` modifies existing provisioner settings (durations, SAN restrictions, ACME challenges, SCEP challenge): configuration is updated in `ca.json` via `step ca provisioner update`, the CA is reloaded gracefully (SIGHUP), and duration limits are updated in the UI database. When updating JWK provisioners, the existing private key and password are preserved by default.
+`--mode update` змінює налаштування наявного провізіонера (строки, обмеження SAN, виклики ACME, виклик SCEP):
+налаштування оновлюються в `ca.json` через `step ca provisioner update`, CA м’яко перечитує їх (SIGHUP), а
+обмеження строків оновлюються в базі UI. Для JWK наявні приватний ключ і пароль за замовчуванням зберігаються.
 
-Then on **Issue certificate** choose the provisioner. UI templates (`server` / `internal` / …) only set form defaults; they do not switch the CA provisioner. Duration cannot exceed that JWK's max. The system provisioner (`admin`) cannot be overwritten via this CLI.
+Потім на сторінці **Випустити сертифікат** виберіть провізіонер. Шаблони UI (`server` / `internal` / …) лише
+заповнюють форму й провізіонер CA не змінюють. Строк не може перевищувати максимум цього JWK. Системний
+провізіонер (`admin`) цим командним рядком не перезаписується.
 
 </details>
 
 <details>
-<summary><b>How to create a password-protected JWK provisioner on an external step-ca (native Ubuntu 24 or remote)?</b></summary>
+<summary><b>Як створити JWK-провізіонер з паролем на зовнішньому step-ca (Ubuntu 24 на хості чи віддалений)?</b></summary>
 
-Step-CA UI communicates with step-ca via a **JWK provisioner** with a password and supports certificate presets with validity up to 10 years (`87600h`).
+Step-CA UI працює з step-ca через **JWK-провізіонер** з паролем і підтримує шаблони сертифікатів строком до 10 років (`87600h`).
 
-1. On the machine running step-ca, create a JWK provisioner with extended duration limits:
+1. На машині зі step-ca створіть JWK-провізіонер із подовженими обмеженнями строку:
 
 ```bash
 step ca provisioner add admin \
@@ -265,11 +293,11 @@ step ca provisioner add admin \
   --x509-default-dur 8760h \
   --x509-max-dur 87600h
 ```
-*(If your CA configuration is stored in a custom path, pass `--ca-config /etc/step-ca/config/ca.json`)*.
+*(Якщо налаштування CA лежать в іншому місці, додайте `--ca-config /etc/step-ca/config/ca.json`)*.
 
-The `step` CLI will prompt you for a password to encrypt the new JWK private key.
+`step` запитає пароль, яким буде зашифровано приватний ключ нового JWK.
 
-2. If a provisioner with that name already exists, update its certificate duration limits:
+2. Якщо провізіонер з таким ім’ям уже є, оновіть його обмеження строку:
 
 ```bash
 step ca provisioner update admin \
@@ -278,54 +306,59 @@ step ca provisioner update admin \
   --ca-config /etc/step-ca/config/ca.json
 ```
 
-3. Restart the `step-ca` service to apply configuration changes:
+3. Перезапустіть `step-ca`, щоб застосувати зміни:
 
 ```bash
 sudo systemctl restart step-ca
 ```
 
-4. In the Step-CA UI, navigate to **Admin -> CA Settings** (`/admin/ca`):
-- Enter the external CA URL (e.g. `https://192.168.1.50:9443` or `https://ca.internal:443`).
-- Enter the provisioner name (`admin`) and the password you configured.
-- Upload `root_ca.crt` and `intermediate_ca.crt` (found in your step-ca `certs/` directory) or bind-mount the path via `CA_HOST_PATH`.
-- Click **Save settings**, then **Test CA connection**.
+4. У Step-CA UI відкрийте **Адмін → Налаштування CA** (`/admin/ca`):
+- введіть адресу зовнішнього CA (напр., `https://192.168.1.50:9443` або `https://ca.internal:443`);
+- введіть ім’я провізіонера (`admin`) і заданий пароль;
+- завантажте `root_ca.crt` і `intermediate_ca.crt` (тека `certs/` step-ca) або змонтуйте шлях через `CA_HOST_PATH`;
+- натисніть **Зберегти налаштування**, потім **Перевірити зв’язок із CA**.
 </details>
 
 <details>
-<summary><b>How do I reset the admin password?</b></summary>
+<summary><b>Як скинути пароль адміністратора?</b></summary>
 
 ```bash
 sudo docker compose exec postgres psql -U stepui -d stepui -c \
   "UPDATE users SET password_hash = encode(sha256('newpass'::bytea), 'hex') WHERE username='admin';"
 ```
-Then log in with `admin` / `newpass` and change it from the UI.
-The legacy SHA-256 reset value is accepted for recovery and is rehashed to bcrypt after login.
+Потім увійдіть як `admin` / `newpass` і змініть пароль в інтерфейсі.
+Старий формат SHA-256 приймається для відновлення й після входу переводиться на bcrypt.
 </details>
 
 <details>
-<summary><b>The browser warns about a self-signed certificate. How do I use my own?</b></summary>
+<summary><b>Браузер попереджає про самопідписаний сертифікат. Як поставити свій?</b></summary>
 
-Replace `step-ui-go/ssl/server.crt` and `server.key` with your own cert + key (e.g. from Let's Encrypt or your internal CA), then restart `step-ui`. Make sure the cert covers your `HOST_IP` or hostname.
+Замініть `step-ui-go/ssl/server.crt` і `server.key` своїми сертифікатом і ключем (напр., від Let’s Encrypt чи
+внутрішнього CA) і перезапустіть `step-ui`. Сертифікат має містити ваш `HOST_IP` або ім’я хоста.
 </details>
 
 <details>
-<summary><b>Can I run this behind Cloudflare / Caddy / nginx?</b></summary>
+<summary><b>Чи можна запустити це за Cloudflare / Caddy / nginx?</b></summary>
 
-Yes. Point your reverse proxy at `step-ui:8443` (HTTPS upstream) or change step-ui to plain HTTP and put TLS termination on the proxy. Set `X-Forwarded-Proto: https` so step-ui generates correct URLs.
+Так. Направте зворотний проксі на `step-ui:8443` (HTTPS) або переведіть step-ui на звичайний HTTP і завершуйте TLS
+на проксі (без файлу `server.crt` застосунок сам слухає HTTP). Передавайте `X-Forwarded-Proto: https`, щоб step-ui
+формував правильні адреси.
 </details>
 
 <details>
-<summary><b>How do I update to a new version?</b></summary>
+<summary><b>Як оновитися до нової версії?</b></summary>
 
 ```bash
 sudo ./install.sh --mode update --lang en
 ```
-The update mode creates a backup first, keeps existing Docker volumes, optionally checks out a selected tag, and runs migrations automatically on startup. Always check the [release notes](https://github.com/UncleFi1/step-ca-ui/releases) first — major versions may have breaking changes.
+Режим оновлення спершу робить резервну копію, зберігає наявні томи Docker, за бажанням перемикається на вибраний
+тег, а міграції виконуються автоматично під час запуску. Спершу завжди читайте
+[примітки до релізів](https://github.com/UncleFi1/step-ca-ui/releases) — великі версії можуть бути несумісними.
 </details>
 
-## Contributing
+## Участь у розробці
 
-Pull requests are welcome. For major changes, please open an issue first to discuss what you'd like to change.
+Pull request’и вітаються. Для великих змін спершу відкрийте issue й обговоріть, що саме хочете змінити.
 
 ```bash
 git clone https://github.com/UncleFi1/step-ca-ui.git
@@ -334,12 +367,19 @@ go mod download
 go run .  # requires running postgres + step-ca
 ```
 
-When submitting:
-- Run `gofmt -w .` and `go vet ./...`
-- Update relevant tests
-- Keep commits focused and descriptive
+Перед надсиланням:
+- виконайте `gofmt -w .` і `go vet ./...`
+- оновіть відповідні тести
+- робіть коміти змістовними й зосередженими на одній зміні
 
-## Project structure
+### Переклад (форк)
+
+Українська — мова вихідного тексту й ключ перекладу: у шаблонах текст обгорнуто в `{{T "..."}}`, англійський
+каталог — `step-ui-go/i18n/locales/en.json`. Новий або змінений текст інтерфейсу — додати його переклад у
+`en.json`: тест `TestTemplateKeysTranslated` не пропустить шаблон без перекладу, а `TestTemplatesExecute` —
+українське слово на англійській сторінці. Апостроф — типографський (’), щоб не обривати рядки в JS / HTML.
+
+## Структура проєкту
 
 ```
 .
@@ -347,13 +387,15 @@ When submitting:
 ├── .env.example               # configuration template
 ├── install.sh                 # one-shot installer
 ├── LICENSE                    # GPL-3.0
-├── README.md                  # this file (English)
-├── README.ru.md               # Russian translation
+├── README.md                  # this file (Ukrainian, shown by default)
+├── README.en.md               # English
+├── README.ru.md               # Russian
 └── step-ui-go/
     ├── main.go                # entry point, router setup
     ├── config/                # env-based config loader
     ├── db/                    # all SQL queries
     ├── handlers/              # HTTP handlers (one file per area)
+    ├── i18n/                  # translation (Ukrainian source, locales/en.json)
     ├── middleware/            # auth, security headers, CSRF
     ├── models/                # data structs
     ├── security/              # password hashing, rate limiting, CSRF
@@ -363,8 +405,8 @@ When submitting:
     └── entrypoint.sh          # waits for deps, generates SSL, starts app
 ```
 
-## License
+## Ліцензія
 
-This project is licensed under the **GNU General Public License v3.0** — see the [LICENSE](LICENSE) file for details.
+Проєкт поширюється за ліцензією **GNU General Public License v3.0** — див. файл [LICENSE](LICENSE).
 
-In short: you can use, modify, and distribute this software, but any derivative work must also be released under GPLv3.
+Коротко: програму можна використовувати, змінювати й поширювати, але похідні роботи теж мають виходити під GPLv3.

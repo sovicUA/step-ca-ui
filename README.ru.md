@@ -10,7 +10,7 @@
 [![Current version](https://img.shields.io/badge/version-v1.7.0-success.svg)](https://github.com/UncleFi1/step-ca-ui/releases/tag/v1.7.0)
 [![Latest release](https://img.shields.io/badge/release-v1.7.0-success.svg)](https://github.com/UncleFi1/step-ca-ui/releases/latest)
 
-[🇬🇧 English](README.md) · 🇷🇺 **Русский**
+[🇺🇦 Українська](README.md) · [🇬🇧 English](README.en.md) · 🇷🇺 **Русский**
 
 </div>
 
@@ -348,7 +348,8 @@ go run .  # нужны запущенные postgres + step-ca
 ├── .env.example               # шаблон конфигурации
 ├── install.sh                 # установщик в одну команду
 ├── LICENSE                    # GPL-3.0
-├── README.md                  # английская версия
+├── README.md                  # украинская версия (по умолчанию)
+├── README.en.md               # английская версия
 ├── README.ru.md               # этот файл (русская)
 └── step-ui-go/
     ├── main.go                # точка входа, настройка роутера
