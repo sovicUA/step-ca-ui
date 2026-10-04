@@ -24,6 +24,9 @@ type Config struct {
 	CAHostPath    string
 	// MetricsToken enables /metrics. Empty value - endpoint disabled.
 	MetricsToken string
+	// CADatabaseURL is the step-ca database (PostgreSQL, a read-only role) for the list of all issued
+	// certificates. Empty value - the page says it is not configured.
+	CADatabaseURL string
 }
 
 func Load() *Config {
@@ -46,6 +49,7 @@ func Load() *Config {
 		CAMode:        getEnv("CA_MODE", "bundled"),
 		CAHostPath:    getEnv("CA_HOST_PATH", ""),
 		MetricsToken:  getEnv("METRICS_TOKEN", ""),
+		CADatabaseURL: getEnv("CA_DB_URL", ""),
 	}
 }
 

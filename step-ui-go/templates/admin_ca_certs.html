@@ -1,0 +1,120 @@
+{{define "content"}}
+<div class="page-header">
+  <div>
+    <h1>{{T "Усі сертифікати CA"}}</h1>
+    <p style="color:var(--muted);margin:4px 0 0">{{T "Усе, що підписав step-ca: ACME (Traefik), випуск вручну з CLI і цей інтерфейс. Приватних ключів CA не зберігає — тут лише сертифікати."}}</p>
+  </div>
+</div>
+
+{{if .NotConfigured}}
+<div class="alert alert-warn">{{T "Базу CA не підключено: задайте CA_DB_URL (роль лише для читання таблиць x509_certs, x509_certs_data і revoked_x509_certs)."}}</div>
+{{else if .LoadError}}
+<div class="alert alert-err">{{T "Не вдалося прочитати базу CA — подробиці в журналі контейнера."}}</div>
+{{else}}
+
+<div class="card" style="margin-bottom:12px">
+  <div class="card-body" style="display:flex;gap:18px;flex-wrap:wrap">
+    <span><strong>{{len .Certs}}</strong> {{T "усього"}}</span>
+    <span><span class="badge ok">{{index .Counts "active"}}</span> {{T "дійсні"}}</span>
+    <span><span class="badge warn">{{index .Counts "expiring"}}</span> {{T "спливають за 30 днів"}}</span>
+    <span><span class="badge gray">{{index .Counts "expired"}}</span> {{T "прострочені"}}</span>
+    <span><span class="badge danger">{{index .Counts "revoked"}}</span> {{T "відкликані"}}</span>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:12px">
+  <div class="card-body" style="display:grid;grid-template-columns:minmax(220px,1fr) 170px 170px auto;gap:10px;align-items:end">
+    <div>
+      <label>{{T "Пошук за ім’ям або серійним номером"}}</label>
+      <input type="text" id="cf-search" placeholder="git" autocomplete="off">
+    </div>
+    <div>
+      <label>{{T "Стан"}}</label>
+      <select id="cf-status">
+        <option value="">{{T "Усі"}}</option>
+        <option value="active">{{T "дійсні"}}</option>
+        <option value="expiring">{{T "спливають за 30 днів"}}</option>
+        <option value="expired">{{T "прострочені"}}</option>
+        <option value="revoked">{{T "відкликані"}}</option>
+      </select>
+    </div>
+    <div>
+      <label>{{T "Провізіонер"}}</label>
+      <select id="cf-prov">
+        <option value="">{{T "Усі"}}</option>
+        {{range .Provisioners}}<option value="{{.}}">{{.}}</option>{{end}}
+      </select>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;justify-content:flex-end">
+      <span id="cf-counter" style="color:var(--muted);font-size:11px;white-space:nowrap"></span>
+      <button type="button" id="cf-reset" class="btn btn-ghost btn-sm">{{T "Скинути"}}</button>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="tbl-wrap">
+  <table class="tbl" id="caCertsTable" style="min-width:900px">
+    <thead><tr>
+      <th>{{T "Імена"}}</th><th>{{T "Провізіонер"}}</th><th>{{T "Видано"}}</th><th>{{T "Діє до"}}</th>
+      <th>{{T "Стан"}}</th><th>{{T "Серійний номер"}}</th><th>{{T "Облік UI"}}</th><th>{{T "Дії"}}</th>
+    </tr></thead>
+    <tbody>
+    {{range .Certs}}
+    <tr data-search="{{range .Names}}{{.}} {{end}}{{.CommonName}} {{.Serial}} {{.SerialHex}}" data-status="{{.Status}}" data-prov="{{.Provisioner}}">
+      <td style="word-break:break-word">{{range $i, $n := .Names}}{{if $i}}<br>{{end}}<strong>{{$n}}</strong>{{end}}</td>
+      <td>{{if .Provisioner}}{{.Provisioner}} <span style="color:var(--muted);font-size:10px">{{.ProvisionerType}}</span>{{else}}&mdash;{{end}}</td>
+      <td style="color:var(--muted);white-space:nowrap">{{fmtTime (ptrTime .NotBefore)}}</td>
+      <td style="white-space:nowrap">{{fmtTime (ptrTime .NotAfter)}}</td>
+      <td>
+        {{if eq .Status "revoked"}}<span class="badge danger" title="{{if .RevokedAt}}{{fmtTime .RevokedAt}}{{end}} {{.RevokedReason}}">{{T "відкликаний"}}</span>
+        {{else if eq .Status "expired"}}<span class="badge gray">{{T "прострочений"}}</span>
+        {{else if eq .Status "expiring"}}<span class="badge warn">{{T "спливає"}}</span>
+        {{else}}<span class="badge ok">{{T "дійсний"}}</span>{{end}}
+      </td>
+      <td><code style="font-size:10px" title="{{.Serial}}">{{.SerialHex}}</code></td>
+      <td>{{if .UIID}}<a href="/certificates/{{.UIID}}">{{T "відкрити"}}</a>{{else}}<span style="color:var(--muted)">&mdash;</span>{{end}}</td>
+      <td><a href="/admin/ca-certs/{{.Serial}}/download" class="btn btn-ghost btn-sm" title="{{T "Завантажити сертифікат (PEM)"}}">.crt</a></td>
+    </tr>
+    {{else}}
+    <tr><td colspan="8" style="color:var(--muted)">{{T "У базі CA сертифікатів немає"}}</td></tr>
+    {{end}}
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<script>
+(function(){
+  var table = document.getElementById('caCertsTable');
+  if(!table) return;
+  var rows = Array.prototype.slice.call(table.querySelectorAll('tbody tr[data-status]'));
+  var fSearch = document.getElementById('cf-search');
+  var fStatus = document.getElementById('cf-status');
+  var fProv   = document.getElementById('cf-prov');
+  var counter = document.getElementById('cf-counter');
+  var total   = rows.length;
+
+  function apply(){
+    var q = (fSearch.value || '').toLowerCase().trim();
+    var status = fStatus.value, prov = fProv.value, shown = 0;
+    rows.forEach(function(r){
+      var ok = (!q || (r.getAttribute('data-search') || '').toLowerCase().indexOf(q) !== -1) &&
+               (!status || r.getAttribute('data-status') === status) &&
+               (!prov || r.getAttribute('data-prov') === prov);
+      r.style.display = ok ? '' : 'none';
+      if(ok) shown++;
+    });
+    counter.textContent = (shown === total) ? ('{{T "Усього:"}} ' + total) : ('{{T "Знайдено:"}} ' + shown + ' {{T "з"}} ' + total);
+  }
+  fSearch.addEventListener('input', apply);
+  fStatus.addEventListener('change', apply);
+  fProv.addEventListener('change', apply);
+  document.getElementById('cf-reset').addEventListener('click', function(){
+    fSearch.value = ''; fStatus.value = ''; fProv.value = ''; apply();
+  });
+  apply();
+})();
+</script>
+{{end}}
+{{end}}

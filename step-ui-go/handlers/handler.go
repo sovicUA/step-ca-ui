@@ -33,10 +33,12 @@ type Handler struct {
 	store    *sessions.CookieStore
 	tmpls    map[string]map[string]*template.Template // language -> page -> template
 	resolver *CAResolver
+	caDB     *sql.DB // step-ca database, read-only; nil when CA_DB_URL is not set
 }
 
 func New(db *sql.DB, cfg *config.Config, store *sessions.CookieStore) *Handler {
 	h := &Handler{db: db, cfg: cfg, store: store, tmpls: make(map[string]map[string]*template.Template)}
+	h.caDB = openCADB(cfg.CADatabaseURL)
 	res, err := NewCAResolver(h)
 	if err != nil {
 		log.Printf("[handler] warning initializing CAResolver: %v", err)
@@ -101,6 +103,7 @@ func (h *Handler) parseTemplates(funcs template.FuncMap) map[string]*template.Te
 		"admin_backup",
 		"admin_notifications",
 		"admin_ca",
+		"admin_ca_certs",
 		"profile_2fa",
 	}
 	for _, page := range pages {
@@ -160,6 +163,7 @@ func (h *Handler) templateFuncs(lang string) template.FuncMap {
 			}
 			return t.Local().Format("2006-01-02 15:04")
 		},
+		"ptrTime": func(t time.Time) *time.Time { return &t },
 		"fmtLog": func(t time.Time) string {
 			return t.Local().Format("2006-01-02 15:04:05")
 		},

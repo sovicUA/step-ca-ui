@@ -125,6 +125,25 @@ func TestTemplatesExecute(t *testing.T) {
 		},
 	}
 
+	cases = append(cases, struct {
+		page   string
+		extra  map[string]interface{}
+		expect []string
+	}{
+		page: "admin_ca_certs",
+		extra: map[string]interface{}{
+			"Certs": []CACert{
+				{Serial: "255", SerialHex: "FF", Names: []string{"git.example.com"}, NotBefore: issued, NotAfter: expires,
+					Provisioner: "acme", ProvisionerType: "ACME", Status: "active", UIID: 1},
+				{Serial: "2", SerialHex: "2", Names: []string{"old.example.com"}, NotBefore: issued, NotAfter: issued,
+					Provisioner: "admin", ProvisionerType: "JWK", Status: "revoked", RevokedAt: &issued, RevokedReason: "superseded"},
+			},
+			"Counts":       map[string]int{"active": 1, "revoked": 1},
+			"Provisioners": []string{"acme", "admin"},
+		},
+		expect: []string{"/admin/ca-certs/255/download", `href="/certificates/1"`, "git.example.com", `data-status="revoked"`},
+	})
+
 	// Text that comes from the test data itself, and the language switcher (each language in its own name)
 	testData := regexp.MustCompile(`Дата|1хв|Українська`)
 	cyrillic := regexp.MustCompile(`[А-Яа-яІіЇїЄєҐґ]+`)
@@ -215,6 +234,7 @@ func TestAdminPagesShowFlash(t *testing.T) {
 		"admin_security":      {"CurrentPage": 1, "TotalPages": 1},
 		"admin_ca":            {},
 		"admin_notifications": {},
+		"admin_ca_certs":      {"NotConfigured": true},
 	}
 	for page, extra := range pages {
 		t.Run(page, func(t *testing.T) {

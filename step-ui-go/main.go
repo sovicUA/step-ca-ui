@@ -239,6 +239,8 @@ func main() {
 			r.Get("/admin/users-temp", h.AdminUsersTempGet)
 			r.Post("/admin/users-temp", h.AdminUsersTempPost)
 			r.Get("/admin/activity", h.AdminActivityGet)
+			r.Get("/admin/ca-certs", h.AdminCACertsGet)
+			r.Get("/admin/ca-certs/{serial}/download", h.AdminCACertDownload)
 			r.Get("/admin/security", h.SecurityLog)
 			r.Post("/admin/security/policy", h.SecurityPolicyPost)
 			r.Get("/admin/console", h.AdminConsoleGet)
