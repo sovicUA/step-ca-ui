@@ -18,6 +18,7 @@ Self-hosted web UI for smallstep `step-ca` private PKI running in 3 Docker Compo
 - **Routes & middleware**: `step-ui-go/main.go`, `step-ui-go/middleware/middleware.go`
 - **HTTP Handlers**: `step-ui-go/handlers/*.go` (`certs.go`, `cert_ops.go`, `auth.go`, `admin.go`, `admin_console.go`, `backup.go`, `health.go`, etc.)
 - **HTML Templates**: `step-ui-go/templates/*.html` (base: `base.html`, admin base: `admin_base.html`)
+- **Translations**: `step-ui-go/i18n/` (`i18n.go`, English catalog `locales/en.json`)
 - **Static Assets**: `step-ui-go/static/css/*.css`, `step-ui-go/static/js/*.js`
 - **Database schema & queries**: `step-ui-go/db/*.go` (`db.go`, `provisioners.go`, `le_db.go`, `password_reset.go`, `notifications.go`)
 - **Security & cryptography**: `step-ui-go/security/*.go` (bcrypt, rate limiting, password validation)
@@ -28,7 +29,7 @@ Self-hosted web UI for smallstep `step-ca` private PKI running in 3 Docker Compo
 1. **CSRF**: Every POST route must validate `csrf_token` via `h.requireCSRF(w, r, redirectTo)` or `h.csrfOK(r)`. Every HTML form must contain `<input type="hidden" name="csrf_token" value="{{.CSRFToken}}">` or `{{$.CSRFToken}}`.
 2. **Authorization**: Routes must be gated by `mw.RequireLogin` and `mw.RequireRole` (`viewer` < `manager` < `admin`). Role checks must match route grouping in `main.go`.
 3. **Passwords**: Use `security.HashPassword` (bcrypt). Maintain backward compatibility with legacy SHA-256 hashes via `security.VerifyPassword` and transparent rehash on login.
-4. **Localization & Copy**: UI text and user-facing messages are in Russian (`lang="ru"`). Canonical security, error, and audit messages must not be paraphrased.
+4. **Localization & Copy**: UI text and user-facing messages are in Ukrainian - the source language and the translation key - with an English catalog in `step-ui-go/i18n/locales/en.json`; `<html lang="{{lang}}">` follows the page language (UA / EN switcher, `users.lang`, cookie `step-ui-lang`, `Accept-Language`). Templates wrap text in `{{T "..."}}`; flash messages and errors stay Ukrainian in Go code and the database and are translated when rendered (`{{T .Text}}`, keys with fmt verbs match the formatted text). Every new or changed text needs its English entry in `en.json` (`TestTemplateKeysTranslated`, `TestTemplatesExecute` fail otherwise). Use the typographic apostrophe `’`, never `'`. Canonical security, error, and audit messages ([docs/domain.md](docs/domain.md)) must not be paraphrased.
 5. **Admin Console**: Executions are strictly restricted to the predefined allowlist in `handlers/admin_console.go`. Never execute arbitrary shell strings.
 6. **Secrets & Privacy**: System health and integrity checks must never leak passwords, tokens, or private keys. Do not scan or commit `.env`, `credentials.txt`, or `step-ui-go/ssl/`.
 7. **Backups & Restore**: Backups contain CA private keys and must be treated as sensitive data. Restore is strictly manual per `BACKUP_RESTORE.md` — never implement automated UI restore that overwrites keys.

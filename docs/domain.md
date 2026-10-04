@@ -28,32 +28,32 @@ Allowed key types: `EC:P-256`, `EC:P-384`, `RSA:2048`, `RSA:4096`.
 
 UI templates are form presets. They do not select a step-ca provisioner. Issue/renew uses a **registered JWK** from `ca_provisioners` (seeded `admin` plus playbook-created classes). The requested `--not-after` must not exceed that provisioner's `max_duration`. System provisioner `admin` cannot be overwritten via `./provisioner.sh`. `--mode create` writes the JWK on bundled step-ca or a same-host native CA (`CA_HOST_PATH` / `/etc/step-ca`); `register-only` is for an already existing JWK.
 
-## Canonical Russian UI & Error Strings
+## Canonical UI & Error Strings
 
-To maintain system consistency and security guarantees, do not paraphrase these canonical strings:
+UI text is Ukrainian (the source and the translation key); the English is in `step-ui-go/i18n/locales/en.json`.
+To maintain system consistency and security guarantees, do not paraphrase these canonical strings (Ukrainian
+source, English translation):
 
 ### Password Validation
-- Minimum length: `"Минимум 8 символов"`
-- Maximum length: `"Максимум 72 символа"`
-- Missing digit: `"Нужна хотя бы одна цифра"`
-- Missing letter: `"Нужна хотя бы одна буква"`
-- Missing special character: `"Нужен хотя бы один спецсимвол"`
+- Minimum length: `"Щонайменше 8 символів"` / `"At least 8 characters"`
+- Maximum length: `"Щонайбільше 72 символи"` / `"At most 72 characters"`
+- Missing digit: `"Потрібна хоча б одна цифра"` / `"At least one digit is required"`
+- Missing letter: `"Потрібна хоча б одна літера"` / `"At least one letter is required"`
+- Missing special character: `"Потрібен хоча б один спецсимвол"` / `"At least one special character is required"`
 
 ### Session & CSRF
-- Invalid CSRF token: `"Ошибка сессии. Обновите страницу."`
-- General operation success flash: `"Операция успешно выполнена"`
+- Invalid CSRF token: `"Помилка сесії. Оновіть сторінку."` / `"Session error. Reload the page."`
 
 ### Account Recovery & Enumeration Defense
 - Forgot password submission message (must be neutral regardless of account presence):
-  `"Если аккаунт с таким логином или email существует, мы отправили ссылку для сброса пароля."`
+  `"Запит на відновлення оброблено."` / `"The recovery request has been processed."`
 - Invalid or expired token message:
-  `"Ссылка для сброса недействительна или устарела. Запросите восстановление повторно."`
+  `"Посилання для скидання недійсне або застаріле."` / `"The reset link is invalid or expired."`
 
 ### Restricted Admin Console
 - Command not allowlisted:
-  `"Команда не входит в allowlist."`
-- Execution timeout:
-  `"Команда прервана по таймауту"`
+  `"Команди немає в списку дозволених."` / `"The command is not in the allowlist."`
+- Execution timeout: the command output ends with `command timed out`
 
 ## Backup and Restore Rules
 

@@ -16,9 +16,9 @@ alwaysApply: false
     ```
   - When inside loops or with-blocks, reference root token as `{{$.CSRFToken}}`.
 - **UI & Theme**:
-  - Root element must preserve `lang="ru"` and theme bindings:
+  - Root element must preserve `lang="{{lang}}"` (the page language) and theme bindings:
     `data-theme="{{if .Session.Theme}}{{if eq .Session.Theme "auto"}}dark{{else}}{{.Session.Theme}}{{end}}{{else}}dark{{end}}"`.
   - Use semantic component classes from `static/css/components.css` (`.card`, `.btn`, `.btn-primary`, `.badge`, `.table-wrap`, `.form-group`).
-  - Keep UI copy in Russian; align with existing naming (`Выпустить`, `Отзыв`, `Дашборд`).
+  - Write UI copy in Ukrainian wrapped in `{{T "..."}}` and add its English to `step-ui-go/i18n/locales/en.json`; align with existing naming (`Випустити`, `Відкликати`, `Панель керування`); typographic apostrophe `’`.
 - **Security**:
   - Rely on Go template auto-escaping. Never use raw unescaped HTML for user-provided data.

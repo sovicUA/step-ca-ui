@@ -12,7 +12,7 @@ alwaysApply: true
   - All POST endpoints must enforce CSRF validation (`h.requireCSRF` / `h.csrfOK`).
   - Gated routes must declare correct role levels (`viewer` < `manager` < `admin`).
   - Passwords use bcrypt; keep legacy SHA-256 verification and rehash compatibility.
-  - UI copy and alerts are in Russian; never paraphrase canonical security/error strings.
+  - UI copy and alerts are in Ukrainian (source and translation key) with English in `step-ui-go/i18n/locales/en.json`; add the English entry for every new text; never paraphrase canonical security/error strings (`docs/domain.md`).
   - Admin console commands must be strictly chosen from the predefined allowlist.
 - **Verification commands**:
   - `cd step-ui-go && gofmt -w .`

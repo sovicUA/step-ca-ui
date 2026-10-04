@@ -44,7 +44,7 @@ If introducing a new HTML view, edit `step-ui-go/handlers/handler.go`:
 Create `step-ui-go/templates/<name>.html`:
 - Use `{{define "content"}} ... {{end}}`.
 - Include `<input type="hidden" name="csrf_token" value="{{.CSRFToken}}">` on every form.
-- Use Russian labels and existing styles from `static/css/components.css`.
+- Use Ukrainian labels wrapped in `{{T "..."}}` (English entries in `i18n/locales/en.json`) and existing styles from `static/css/components.css`.
 
 ### 5. Verification
 Run standard checks:

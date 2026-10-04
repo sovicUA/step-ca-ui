@@ -38,4 +38,4 @@ Follow this runbook whenever modifying security-sensitive parts of Step-CA UI.
    ```bash
    cd step-ui-go && gofmt -w . && go vet ./...
    ```
-4. Verify error and notification texts match canonical Russian phrasing (see `docs/domain.md`).
+4. Verify error and notification texts match the canonical Ukrainian phrasing and its English translation (see `docs/domain.md`).
