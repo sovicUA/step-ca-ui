@@ -241,6 +241,7 @@ func main() {
 			r.Get("/admin/activity", h.AdminActivityGet)
 			r.Get("/admin/ca-certs", h.AdminCACertsGet)
 			r.Get("/admin/ca-certs/{serial}/download", h.AdminCACertDownload)
+			r.Post("/admin/ca-certs/{serial}/revoke", h.AdminCACertRevoke)
 			r.Get("/admin/security", h.SecurityLog)
 			r.Post("/admin/security/policy", h.SecurityPolicyPost)
 			r.Get("/admin/console", h.AdminConsoleGet)

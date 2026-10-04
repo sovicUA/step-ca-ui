@@ -45,7 +45,7 @@ func TestDurationExceedsMaxForIssue(t *testing.T) {
 
 func TestStepCertificateArgsUsesPasswordFile(t *testing.T) {
 	t.Parallel()
-	args := stepCertificateArgs("https://step-ca:9443", "/root.crt", "web", "/tmp/web.pw", "720h", "EC:P-256", purposeClient, "app.local", "/c.crt", "/c.key")
+	args := stepCertificateArgs("https://step-ca:9443", "/root.crt", "web", "/tmp/web.pw", "720h", "EC:P-256", purposeClient, "app.local", nil, "/c.crt", "/c.key")
 	joined := strings.Join(args, " ")
 	if strings.Contains(joined, "secret-password") {
 		t.Fatal("password must not appear in step argv")
@@ -68,4 +68,32 @@ func containsPair(args []string, flag, value string) bool {
 		}
 	}
 	return false
+}
+
+func TestParseSANs(t *testing.T) {
+	t.Parallel()
+	sans, bad := parseSANs("imap.example.lan, smtp.example.lan;MAIL.example.lan  10.0.0.5\nimap.example.lan", "mail.example.lan")
+	if bad != "" || strings.Join(sans, " ") != "imap.example.lan smtp.example.lan 10.0.0.5" {
+		t.Fatalf("parseSANs = %v, %q", sans, bad)
+	}
+	if _, bad := parseSANs("ok.example.lan, --flag", "a.example.lan"); bad != "--flag" {
+		t.Fatalf("expected --flag to be rejected, got %q", bad)
+	}
+	if sans, bad := parseSANs("  ", "a.example.lan"); bad != "" || sans != nil {
+		t.Fatalf("empty input: %v, %q", sans, bad)
+	}
+}
+
+func TestStepCertificateArgsSANs(t *testing.T) {
+	t.Parallel()
+	args := stepCertificateArgs("https://ca", "/root.crt", "ui", "/pw", "720h", "EC:P-256", purposeServer, "mail.local", []string{"imap.local"}, "/c.crt", "/c.key")
+	if !containsPair(args, "--san", "mail.local") || !containsPair(args, "--san", "imap.local") {
+		t.Fatalf("expected --san for the main domain and the extra name in %v", args)
+	}
+	if got := args[len(args)-3:]; got[0] != "mail.local" || got[1] != "/c.crt" || got[2] != "/c.key" {
+		t.Fatalf("positional arguments: %v", got)
+	}
+	if args := stepCertificateArgs("https://ca", "/root.crt", "ui", "/pw", "720h", "EC:P-256", purposeServer, "a.local", nil, "/c.crt", "/c.key"); strings.Contains(strings.Join(args, " "), "--san") {
+		t.Fatalf("no --san expected without extra names: %v", args)
+	}
 }

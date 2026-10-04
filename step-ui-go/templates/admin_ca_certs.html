@@ -31,6 +31,7 @@
     <div>
       <label>{{T "Стан"}}</label>
       <select id="cf-status">
+        <option value="current" selected>{{T "чинні"}}</option>
         <option value="">{{T "Усі"}}</option>
         <option value="active">{{T "дійсні"}}</option>
         <option value="expiring">{{T "спливають за 30 днів"}}</option>
@@ -74,7 +75,18 @@
       </td>
       <td><code style="font-size:10px" title="{{.Serial}}">{{.SerialHex}}</code></td>
       <td>{{if .UIID}}<a href="/certificates/{{.UIID}}">{{T "відкрити"}}</a>{{else}}<span style="color:var(--muted)">&mdash;</span>{{end}}</td>
-      <td><a href="/admin/ca-certs/{{.Serial}}/download" class="btn btn-ghost btn-sm" title="{{T "Завантажити сертифікат (PEM)"}}">.crt</a></td>
+      <td style="white-space:nowrap">
+        <a href="/admin/ca-certs/{{.Serial}}/download" class="btn btn-ghost btn-sm" title="{{T "Завантажити сертифікат (PEM)"}}">.crt</a>
+        {{if .ReissueURL}}<a href="{{.ReissueURL}}" class="btn btn-ghost btn-sm" title="{{T "Новий ключ і сертифікат з тими самими іменами — в обліку UI"}}">{{T "Випустити заново"}}</a>{{end}}
+        {{if or (eq .Status "active") (eq .Status "expiring")}}
+        <form method="POST" action="/admin/ca-certs/{{.Serial}}/revoke" style="display:inline"
+          data-confirm="{{T "Відкликати сертифікат"}} {{index .Names 0}}? {{T "Дія незворотна."}}{{if eq .ProvisionerType "ACME"}} {{T "Traefik отримає новий сертифікат лише під час наступного поновлення."}}{{end}}"
+          data-confirm-btn="{{T "Відкликати"}}" data-confirm-title="{{T "Відкликання сертифіката"}}">
+          <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+          <button type="submit" class="btn btn-danger btn-sm">{{T "Відкликати"}}</button>
+        </form>
+        {{end}}
+      </td>
     </tr>
     {{else}}
     <tr><td colspan="8" style="color:var(--muted)">{{T "У базі CA сертифікатів немає"}}</td></tr>
@@ -99,8 +111,9 @@
     var q = (fSearch.value || '').toLowerCase().trim();
     var status = fStatus.value, prov = fProv.value, shown = 0;
     rows.forEach(function(r){
+      var st = r.getAttribute('data-status');
       var ok = (!q || (r.getAttribute('data-search') || '').toLowerCase().indexOf(q) !== -1) &&
-               (!status || r.getAttribute('data-status') === status) &&
+               (!status || st === status || (status === 'current' && (st === 'active' || st === 'expiring'))) &&
                (!prov || r.getAttribute('data-prov') === prov);
       r.style.display = ok ? '' : 'none';
       if(ok) shown++;
@@ -111,7 +124,7 @@
   fStatus.addEventListener('change', apply);
   fProv.addEventListener('change', apply);
   document.getElementById('cf-reset').addEventListener('click', function(){
-    fSearch.value = ''; fStatus.value = ''; fProv.value = ''; apply();
+    fSearch.value = ''; fStatus.value = 'current'; fProv.value = ''; apply();
   });
   apply();
 })();

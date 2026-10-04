@@ -97,3 +97,14 @@ func TestSafeFileName(t *testing.T) {
 		}
 	}
 }
+
+func TestReissueURL(t *testing.T) {
+	if u := reissueURL(CACert{ProvisionerType: "ACME", Names: []string{"git.example.lan"}}); u != "" {
+		t.Errorf("ACME certificate must not be reissued from the UI: %s", u)
+	}
+	u := reissueURL(CACert{ProvisionerType: "JWK", Names: []string{"mail.example.lan", "imap.example.lan", "smtp.example.lan"}})
+	want := "/issue?domain=mail.example.lan&name=mail.example.lan&sans=imap.example.lan%2C+smtp.example.lan"
+	if u != want {
+		t.Errorf("reissueURL = %s, want %s", u, want)
+	}
+}

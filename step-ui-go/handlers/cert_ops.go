@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"bytes"
 	"crypto/x509"
 	"database/sql"
 	"encoding/pem"
@@ -8,11 +9,14 @@ import (
 	"io"
 	"log"
 	"mime/multipart"
+	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
+	"unicode"
 
 	appdb "step-ui/db"
 	"step-ui/models"
@@ -81,7 +85,7 @@ func durationExceedsMax(requested, maxDur string) bool {
 	return appdb.DurationExceedsMax(requested, maxDur)
 }
 
-func (h *Handler) issueCert(domain, certPath, keyPath, duration, keyType, purpose, provisioner, passwordFile string) error {
+func (h *Handler) issueCert(domain string, sans []string, certPath, keyPath, duration, keyType, purpose, provisioner, passwordFile string) error {
 	ca := h.CA()
 	if !ca.Configured {
 		return fmt.Errorf("Step-CA не налаштовано. Налаштуйте підключення в розділі Адмін -> Налаштування CA (/admin/ca)")
@@ -92,7 +96,7 @@ func (h *Handler) issueCert(domain, certPath, keyPath, duration, keyType, purpos
 	if passwordFile == "" {
 		passwordFile = ca.PasswordFile
 	}
-	args := stepCertificateArgs(ca.URL, ca.RootCert, provisioner, passwordFile, duration, keyType, purpose, domain, certPath, keyPath)
+	args := stepCertificateArgs(ca.URL, ca.RootCert, provisioner, passwordFile, duration, keyType, purpose, domain, sans, certPath, keyPath)
 	log.Printf("[step-cli] step %s", strings.Join(args, " "))
 	cmd := exec.Command("step", args...)
 	out, err := cmd.CombinedOutput()
@@ -102,7 +106,7 @@ func (h *Handler) issueCert(domain, certPath, keyPath, duration, keyType, purpos
 	return nil
 }
 
-func stepCertificateArgs(caURL, rootCert, provisioner, passwordFile, duration, keyType, purpose, domain, certPath, keyPath string) []string {
+func stepCertificateArgs(caURL, rootCert, provisioner, passwordFile, duration, keyType, purpose, domain string, sans []string, certPath, keyPath string) []string {
 	args := []string{
 		"ca", "certificate",
 		"--ca-url", caURL,
@@ -120,10 +124,78 @@ func stepCertificateArgs(caURL, rootCert, provisioner, passwordFile, duration, k
 	} else if strings.HasPrefix(keyType, "RSA:") {
 		args = append(args, "--kty", "RSA", "--size", strings.TrimPrefix(keyType, "RSA:"))
 	}
+	if len(sans) > 0 {
+		// With --san the certificate gets exactly these names, so the main domain is listed too
+		for _, name := range append([]string{domain}, sans...) {
+			args = append(args, "--san", name)
+		}
+	}
 	return append(args, domain, certPath, keyPath)
 }
 
-func (h *Handler) issueWithRegisteredProvisioner(domain, certPath, keyPath, duration, keyType, purpose, provisionerName string) error {
+var sanNameRe = regexp.MustCompile(`^(\*\.)?[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$`)
+
+// parseSANs splits additional names (separated by commas, semicolons or spaces), dropping repeats and the
+// main domain; on an invalid name it returns that name
+func parseSANs(raw, domain string) (sans []string, invalid string) {
+	seen := map[string]bool{strings.ToLower(strings.TrimSpace(domain)): true}
+	for _, name := range strings.FieldsFunc(raw, func(r rune) bool { return r == ',' || r == ';' || unicode.IsSpace(r) }) {
+		key := strings.ToLower(name)
+		if seen[key] {
+			continue
+		}
+		if net.ParseIP(name) == nil && !sanNameRe.MatchString(name) {
+			return nil, name
+		}
+		seen[key] = true
+		sans = append(sans, name)
+	}
+	return sans, ""
+}
+
+// certExtraNames returns the names of an existing certificate besides the main domain, so that reissuing
+// keeps all of them
+func certExtraNames(certPath, domain string) []string {
+	cert, err := readPEMCert(certPath)
+	if err != nil {
+		return nil
+	}
+	names := append([]string{}, cert.DNSNames...)
+	for _, ip := range cert.IPAddresses {
+		names = append(names, ip.String())
+	}
+	sans, _ := parseSANs(strings.Join(names, ","), domain)
+	return sans
+}
+
+// revokeBySerial revokes any certificate of the CA by its decimal serial number. step ca revoke takes no
+// provisioner: the request is authorised by a revoke token of the UI's JWK provisioner (step-ca lets any
+// JWK provisioner revoke any certificate).
+func (h *Handler) revokeBySerial(serial, reason string) error {
+	ca := h.CA()
+	if !ca.Configured {
+		return fmt.Errorf("Step-CA не налаштовано")
+	}
+	var stderr bytes.Buffer
+	tokenCmd := exec.Command("step", "ca", "token", serial, "--revoke",
+		"--provisioner", ca.Provisioner, "--provisioner-password-file", ca.PasswordFile,
+		"--ca-url", ca.URL, "--root", ca.RootCert)
+	tokenCmd.Stderr = &stderr
+	token, err := tokenCmd.Output()
+	if err != nil {
+		return fmt.Errorf("%v: %s", err, strings.TrimSpace(stderr.String()))
+	}
+	args := []string{"ca", "revoke", serial, "--token", strings.TrimSpace(string(token)), "--ca-url", ca.URL, "--root", ca.RootCert}
+	if reason != "" {
+		args = append(args, "--reason", reason)
+	}
+	if out, err := exec.Command("step", args...).CombinedOutput(); err != nil {
+		return fmt.Errorf("%v: %s", err, strings.TrimSpace(string(out)))
+	}
+	return nil
+}
+
+func (h *Handler) issueWithRegisteredProvisioner(domain string, sans []string, certPath, keyPath, duration, keyType, purpose, provisionerName string) error {
 	ca := h.CA()
 	if provisionerName == "" {
 		provisionerName = ca.Provisioner
@@ -165,7 +237,7 @@ func (h *Handler) issueWithRegisteredProvisioner(domain, certPath, keyPath, dura
 	} else if !prov.IsSystem && provisionerName != ca.Provisioner {
 		return fmt.Errorf("для провізіонера %s не задано пароль", provisionerName)
 	}
-	return h.issueCert(domain, certPath, keyPath, duration, keyType, purpose, prov.Name, passwordFile)
+	return h.issueCert(domain, sans, certPath, keyPath, duration, keyType, purpose, prov.Name, passwordFile)
 }
 
 // certPurposeFromFile derives x509Purpose from extKeyUsage of an existing

@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"regexp"
 	"sort"
 	"strings"
@@ -37,7 +38,23 @@ type CACert struct {
 	Status          string // active, expiring (30 days or less), expired, revoked
 	RevokedAt       *time.Time
 	RevokedReason   string
-	UIID            int // the certificate in this UI's accounting, 0 if it is not there
+	UIID            int    // the certificate in this UI's accounting, 0 if it is not there
+	ReissueURL      string // the issue form filled with the same names; empty for ACME (the client renews itself)
+}
+
+// reissueURL fills the issue form with the certificate's names: a new key and certificate from the UI's
+// provisioner, kept in the UI's records (the CA has no private key to renew the original)
+func reissueURL(c CACert) string {
+	if c.ProvisionerType == "ACME" || len(c.Names) == 0 {
+		return ""
+	}
+	q := url.Values{}
+	q.Set("name", c.Names[0])
+	q.Set("domain", c.Names[0])
+	if len(c.Names) > 1 {
+		q.Set("sans", strings.Join(c.Names[1:], ", "))
+	}
+	return "/issue?" + q.Encode()
 }
 
 const caCertsQuery = `SELECT c.nkey, c.nvalue, d.nvalue, r.nvalue FROM x509_certs c
@@ -182,6 +199,7 @@ func (h *Handler) AdminCACertsGet(w http.ResponseWriter, r *http.Request) {
 	var provisioners []string
 	for i := range certs {
 		certs[i].UIID = inUI[certs[i].Serial]
+		certs[i].ReissueURL = reissueURL(certs[i])
 		counts[certs[i].Status]++
 		if p := certs[i].Provisioner; p != "" && !seen[p] {
 			seen[p] = true
@@ -225,6 +243,31 @@ func (h *Handler) AdminCACertDownload(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/x-pem-file")
 	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s.crt"`, name))
 	_ = pem.Encode(w, &pem.Block{Type: "CERTIFICATE", Bytes: der})
+}
+
+// AdminCACertRevoke revokes a certificate of the CA list by its serial number
+func (h *Handler) AdminCACertRevoke(w http.ResponseWriter, r *http.Request) {
+	if !h.requireCSRF(w, r, "/admin/ca-certs") {
+		return
+	}
+	serial := chi.URLParam(r, "serial")
+	if h.caDB == nil || !caSerialRe.MatchString(serial) {
+		http.NotFound(w, r)
+		return
+	}
+	si := h.sessionInfo(r)
+	if err := h.revokeBySerial(serial, "step-ca-ui: "+si.Username); err != nil {
+		log.Printf("[ca-db] revoke %s: %v", serial, err)
+		h.flash(w, r, "err", fmt.Sprintf("Не вдалося відкликати сертифікат: %s", err.Error()))
+	} else {
+		if c, _ := appdb.GetCertBySerial(h.db, serial); c != nil {
+			appdb.UpdateCertStatus(h.db, c.ID, "revoked")
+			appdb.InsertHistory(h.db, "revoke", c.Name, c.Domain, "Відкликано (CRL)", si.Username, si.Role)
+		}
+		h.auditSecurity(r, "ca_cert.revoke serial="+serial)
+		h.flash(w, r, "ok", "Сертифікат відкликано")
+	}
+	http.Redirect(w, r, "/admin/ca-certs", http.StatusFound)
 }
 
 var unsafeFileChars = regexp.MustCompile(`[^A-Za-z0-9._-]+`)

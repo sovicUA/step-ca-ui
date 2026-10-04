@@ -155,9 +155,17 @@ func (h *Handler) Certificates(w http.ResponseWriter, r *http.Request) {
 	h.render(w, "certificates", data)
 }
 
+// issuePrefill fills the issue form: from the query (reissuing a certificate of the CA list) or from a
+// rejected POST
+type issuePrefill struct {
+	Name, Domain, SANs string
+}
+
 func (h *Handler) IssueGet(w http.ResponseWriter, r *http.Request) {
 	data := h.base(w, r, "issue")
 	h.attachIssueProvisioners(data)
+	q := r.URL.Query()
+	data["Prefill"] = issuePrefill{Name: trimStr(q.Get("name")), Domain: trimStr(q.Get("domain")), SANs: trimStr(q.Get("sans"))}
 	h.render(w, "issue", data)
 }
 
@@ -172,6 +180,7 @@ func (h *Handler) IssuePost(w http.ResponseWriter, r *http.Request) {
 	policy, policyErr := normalizeIssuePolicy(r.FormValue("template"), r.FormValue("duration"), r.FormValue("key_type"), domain)
 	data := h.base(w, r, "issue")
 	h.attachIssueProvisioners(data)
+	data["Prefill"] = issuePrefill{Name: name, Domain: domain, SANs: trimStr(r.FormValue("sans"))}
 	if name == "" || domain == "" {
 		data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Заповніть усі поля"}}
 		h.render(w, "issue", data)
@@ -179,6 +188,12 @@ func (h *Handler) IssuePost(w http.ResponseWriter, r *http.Request) {
 	}
 	if policyErr != nil {
 		data["Msgs"] = []models.FlashMsg{{Type: "err", Text: "Помилка політики: " + policyErr.Error()}}
+		h.render(w, "issue", data)
+		return
+	}
+	sans, invalidSAN := parseSANs(r.FormValue("sans"), domain)
+	if invalidSAN != "" {
+		data["Msgs"] = []models.FlashMsg{{Type: "err", Text: fmt.Sprintf("Недійсне додаткове ім’я: %s", invalidSAN)}}
 		h.render(w, "issue", data)
 		return
 	}
@@ -200,7 +215,7 @@ func (h *Handler) IssuePost(w http.ResponseWriter, r *http.Request) {
 	os.MkdirAll(certDir, 0755)
 	certPath := filepath.Join(certDir, "certificate.crt")
 	keyPath := filepath.Join(certDir, "private.key")
-	if err := h.issueWithRegisteredProvisioner(domain, certPath, keyPath, policy.Duration, policy.KeyType, policy.Purpose, provisionerName); err != nil {
+	if err := h.issueWithRegisteredProvisioner(domain, sans, certPath, keyPath, policy.Duration, policy.KeyType, policy.Purpose, provisionerName); err != nil {
 		h.notifyAsync("", "certificate.issue_failed", "error",
 			"Certificate issue failed",
 			fmt.Sprintf("Не вдалося випустити сертифікат %s для %s: %s", name, domain, err.Error()),
@@ -240,7 +255,8 @@ func (h *Handler) Renew(w http.ResponseWriter, r *http.Request) {
 			renewDuration = prov.MaxDuration
 		}
 		purpose := certPurposeFromFile(c.CertPath)
-		if err := h.issueWithRegisteredProvisioner(c.Domain, c.CertPath, c.KeyPath, renewDuration, keyType, purpose, provisionerName); err == nil {
+		sans := certExtraNames(c.CertPath, c.Domain)
+		if err := h.issueWithRegisteredProvisioner(c.Domain, sans, c.CertPath, c.KeyPath, renewDuration, keyType, purpose, provisionerName); err == nil {
 			issued, expires, serial, _ := parseCertDates(c.CertPath)
 			appdb.InsertCert(h.db, &models.Certificate{
 				Name: c.Name, Domain: c.Domain, CertPath: c.CertPath, KeyPath: c.KeyPath,

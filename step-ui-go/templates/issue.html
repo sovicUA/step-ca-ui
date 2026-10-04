@@ -19,12 +19,17 @@
         <div class="form-row">
           <div>
             <label>{{T "Назва"}}</label>
-            <input type="text" name="name" id="fName" placeholder="my-service" autocomplete="off" required>
+            <input type="text" name="name" id="fName" placeholder="my-service" autocomplete="off" required value="{{with .Prefill}}{{.Name}}{{end}}">
           </div>
           <div>
             <label>{{T "Домен або IP"}}</label>
-            <input type="text" name="domain" id="fDomain" placeholder="example.com" autocomplete="off" required>
+            <input type="text" name="domain" id="fDomain" placeholder="example.com" autocomplete="off" required value="{{with .Prefill}}{{.Domain}}{{end}}">
           </div>
+        </div>
+        <div class="form-full" style="margin-top:10px">
+          <label>{{T "Додаткові імена (SAN)"}}</label>
+          <input type="text" name="sans" id="fSans" placeholder="www.example.com, 10.0.0.5" autocomplete="off" value="{{with .Prefill}}{{.SANs}}{{end}}">
+          <span class="hint" style="display:block;margin-top:6px;font-size:12px;color:var(--muted)">{{T "Необов’язково: інші імена чи IP через кому — сертифікат буде дійсний для всіх."}}</span>
         </div>
       </div>
     </div>

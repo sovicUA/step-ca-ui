@@ -137,11 +137,27 @@ func TestTemplatesExecute(t *testing.T) {
 					Provisioner: "acme", ProvisionerType: "ACME", Status: "active", UIID: 1},
 				{Serial: "2", SerialHex: "2", Names: []string{"old.example.com"}, NotBefore: issued, NotAfter: issued,
 					Provisioner: "admin", ProvisionerType: "JWK", Status: "revoked", RevokedAt: &issued, RevokedReason: "superseded"},
+				{Serial: "3", SerialHex: "3", Names: []string{"mail.example.com", "imap.example.com"}, NotBefore: issued, NotAfter: expires,
+					Provisioner: "admin", ProvisionerType: "JWK", Status: "expiring",
+					ReissueURL: "/issue?domain=mail.example.com&name=mail.example.com&sans=imap.example.com"},
 			},
 			"Counts":       map[string]int{"active": 1, "revoked": 1},
 			"Provisioners": []string{"acme", "admin"},
 		},
-		expect: []string{"/admin/ca-certs/255/download", `href="/certificates/1"`, "git.example.com", `data-status="revoked"`},
+		expect: []string{"/admin/ca-certs/255/download", `href="/certificates/1"`, "git.example.com", `data-status="revoked"`,
+			`action="/admin/ca-certs/255/revoke"`, `action="/admin/ca-certs/3/revoke"`, "sans=imap.example.com", `value="current" selected`},
+	})
+	cases = append(cases, struct {
+		page   string
+		extra  map[string]interface{}
+		expect []string
+	}{
+		page: "issue",
+		extra: map[string]interface{}{
+			"Prefill":             issuePrefill{Name: "mail.example.com", Domain: "mail.example.com", SANs: "imap.example.com, smtp.example.com"},
+			"SelectedProvisioner": "ui",
+		},
+		expect: []string{`name="sans"`, `value="mail.example.com"`, `value="imap.example.com, smtp.example.com"`},
 	})
 
 	// Text that comes from the test data itself, and the language switcher (each language in its own name)
