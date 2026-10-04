@@ -91,8 +91,17 @@ func (h *Handler) preflight(ctx context.Context) ([]HealthCheck, HealthSummary) 
 	h.checkFile(&checks, "Root CA certificate", ca.RootCert, true)
 	h.checkFile(&checks, "Intermediate CA certificate", h.intermediateCertPath(), true)
 	h.checkFile(&checks, "Provisioner password file", ca.PasswordFile, true)
-	h.checkFile(&checks, "UI TLS certificate", h.cfg.SSLCert, false)
-	h.checkFile(&checks, "UI TLS private key", h.cfg.SSLKey, false)
+	// Without the certificate the app serves plain HTTP (main.go): expected behind a TLS reverse proxy
+	if _, err := os.Stat(h.cfg.SSLCert); err != nil {
+		if h.cfg.SessionSecure {
+			add("UI TLS", "ok", "plain HTTP, TLS is terminated by the reverse proxy (no "+h.cfg.SSLCert+")", false)
+		} else {
+			add("UI TLS", "warn", "plain HTTP without TLS: "+h.cfg.SSLCert+" not found", false)
+		}
+	} else {
+		h.checkFile(&checks, "UI TLS certificate", h.cfg.SSLCert, false)
+		h.checkFile(&checks, "UI TLS private key", h.cfg.SSLKey, false)
+	}
 	h.checkDir(&checks, "Issued certificates directory", h.cfg.CertsDir, true)
 	h.checkDir(&checks, "Upload directory", h.cfg.UploadDir, false)
 
@@ -188,6 +197,11 @@ func (h *Handler) checkCAConfig(checks *[]HealthCheck) {
 	ca := h.CA()
 	caConfig := filepath.Join(filepath.Dir(filepath.Dir(ca.RootCert)), "config", "ca.json")
 	raw, err := os.ReadFile(caConfig)
+	if err != nil && os.IsNotExist(err) && ca.Mode != "bundled" {
+		// External CA with only its public certificates mounted: ca.json stays with the CA
+		*checks = append(*checks, HealthCheck{Name: "CA config", Status: "ok", Detail: "not mounted (external CA): provisioner claims are not checked", Critical: false})
+		return
+	}
 	if err != nil {
 		*checks = append(*checks, HealthCheck{Name: "CA config", Status: "warn", Detail: caConfig + " is not readable: " + err.Error(), Critical: false})
 		return
